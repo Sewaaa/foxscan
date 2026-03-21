@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from config import GROQ_MODEL, LLM_PROVIDER, OLLAMA_BASE_URL, OLLAMA_MODEL
+from config import GROQ_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -58,47 +58,13 @@ def _extract_json(raw: str) -> dict | None:
         return None
 
 
-def _call_groq(messages: list[dict]) -> str | None:
-    api_key = os.getenv("GROQ_API_KEY")
-    if not api_key:
-        raise ValueError("GROQ_API_KEY non trovata nel file .env")
-
-    payload = {
-        "model": GROQ_MODEL,
-        "messages": messages,
-        "temperature": 0.3,
-        "max_tokens": 2048,
-    }
-
-    with httpx.Client(timeout=60.0) as client:
-        resp = client.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            json=payload,
-            headers={"Authorization": f"Bearer {api_key}"},
-        )
-        resp.raise_for_status()
-
-    return resp.json()["choices"][0]["message"]["content"]
-
-
-def _call_ollama(messages: list[dict]) -> str | None:
-    payload = {
-        "model": OLLAMA_MODEL,
-        "messages": messages,
-        "stream": False,
-        "options": {"temperature": 0.3, "num_predict": 2048},
-    }
-
-    with httpx.Client(timeout=120.0) as client:
-        resp = client.post(f"{OLLAMA_BASE_URL}/api/chat", json=payload)
-        resp.raise_for_status()
-
-    return resp.json()["message"]["content"]
-
-
 def synthesize(scraped_items: list[dict]) -> dict | None:
     if not scraped_items:
         return None
+
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY non trovata nel file .env")
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
@@ -106,15 +72,17 @@ def synthesize(scraped_items: list[dict]) -> dict | None:
     ]
 
     try:
-        if LLM_PROVIDER == "groq":
-            raw = _call_groq(messages)
-        else:
-            raw = _call_ollama(messages)
+        with httpx.Client(timeout=60.0) as client:
+            resp = client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                json={"model": GROQ_MODEL, "messages": messages, "temperature": 0.3, "max_tokens": 2048},
+                headers={"Authorization": f"Bearer {api_key}"},
+            )
+            resp.raise_for_status()
 
-        if not raw:
-            return None
-
+        raw = resp.json()["choices"][0]["message"]["content"]
         result = _extract_json(raw)
+
         if not result:
             return None
 

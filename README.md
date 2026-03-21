@@ -1,12 +1,12 @@
 # CyberNews
 
-Piattaforma di notizie automatizzata dedicata alla cybersecurity. Il sistema raccoglie articoli da feed RSS di fonti autorevoli, li raggruppa per topic tramite fuzzy matching, e usa un LLM locale (Ollama) per sintetizzare ogni cluster in un unico articolo in italiano.
+Piattaforma di notizie automatizzata dedicata alla cybersecurity. Il sistema raccoglie articoli da feed RSS di fonti autorevoli, li raggruppa per topic tramite fuzzy matching, e usa un LLM (Groq API) per sintetizzare ogni cluster in un unico articolo in italiano.
 
 ## Stack
 
 | Layer | Tecnologia |
 |---|---|
-| LLM | Ollama + Llama 3.1 8B (locale, costo €0) |
+| LLM | Groq API — llama-3.1-8b-instant (gratuito) |
 | Discovery | feedparser (RSS polling ogni 30 min) |
 | Scraping | trafilatura |
 | Clustering | rapidfuzz (fuzzy title matching) |
@@ -26,7 +26,7 @@ cybernews/
 │   │   ├── discovery.py     # RSS fetching + dedup via SHA-256
 │   │   ├── clustering.py    # Raggruppamento per topic (rapidfuzz)
 │   │   ├── scraper.py       # Trafilatura full text extraction
-│   │   └── synthesizer.py   # Ollama prompt + JSON parsing
+│   │   └── synthesizer.py   # Groq API prompt + JSON parsing
 │   ├── models.py            # SQLAlchemy models
 │   ├── database.py          # SQLite connection
 │   ├── config.py            # Feed RSS, impostazioni
@@ -34,7 +34,7 @@ cybernews/
 │   └── requirements.txt
 └── frontend/
     ├── app/
-    │   ├── page.tsx               # Homepage
+    │   ├── page.tsx               # Homepage con paginazione
     │   ├── article/[id]/page.tsx  # Pagina articolo
     │   ├── category/[tag]/page.tsx # Filtro per tag
     │   ├── admin/page.tsx         # Pannello admin
@@ -42,7 +42,8 @@ cybernews/
     ├── components/
     │   ├── ArticleCard.tsx
     │   ├── TagBadge.tsx
-    │   └── SourcesList.tsx
+    │   ├── SourcesList.tsx
+    │   └── BackendStatus.tsx
     └── lib/
         └── api.ts
 ```
@@ -53,42 +54,49 @@ cybernews/
 
 - Python 3.11+
 - Node.js 18+
-- [Ollama](https://ollama.ai) installato e in esecuzione
+- Account Groq gratuito su [console.groq.com](https://console.groq.com)
 
-### 1. Scarica il modello LLM
-
-```bash
-ollama pull llama3.1:8b
-```
-
-### 2. Backend
+### 1. Backend
 
 ```bash
 cd backend
 python -m venv venv
+
 # Windows:
 venv\Scripts\activate
 # macOS/Linux:
 source venv/bin/activate
 
 pip install -r requirements.txt
+```
 
-# Seed database con articoli demo (opzionale, per sviluppare il frontend)
+Crea il file `backend/.env`:
+```
+GROQ_API_KEY=la_tua_api_key
+```
+
+```bash
+# Seed database con articoli demo (opzionale)
 python seed_demo.py
 
 # Avvia il server
-uvicorn main:app --reload --port 8000
+uvicorn main:app --reload --port 8080
 ```
 
-API disponibile su `http://localhost:8000`
-Documentazione interattiva: `http://localhost:8000/docs`
+API disponibile su `http://localhost:8080`
+Documentazione interattiva: `http://localhost:8080/docs`
 
-### 3. Frontend
+### 2. Frontend
 
 ```bash
 cd frontend
 npm install
 npm run dev
+```
+
+Crea il file `frontend/.env.local`:
+```
+NEXT_PUBLIC_API_URL=http://localhost:8080
 ```
 
 Frontend disponibile su `http://localhost:3000`
@@ -114,43 +122,35 @@ Frontend disponibile su `http://localhost:3000`
 ## Pipeline
 
 ```
-RSS Feeds → Discovery (SHA-256 dedup) → Clustering (rapidfuzz) → Scraping (trafilatura) → Sintesi (Ollama) → SQLite → API → Frontend
+RSS Feeds → Discovery (SHA-256 dedup) → Clustering (rapidfuzz) → Scraping (trafilatura) → Sintesi (Groq API) → SQLite → API → Frontend
 ```
 
-La pipeline gira automaticamente ogni 30 minuti tramite APScheduler. Si può anche triggerare manualmente dall'endpoint `/admin/run-pipeline` o dal pannello admin.
+La pipeline gira automaticamente ogni 30 minuti tramite APScheduler. Si può anche triggerare manualmente dall'endpoint `/admin/run-pipeline` o dal pannello admin su `/admin`.
 
 ## Configurazione
 
 Modifica `backend/config.py` per:
 - Aggiungere/rimuovere feed RSS
-- Cambiare modello Ollama (`OLLAMA_MODEL`)
+- Cambiare modello Groq (`GROQ_MODEL`)
 - Modificare la frequenza di polling (`FETCH_INTERVAL_MINUTES`)
 - Cambiare la soglia di clustering (`SIMILARITY_THRESHOLD`)
 
 ## Deploy
 
 ### Frontend (Vercel)
+
 ```bash
 cd frontend
 npx vercel
 ```
-Imposta la variabile d'ambiente `NEXT_PUBLIC_API_URL` con l'URL del backend.
+
+Imposta la variabile d'ambiente `NEXT_PUBLIC_API_URL` con l'URL del backend su Render.
 
 ### Backend (Render)
-1. Crea un nuovo Web Service su Render
-2. Build command: `pip install -r requirements.txt`
-3. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 
-**Nota**: Su Render free tier, Ollama non è disponibile. Usa il [Groq API](https://groq.com) come alternativa gratuita — modifica `synthesizer.py` per usare `groq` invece di httpx verso Ollama.
-
-## Alternativa a Ollama: Groq API (gratuito)
-
-```python
-# In synthesizer.py, sostituire la chiamata httpx con:
-from groq import Groq
-client = Groq(api_key=os.environ["GROQ_API_KEY"])
-completion = client.chat.completions.create(
-    model="llama-3.1-8b-instant",
-    messages=[...],
-)
-```
+1. Crea un nuovo **Web Service** su [render.com](https://render.com)
+2. Collega il repo GitHub
+3. Imposta **Root Directory**: `backend`
+4. **Build command**: `pip install -r requirements.txt`
+5. **Start command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+6. In **Environment Variables** aggiungi `GROQ_API_KEY`

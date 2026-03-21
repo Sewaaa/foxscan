@@ -8,15 +8,8 @@ RSS_FEEDS = [
     "https://www.cisa.gov/cybersecurity-advisories/feed.xml",
 ]
 
-# LLM provider: "groq" oppure "ollama"
-LLM_PROVIDER = "groq"
-
-# Groq
+# LLM
 GROQ_MODEL = "llama-3.1-8b-instant"
-
-# Ollama (fallback)
-OLLAMA_BASE_URL = "http://localhost:11434"
-OLLAMA_MODEL = "llama3.1:8b"
 
 DATABASE_URL = "sqlite:///./cybernews.db"
 
