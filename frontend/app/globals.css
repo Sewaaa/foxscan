@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Markdown body styling */
+.prose-cyber h1,
+.prose-cyber h2,
+.prose-cyber h3 {
+  @apply text-white font-semibold;
+}
+
+.prose-cyber h1 { @apply text-2xl mt-8 mb-4; }
+.prose-cyber h2 { @apply text-xl mt-6 mb-3; }
+.prose-cyber h3 { @apply text-lg mt-4 mb-2; }
+
+.prose-cyber p { @apply text-zinc-300 leading-relaxed mb-4; }
+
+.prose-cyber ul { @apply list-disc list-inside mb-4 space-y-1; }
+.prose-cyber ol { @apply list-decimal list-inside mb-4 space-y-1; }
+.prose-cyber li { @apply text-zinc-300; }
+
+.prose-cyber a {
+  @apply text-cyan-400 hover:text-cyan-300 underline;
+}
+
+.prose-cyber strong { @apply text-white font-semibold; }
+.prose-cyber em { @apply italic; }
+
+.prose-cyber code {
+  @apply bg-zinc-800 text-cyan-300 px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.prose-cyber pre {
+  @apply bg-zinc-800 rounded-lg p-4 mb-4 overflow-x-auto;
+}
+
+.prose-cyber pre code {
+  @apply bg-transparent p-0;
+}
+
+.prose-cyber blockquote {
+  @apply border-l-4 border-cyan-700 pl-4 text-zinc-400 italic mb-4;
+}
