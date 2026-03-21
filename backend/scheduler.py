@@ -50,9 +50,10 @@ def run_pipeline(db: Session | None = None) -> dict:
         for cluster in clusters:
             ids = [item["id"] for item in cluster]
             try:
-                _process_cluster(db, cluster[:MAX_ARTICLES_PER_CLUSTER])
+                saved = _process_cluster(db, cluster[:MAX_ARTICLES_PER_CLUSTER])
                 mark_processed(db, ids)
-                stats["articles_created"] += 1
+                if saved:
+                    stats["articles_created"] += 1
             except Exception as e:
                 logger.error(f"Errore su cluster {ids}: {e}")
                 stats["errors"] += 1
@@ -66,20 +67,20 @@ def run_pipeline(db: Session | None = None) -> dict:
     return stats
 
 
-def _process_cluster(db: Session, cluster: list[dict]) -> None:
+def _process_cluster(db: Session, cluster: list[dict]) -> bool:
     from models import Article, Source
 
     # Scraping
     scraped = scrape_cluster(cluster)
     if not scraped:
         logger.warning("Cluster senza testi disponibili, skip")
-        return
+        return False
 
     # Sintesi AI
     result = synthesize(scraped)
     if not result:
         logger.warning("Sintesi fallita per il cluster, skip")
-        return
+        return False
 
     # Salvataggio
     article = Article(
@@ -103,6 +104,7 @@ def _process_cluster(db: Session, cluster: list[dict]) -> None:
 
     db.commit()
     logger.info(f"Articolo salvato: [{article.relevance_score}/10] {article.title}")
+    return True
 
 
 def start_scheduler():

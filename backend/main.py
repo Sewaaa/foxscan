@@ -117,6 +117,17 @@ def rss_feed(db: Session = Depends(get_db)):
 # ── Admin / Pipeline ──────────────────────────────────────────────────────────
 
 
+@app.post("/admin/reset-items")
+def reset_items(db: Session = Depends(get_db)):
+    """Rimarca tutti gli item RSS come non processati, così la pipeline li riprocessa."""
+    from models import RssItem
+    count = db.query(RssItem).filter(RssItem.processed == True).update(  # noqa: E712
+        {"processed": False}, synchronize_session="fetch"
+    )
+    db.commit()
+    return {"status": "ok", "items_reset": count}
+
+
 @app.post("/admin/run-pipeline")
 def trigger_pipeline(db: Session = Depends(get_db)):
     """Esegue manualmente la pipeline (utile per test e sviluppo)."""

@@ -9,6 +9,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   async function loadStats() {
@@ -23,6 +24,21 @@ export default function AdminPage() {
     const interval = setInterval(loadStats, 15000);
     return () => clearInterval(interval);
   }, []);
+
+  async function resetItems() {
+    setResetting(true);
+    setMessage(null);
+    try {
+      const res = await fetch(`${API_BASE}/admin/reset-items`, { method: "POST" });
+      const data = await res.json();
+      setMessage(`Reset completato — ${data.items_reset} item rimarcati come da processare. Ora avvia la pipeline.`);
+      await loadStats();
+    } catch {
+      setMessage("Errore nel reset.");
+    } finally {
+      setResetting(false);
+    }
+  }
 
   async function triggerPipeline() {
     setRunning(true);
@@ -72,13 +88,22 @@ export default function AdminPage() {
           Esegui subito la pipeline di discovery + clustering + sintesi. Normalmente gira in
           automatico ogni 30 minuti.
         </p>
-        <button
-          onClick={triggerPipeline}
-          disabled={running}
-          className="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-medium rounded-lg transition-colors"
-        >
-          {running ? "Pipeline in esecuzione…" : "Avvia pipeline ora"}
-        </button>
+        <div className="flex gap-3 flex-wrap">
+          <button
+            onClick={triggerPipeline}
+            disabled={running || resetting}
+            className="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-medium rounded-lg transition-colors"
+          >
+            {running ? "Pipeline in esecuzione…" : "Avvia pipeline ora"}
+          </button>
+          <button
+            onClick={resetItems}
+            disabled={running || resetting}
+            className="px-5 py-2.5 bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-800 disabled:text-zinc-600 text-zinc-300 font-medium rounded-lg transition-colors"
+          >
+            {resetting ? "Reset in corso…" : "Reset item processati"}
+          </button>
+        </div>
 
         {message && (
           <p className="mt-4 text-sm text-zinc-300 border border-zinc-700 rounded p-3 bg-zinc-800">
