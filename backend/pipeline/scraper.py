@@ -8,16 +8,20 @@ from config import MAX_TEXT_CHARS_PER_ARTICLE
 logger = logging.getLogger(__name__)
 
 
-def scrape_url(url: str) -> str | None:
+def scrape_url(url: str) -> dict | None:
     """
-    Scarica e estrae il testo pulito di un articolo tramite trafilatura.
-    Ritorna None se l'estrazione fallisce.
+    Scarica e estrae testo e immagine (og:image) di un articolo tramite trafilatura.
+    Ritorna {"text": str, "image_url": str | None} oppure None se l'estrazione fallisce.
     """
     try:
         downloaded = trafilatura.fetch_url(url)
         if not downloaded:
             logger.warning(f"Download fallito per {url}")
             return None
+
+        # Estrai metadata (og:image, title, ecc.)
+        metadata = trafilatura.extract_metadata(downloaded)
+        image_url = metadata.image if metadata and metadata.image else None
 
         text = trafilatura.extract(
             downloaded,
@@ -32,7 +36,7 @@ def scrape_url(url: str) -> str | None:
         if len(text) > MAX_TEXT_CHARS_PER_ARTICLE:
             text = text[:MAX_TEXT_CHARS_PER_ARTICLE] + "\n[...testo troncato...]"
 
-        return text
+        return {"text": text, "image_url": image_url}
 
     except Exception as e:
         logger.error(f"Errore scraping {url}: {e}")
@@ -50,9 +54,11 @@ def scrape_cluster(cluster: list[dict]) -> list[dict]:
         url = item.get("url", "")
         domain = urlparse(url).netloc
 
-        text = scrape_url(url)
+        scraped = scrape_url(url)
 
-        if text:
+        if scraped:
+            text = scraped["text"]
+            image_url = scraped["image_url"]
             logger.info(f"Scraping OK: {url}")
         else:
             # Fallback: usa il contenuto RSS salvato durante la discovery
@@ -60,10 +66,11 @@ def scrape_cluster(cluster: list[dict]) -> list[dict]:
             if rss_content:
                 logger.info(f"Scraping fallito per {url}, uso contenuto RSS come fallback")
                 text = rss_content
+                image_url = None
             else:
                 logger.warning(f"Skipping {url}: né scraping né contenuto RSS disponibili")
                 continue
 
-        results.append({**item, "text": text, "domain": domain})
+        results.append({**item, "text": text, "image_url": image_url, "domain": domain})
 
     return results

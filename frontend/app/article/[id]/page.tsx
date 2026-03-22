@@ -46,6 +46,17 @@ export default async function ArticlePage({ params }: PageProps) {
 
         <h1 className="text-3xl font-bold text-white leading-tight mb-4">{article.title}</h1>
 
+        {article.image_url && (
+          <div className="mb-6 rounded-lg overflow-hidden bg-zinc-800 max-h-72">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={article.image_url}
+              alt={article.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
         {article.summary && (
           <p className="text-xl text-zinc-400 leading-relaxed border-l-4 border-cyan-700 pl-4">
             {article.summary}

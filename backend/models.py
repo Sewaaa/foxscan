@@ -13,6 +13,7 @@ class Article(Base):
     summary = Column(Text)
     body = Column(Text, nullable=False)
     tags = Column(Text)  # JSON array serializzato
+    image_url = Column(Text, nullable=True)
     relevance_score = Column(Integer)
     published_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -34,6 +35,7 @@ class Article(Base):
             "title": self.title,
             "summary": self.summary,
             "tags": self.tags_list,
+            "image_url": self.image_url,
             "relevance_score": self.relevance_score,
             "published_at": self.published_at.isoformat() if self.published_at else None,
             "sources": [s.to_dict() for s in self.sources],

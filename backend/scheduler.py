@@ -84,12 +84,16 @@ def _process_cluster(db: Session, cluster: list[dict]) -> bool:
         logger.warning("Sintesi fallita per il cluster, skip")
         return False
 
+    # Prendi la prima immagine disponibile tra gli articoli del cluster
+    image_url = next((item.get("image_url") for item in scraped if item.get("image_url")), None)
+
     # Salvataggio
     article = Article(
         title=result["titolo"],
         summary=result["sommario"],
         body=result["corpo"],
         tags=json.dumps(result.get("tag", []), ensure_ascii=False),
+        image_url=image_url,
         relevance_score=int(result.get("score_rilevanza", 5)),
         published_at=datetime.utcnow(),
     )

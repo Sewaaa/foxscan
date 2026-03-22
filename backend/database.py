@@ -26,13 +26,18 @@ def init_db():
 
     Base.metadata.create_all(bind=engine)
 
-    # Migrazione: aggiunge rss_content se non esiste (DB già esistente)
+    # Migrazione: aggiunge colonne mancanti su DB già esistenti
+    migrations = [
+        ("rss_items", "rss_content", "TEXT"),
+        ("articles", "image_url", "TEXT"),
+    ]
     with engine.connect() as conn:
-        try:
-            if DATABASE_URL.startswith("sqlite"):
-                conn.execute(text("ALTER TABLE rss_items ADD COLUMN rss_content TEXT"))
-            else:
-                conn.execute(text("ALTER TABLE rss_items ADD COLUMN IF NOT EXISTS rss_content TEXT"))
-            conn.commit()
-        except Exception:
-            pass  # colonna già presente
+        for table, column, col_type in migrations:
+            try:
+                if DATABASE_URL.startswith("sqlite"):
+                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {col_type}"))
+                else:
+                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {column} {col_type}"))
+                conn.commit()
+            except Exception:
+                pass  # colonna già presente

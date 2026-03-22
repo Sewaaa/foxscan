@@ -52,6 +52,17 @@ export default function ArticleCard({ article }: ArticleCardProps) {
             </p>
           )}
         </div>
+        {article.image_url && (
+          <div className="shrink-0 w-24 h-16 rounded-md overflow-hidden bg-zinc-800">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={article.image_url}
+              alt=""
+              className="w-full h-full object-cover"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+            />
+          </div>
+        )}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">

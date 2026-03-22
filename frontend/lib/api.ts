@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 export interface Source {
   id: number;
@@ -12,6 +12,7 @@ export interface ArticleSummary {
   title: string;
   summary: string | null;
   tags: string[];
+  image_url: string | null;
   relevance_score: number;
   published_at: string;
   sources: Source[];
