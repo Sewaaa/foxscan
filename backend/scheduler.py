@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -58,6 +59,7 @@ def run_pipeline(db: Session | None = None) -> dict:
                 logger.error(f"Errore su cluster {ids}: {e}")
                 stats["errors"] += 1
                 mark_processed(db, ids)  # marchia comunque per evitare loop
+            time.sleep(12)  # rispetta Groq free tier: 6000 TPM → ~1 req ogni 12s
 
     finally:
         if close_db:
