@@ -1,4 +1,5 @@
 import logging
+import re
 from urllib.parse import urlparse
 
 import trafilatura
@@ -6,6 +7,23 @@ import trafilatura
 from config import MAX_TEXT_CHARS_PER_ARTICLE
 
 logger = logging.getLogger(__name__)
+
+# Pattern di paragrafi da rimuovere: sponsor, podcast, newsletter, social follow, ecc.
+_NOISE_PATTERNS = re.compile(
+    r"(sponsor|supporta il podcast|segui il podcast|seguici su|unisciti a|"
+    r"iscriviti alla newsletter|subscribe to|follow us|support the show|"
+    r"smashing security plus|apple podcasts|podchaser|subreddit|"
+    r"pubblicità|senza pubblicità|early.release|lasciando una recensione|"
+    r"raccontando ai tuoi amici|puoi aiutare|join us on|find us on)",
+    re.IGNORECASE,
+)
+
+
+def _clean_text(text: str) -> str:
+    """Rimuove paragrafi che contengono contenuto non editoriale (sponsor, podcast, ecc.)."""
+    paragraphs = text.split("\n")
+    cleaned = [p for p in paragraphs if not _NOISE_PATTERNS.search(p)]
+    return "\n".join(cleaned).strip()
 
 
 def scrape_url(url: str) -> dict | None:
@@ -32,6 +50,8 @@ def scrape_url(url: str) -> dict | None:
         if not text:
             logger.warning(f"Estrazione testo fallita per {url}")
             return None
+
+        text = _clean_text(text)
 
         if len(text) > MAX_TEXT_CHARS_PER_ARTICLE:
             text = text[:MAX_TEXT_CHARS_PER_ARTICLE] + "\n[...testo troncato...]"

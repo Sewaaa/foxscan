@@ -24,6 +24,13 @@ Il tuo compito è produrre un unico articolo finale in italiano che:
 - Non copia frasi intere da nessuna fonte (parafrasa sempre)
 - Ha una lunghezza di 600-900 parole
 
+IGNORA COMPLETAMENTE qualsiasi contenuto non editoriale presente nelle fonti, come:
+- Sezioni sponsor o pubblicità
+- Inviti a seguire podcast, newsletter, subreddit o social media
+- Messaggi tipo "supporta il podcast", "iscriviti", "lascia una recensione"
+- Promozioni di prodotti o servizi non pertinenti alla notizia
+- Boilerplate del sito (cookie policy, copyright, ecc.)
+
 Rispondi SOLO con un oggetto JSON valido con questa struttura:
 {
   "titolo": "...",
