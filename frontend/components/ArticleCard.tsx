@@ -63,7 +63,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
       <div className="mt-4 flex items-center justify-between text-xs text-zinc-500">
         <div className="flex items-center gap-3">
           <RelevanceBar score={article.relevance_score} />
-          <span>{article.sources.length} fonte{article.sources.length !== 1 ? "i" : "e"}</span>
+          <span>{article.sources.length} font{article.sources.length !== 1 ? "i" : "e"}</span>
         </div>
         <time dateTime={article.published_at}>{formatDate(article.published_at)}</time>
       </div>
