@@ -2,7 +2,7 @@
 
 > AI-powered cybersecurity news aggregator — automatically discovers, clusters, and synthesizes the latest security news into concise Italian-language briefings.
 
-**[🌐 Live Demo](https://your-vercel-url.vercel.app)** &nbsp;·&nbsp; **[📡 API Docs](https://cybernews-bxml.onrender.com/docs)** &nbsp;·&nbsp; **[🔗 RSS Feed](https://cybernews-bxml.onrender.com/rss)**
+**[🌐 Live Demo](https://cybernews.vercel.app)** &nbsp;·&nbsp; **[📡 API Docs](https://cybernews-bxml.onrender.com/docs)** &nbsp;·&nbsp; **[🔗 RSS Feed](https://cybernews-bxml.onrender.com/rss)**
 
 ---
 
@@ -67,11 +67,14 @@ CyberNews runs a fully automated pipeline every 30 minutes:
 - 🤖 **Fully automated** — no manual curation, pipeline runs on a schedule
 - 🔍 **Smart deduplication** — SHA-256 hashing prevents storing the same RSS item twice; fuzzy clustering prevents publishing the same story twice
 - 📰 **RSS output** — subscribe to AI-generated briefings in any feed reader
-- 🏷️ **Auto-tagging** — LLM assigns tags (ransomware, CVE, phishing, APT, zero-day, etc.)
-- ⭐ **Relevance scoring** — articles ranked by AI-assessed importance (0–10)
+- 🏷️ **Auto-tagging** — LLM assigns tags (ransomware, CVE, phishing, APT, espionage, etc.)
+- 🔴 **Relevance dots** — articles ranked with 3-level visual indicator (gray/yellow/red)
+- ⚠️ **"In Evidenza"** — critical articles (score 8–10) pinned at top for 48h in a horizontal strip
+- 🖼️ **Article images** — og:image extracted from source pages, displayed as thumbnails
 - 🌙 **Dark UI** — clean cyberpunk-inspired design, fully responsive
-- 🛠️ **Admin panel** — manually trigger pipeline, view live stats, reset processed items
+- 🛠️ **Admin panel** — trigger pipeline, view live stats, reset items, delete all articles
 - 🔒 **Resilient scraping** — gracefully falls back to RSS content when web scraping is blocked
+- 🎛️ **Collapsible tag filter** — filter by category or relevance level
 
 ---
 
@@ -209,7 +212,8 @@ CyberNews/
     │   ├── admin/page.tsx            # Admin panel — live stats polling
     │   └── api/rss-proxy/route.ts   # Serverless RSS proxy
     ├── components/
-    │   ├── ArticleCard.tsx    # Article card with relevance bar and tags
+    │   ├── ArticleCard.tsx    # Article card with image, relevance dots, tags
+    │   ├── RelevanceDots.tsx  # 3-dot visual relevance indicator (gray/yellow/red)
     │   ├── TagBadge.tsx       # Color-coded tag badge per category
     │   ├── BackendStatus.tsx  # Offline banner with context-aware message
     │   └── SourcesList.tsx    # External source links
