@@ -33,13 +33,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/admin" className="text-zinc-400 hover:text-white transition-colors">
                 Admin
               </Link>
-              <a
-                href="/api/rss-proxy"
-                className="text-zinc-400 hover:text-white transition-colors"
-                title="Feed RSS"
-              >
+              <Link href="/rss" className="text-zinc-400 hover:text-white transition-colors">
                 RSS
-              </a>
+              </Link>
             </nav>
           </div>
         </header>
