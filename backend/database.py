@@ -2,7 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from config import DATABASE_URL
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# connect_args check_same_thread è solo per SQLite
+_connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+engine = create_engine(DATABASE_URL, connect_args=_connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -27,7 +29,10 @@ def init_db():
     # Migrazione: aggiunge rss_content se non esiste (DB già esistente)
     with engine.connect() as conn:
         try:
-            conn.execute(text("ALTER TABLE rss_items ADD COLUMN rss_content TEXT"))
+            if DATABASE_URL.startswith("sqlite"):
+                conn.execute(text("ALTER TABLE rss_items ADD COLUMN rss_content TEXT"))
+            else:
+                conn.execute(text("ALTER TABLE rss_items ADD COLUMN IF NOT EXISTS rss_content TEXT"))
             conn.commit()
         except Exception:
             pass  # colonna già presente

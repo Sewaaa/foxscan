@@ -15,11 +15,15 @@ export default function BackendStatus() {
 
   if (!offline) return null;
 
+  const isLocal = API_BASE.includes("localhost");
+
   return (
     <div className="bg-red-900/60 border-b border-red-700 text-red-200 text-sm text-center py-2 px-4">
       Backend non raggiungibile su{" "}
-      <code className="font-mono text-red-100">{API_BASE}</code> — avvia il server con{" "}
-      <code className="font-mono text-red-100">uvicorn main:app --port 8080</code>
+      <code className="font-mono text-red-100">{API_BASE}</code>
+      {isLocal
+        ? <> — avvia il server con <code className="font-mono text-red-100">uvicorn main:app --port 8080</code></>
+        : " — il server Render potrebbe essere in avvio (cold start), riprova tra qualche secondo."}
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import os
+
 RSS_FEEDS = [
     "https://www.bleepingcomputer.com/feed/",
     "https://feeds.feedburner.com/TheHackersNews",
@@ -11,7 +13,12 @@ RSS_FEEDS = [
 # LLM
 GROQ_MODEL = "llama-3.1-8b-instant"
 
-DATABASE_URL = "sqlite:///./cybernews.db"
+# Database — usa variabile d'ambiente (PostgreSQL su Render) oppure SQLite in locale
+_db_url = os.getenv("DATABASE_URL", "sqlite:///./cybernews.db")
+# Render fornisce URL con schema "postgres://" ma SQLAlchemy richiede "postgresql://"
+if _db_url.startswith("postgres://"):
+    _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+DATABASE_URL = _db_url
 
 # Clustering
 SIMILARITY_THRESHOLD = 0.75  # soglia per considerare due articoli dello stesso topic
