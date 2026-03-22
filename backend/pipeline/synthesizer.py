@@ -37,8 +37,15 @@ Rispondi SOLO con un oggetto JSON valido con questa struttura:
   "sommario": "... (max 2 righe)",
   "corpo": "... (markdown, 600-900 parole)",
   "tag": ["...", "..."],
-  "score_rilevanza": 8
+  "score_rilevanza": <intero 1-10>
 }
+
+Per score_rilevanza usa questa scala RIGOROSA — la maggior parte delle notizie deve cadere tra 3 e 7:
+- 1-2: notizia di routine, aggiornamenti minori, patch ordinarie, advisory generici senza impatto concreto
+- 3-4: vulnerabilità o incidente di interesse limitato, riguarda software di nicchia o impatto basso
+- 5-6: vulnerabilità significativa o breach con impatto moderato, interessa un settore specifico
+- 7-8: vulnerabilità critica (CVSS alto), breach su larga scala, campagna malware attiva e diffusa
+- 9-10: RISERVATO a eventi eccezionali: attacco stato-nazione su infrastrutture critiche, zero-day sfruttato attivamente su milioni di sistemi, breach massivo con dati di decine di milioni di persone
 
 I tag devono essere scelti tra: malware, ransomware, breach, CVE, APT, policy, tool, phishing, vulnerability, espionage"""
 
