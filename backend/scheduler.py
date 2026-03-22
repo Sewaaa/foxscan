@@ -59,7 +59,7 @@ def run_pipeline(db: Session | None = None) -> dict:
                 logger.error(f"Errore su cluster {ids}: {e}")
                 stats["errors"] += 1
                 mark_processed(db, ids)  # marchia comunque per evitare loop
-            time.sleep(12)  # rispetta Groq free tier: 6000 TPM → ~1 req ogni 12s
+            time.sleep(2)  # piccola pausa tra cluster; il retry 429 gestisce i rate limit
 
     finally:
         if close_db:

@@ -1,5 +1,6 @@
 import logging
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urlparse
 
 import trafilatura
@@ -63,34 +64,35 @@ def scrape_url(url: str) -> dict | None:
         return None
 
 
+def _scrape_item(item: dict) -> dict | None:
+    """Scraping di un singolo item, con fallback RSS. Usato in parallelo."""
+    url = item.get("url", "")
+    domain = urlparse(url).netloc
+    scraped = scrape_url(url)
+
+    if scraped:
+        logger.info(f"Scraping OK: {url}")
+        return {**item, "text": scraped["text"], "image_url": scraped["image_url"], "domain": domain}
+
+    rss_content = item.get("rss_content", "").strip()
+    if rss_content:
+        logger.info(f"Scraping fallito per {url}, uso contenuto RSS come fallback")
+        return {**item, "text": rss_content, "image_url": None, "domain": domain}
+
+    logger.warning(f"Skipping {url}: né scraping né contenuto RSS disponibili")
+    return None
+
+
 def scrape_cluster(cluster: list[dict]) -> list[dict]:
     """
-    Esegue lo scraping di tutti gli URL di un cluster.
+    Esegue lo scraping di tutti gli URL di un cluster in parallelo (max 5 thread).
     Se lo scraping fallisce, usa il contenuto RSS salvato in fase di discovery.
-    Esclude solo gli item senza nessuna fonte di testo disponibile.
     """
     results = []
-    for item in cluster:
-        url = item.get("url", "")
-        domain = urlparse(url).netloc
-
-        scraped = scrape_url(url)
-
-        if scraped:
-            text = scraped["text"]
-            image_url = scraped["image_url"]
-            logger.info(f"Scraping OK: {url}")
-        else:
-            # Fallback: usa il contenuto RSS salvato durante la discovery
-            rss_content = item.get("rss_content", "").strip()
-            if rss_content:
-                logger.info(f"Scraping fallito per {url}, uso contenuto RSS come fallback")
-                text = rss_content
-                image_url = None
-            else:
-                logger.warning(f"Skipping {url}: né scraping né contenuto RSS disponibili")
-                continue
-
-        results.append({**item, "text": text, "image_url": image_url, "domain": domain})
-
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = {executor.submit(_scrape_item, item): item for item in cluster}
+        for future in as_completed(futures):
+            result = future.result()
+            if result:
+                results.append(result)
     return results
