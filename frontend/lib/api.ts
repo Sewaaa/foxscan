@@ -39,6 +39,7 @@ export interface AdminStats {
   rss_items_processed: number;
   last_article_at: string | null;
   server_time: string;
+  pipeline_running: boolean;
 }
 
 async function apiFetch<T>(path: string): Promise<T> {

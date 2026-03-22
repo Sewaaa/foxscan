@@ -128,11 +128,27 @@ def reset_items(db: Session = Depends(get_db)):
     return {"status": "ok", "items_reset": count}
 
 
+_pipeline_status: dict = {"running": False, "last_stats": None}
+
+
 @app.post("/admin/run-pipeline")
-def trigger_pipeline(db: Session = Depends(get_db)):
-    """Esegue manualmente la pipeline (utile per test e sviluppo)."""
-    stats = run_pipeline(db=db)
-    return {"status": "ok", "stats": stats}
+def trigger_pipeline():
+    """Avvia la pipeline in background e ritorna subito."""
+    import threading
+
+    if _pipeline_status["running"]:
+        return {"status": "already_running"}
+
+    def _run():
+        _pipeline_status["running"] = True
+        try:
+            stats = run_pipeline()
+            _pipeline_status["last_stats"] = stats
+        finally:
+            _pipeline_status["running"] = False
+
+    threading.Thread(target=_run, daemon=True).start()
+    return {"status": "started"}
 
 
 @app.get("/admin/stats")
@@ -151,6 +167,7 @@ def get_stats(db: Session = Depends(get_db)):
         "rss_items_processed": processed_items,
         "last_article_at": last_article.published_at.isoformat() if last_article else None,
         "server_time": datetime.utcnow().isoformat(),
+        "pipeline_running": _pipeline_status["running"],
     }
 
 

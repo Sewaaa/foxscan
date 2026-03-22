@@ -11,11 +11,13 @@ export default function AdminPage() {
   const [running, setRunning] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [pipelineRunning, setPipelineRunning] = useState(false);
 
   async function loadStats() {
     setLoading(true);
     const s = await getStats().catch(() => null);
     setStats(s);
+    setPipelineRunning(s?.pipeline_running ?? false);
     setLoading(false);
   }
 
@@ -46,9 +48,12 @@ export default function AdminPage() {
     try {
       const res = await fetch(`${API_BASE}/admin/run-pipeline`, { method: "POST" });
       const data = await res.json();
-      setMessage(
-        `Pipeline completata — ${data.stats.articles_created} articoli creati, ${data.stats.discovered} nuovi item scoperti`
-      );
+      if (data.status === "already_running") {
+        setMessage("Pipeline già in esecuzione. Attendi il completamento.");
+      } else {
+        setMessage("Pipeline avviata in background. Gli articoli appariranno man mano — la pagina si aggiorna ogni 15s.");
+        setPipelineRunning(true);
+      }
       await loadStats();
     } catch {
       setMessage("Errore nell'avvio della pipeline. Assicurati che il backend sia avviato.");
@@ -91,10 +96,10 @@ export default function AdminPage() {
         <div className="flex gap-3 flex-wrap">
           <button
             onClick={triggerPipeline}
-            disabled={running || resetting}
+            disabled={running || resetting || pipelineRunning}
             className="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-medium rounded-lg transition-colors"
           >
-            {running ? "Pipeline in esecuzione…" : "Avvia pipeline ora"}
+            {pipelineRunning ? "⏳ Pipeline in esecuzione…" : running ? "Avvio…" : "Avvia pipeline ora"}
           </button>
           <button
             onClick={resetItems}
