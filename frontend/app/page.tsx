@@ -55,9 +55,7 @@ function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
           <img src={article.image_url} alt=""
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={(e) => { (e.target as HTMLImageElement).parentElement!.classList.add("img-placeholder"); (e.target as HTMLImageElement).style.display = "none"; }} />
-        ) : (
-          <span style={{ fontSize: "3rem", opacity: 0.25 }}>🔒</span>
-        )}
+        ) : null}
       </div>
       <div className="p-6">
         <div className="flex items-center gap-2 mb-3">
@@ -126,7 +124,7 @@ function DailyBriefing({ articles }: { articles: ArticleSummary[] }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/byte-mascot.png"
-              alt="Byte, la mascotte di CyberNews"
+              alt="La mascotte di CyberNews"
               className="w-full h-full object-contain drop-shadow-2xl"
               onError={(e) => {
                 const el = e.target as HTMLImageElement;
@@ -142,9 +140,6 @@ function DailyBriefing({ articles }: { articles: ArticleSummary[] }) {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <span className="text-[#06E6D9] text-xs font-bold tracking-widest uppercase mb-2 block">
-            ⚡ Il Briefing di Byte
-          </span>
           <h2 className="no-dark text-white font-extrabold text-2xl mb-6">Le minacce di oggi</h2>
           <ol className="space-y-3 mb-7">
             {top5.map((a, i) => {
@@ -188,9 +183,7 @@ function GridCard({ article }: { article: ArticleSummary }) {
           <img src={article.image_url} alt=""
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={(e) => { (e.target as HTMLImageElement).parentElement!.classList.add("img-placeholder"); (e.target as HTMLImageElement).style.display = "none"; }} />
-        ) : (
-          <span style={{ fontSize: "2.5rem", opacity: 0.25 }}>🔒</span>
-        )}
+        ) : null}
       </div>
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-center justify-between gap-2 mb-3">
@@ -280,7 +273,9 @@ export default function HomePage() {
   const topTags      = tags.slice(0, 15);
   const featuredLarge = inEvidenza[0];
   const featuredSmall = inEvidenza.slice(1, 4);
-  const briefingArticles = allLatest.filter((a) => getLevel(a.relevance_score) >= 2);
+  const briefingArticles = allLatest
+    .filter((a) => getLevel(a.relevance_score) >= 2)
+    .sort((a, b) => b.relevance_score - a.relevance_score);
 
   return (
     <div className="fade-up">
@@ -289,9 +284,9 @@ export default function HomePage() {
       {inEvidenza.length > 0 && (
         <section className="mb-14">
           <div className="flex items-center gap-3 mb-6">
-            <h2 className="text-xl font-extrabold text-red-600 dark:text-red-400">⚠ In Evidenza</h2>
+            <h2 className="no-dark text-xl font-extrabold text-red-600 dark:text-red-400">⚠ In Evidenza</h2>
             <span className="evidenza-badge text-xs text-gray-400 border border-blue-100 rounded-full px-2.5 py-0.5 bg-blue-50">
-              ultime {EVIDENZA_HOURS}h · critica
+              ultime {EVIDENZA_HOURS}h
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

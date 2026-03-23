@@ -73,7 +73,7 @@ export default function AboutPage() {
               <span className="text-[#06E6D9]">su ogni minaccia.</span>
             </h1>
             <p className="text-blue-200 text-lg leading-relaxed mb-8 max-w-lg">
-              Byte scansiona ogni giorno 7+ fonti top di cybersecurity, raggruppa gli articoli duplicati
+              Scansiona ogni giorno 7+ fonti top di cybersecurity, raggruppa gli articoli duplicati
               e li sintetizza con AI in un unico briefing — chiaro, completo, gratuito.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -147,7 +147,7 @@ export default function AboutPage() {
       <section className="bg-blue-50 border border-blue-100 rounded-3xl p-10 text-center">
         <div className="text-4xl mb-4">👻</div>
         <h2 className="text-2xl font-extrabold text-[#0B1F3A] mb-3">
-          Byte ti aspetta
+          Ci siamo per te
         </h2>
         <p className="text-gray-500 mb-6 max-w-md mx-auto">
           Torna alla homepage e scopri le ultime minacce del giorno, già sintetizzate e pronte da leggere.

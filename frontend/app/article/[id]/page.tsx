@@ -87,9 +87,7 @@ export default async function ArticlePage({ params }: PageProps) {
               alt={article.title}
               className="w-full h-full object-cover"
             />
-          ) : (
-            <span style={{ fontSize: "4rem", opacity: 0.2 }}>🔒</span>
-          )}
+          ) : null}
         </div>
 
         {article.summary && (
@@ -117,7 +115,9 @@ export default async function ArticlePage({ params }: PageProps) {
           <span className="text-gray-300">·</span>
           <RelevanceDots score={article.relevance_score} />
           <span className="text-gray-300">·</span>
-          <span>{article.sources.length} fonte{article.sources.length !== 1 ? "i" : ""}</span>
+          <a href="#fonti" className="text-blue-600 dark:text-blue-400 hover:underline">
+            {article.sources.length} fonte{article.sources.length !== 1 ? "i" : ""}
+          </a>
         </div>
       </header>
 
@@ -130,7 +130,7 @@ export default async function ArticlePage({ params }: PageProps) {
       </div>
 
       {/* ── Sources ── */}
-      <div className="mt-10 pt-8 border-t border-blue-100">
+      <div id="fonti" className="mt-10 pt-8 border-t border-blue-100">
         <SourcesList sources={article.sources} />
       </div>
     </article>

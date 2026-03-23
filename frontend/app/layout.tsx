@@ -28,9 +28,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span className="font-extrabold text-xl tracking-tight text-[#0B1F3A] dark:text-slate-100">
                 Cyber<span className="text-blue-600">News</span>
               </span>
-              <span className="hidden sm:inline ml-1 text-[11px] text-blue-400 font-medium border border-blue-200 dark:border-blue-800 rounded-full px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30">
-                Intelligenza Artificiale
-              </span>
             </Link>
 
             {/* Nav */}

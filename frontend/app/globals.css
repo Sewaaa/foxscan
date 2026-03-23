@@ -76,7 +76,7 @@ body {
 
 /* ─── Default Image Placeholder ─────────────────────────────────────────────── */
 .img-placeholder {
-  background: linear-gradient(135deg, #0B1F3A 0%, #1E3A5F 60%, #0B1F3A 100%);
+  background: linear-gradient(160deg, #0B1F3A 0%, #1a2f50 50%, #0B1F3A 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,42 +88,57 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(37,99,235,0.12) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(37,99,235,0.14) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
-/* ─── Dark Mode ──────────────────────────────────────────────────────────────── */
+/* CN watermark */
+.img-placeholder::after {
+  content: "CN";
+  position: relative;
+  z-index: 1;
+  font-weight: 900;
+  font-size: 1.75rem;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.07);
+}
+
+/* ─── Dark Mode — GitHub Dark palette ───────────────────────────────────────── */
+/* bg: #0d1117  surface: #161b22  elevated: #21262d  border: #30363d          */
+/* text: #e6edf3  muted: #8b949e  accent-blue: #58a6ff                        */
+
 .dark body {
-  background-color: #060F1E;
-  color: #CBD5E1;
+  background-color: #0d1117;
+  color: #e6edf3;
 }
 
 .dark .glass {
-  background: rgba(6, 15, 30, 0.95);
-  backdrop-filter: blur(24px) saturate(200%);
-  border-color: rgba(37, 99, 235, 0.25) !important;
-  box-shadow: 0 1px 0 rgba(37,99,235,0.15);
+  background: rgba(13, 17, 23, 0.96);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-color: #30363d !important;
+  box-shadow: 0 1px 0 #21262d;
 }
 
 .dark .card-blue {
-  background: linear-gradient(145deg, #0D2347 0%, #0B1F3A 100%);
-  border-color: #1E4A80;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 0 1px rgba(37,99,235,0.08);
+  background: #161b22;
+  border-color: #30363d;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
 }
 
 .dark .card-blue:hover {
-  border-color: #3B82F6;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.55), 0 0 24px rgba(37,99,235,0.2);
+  border-color: #58a6ff;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 0 0 1px rgba(88,166,255,0.12);
 }
 
 .dark .skeleton {
-  background: linear-gradient(90deg, #1E3A5F 25%, #112A50 50%, #1E3A5F 75%);
+  background: linear-gradient(90deg, #21262d 25%, #161b22 50%, #21262d 75%);
   background-size: 200% 100%;
 }
 
 /* Img placeholder dark */
 .dark .img-placeholder {
-  background: linear-gradient(135deg, #060F1E 0%, #0B1F3A 60%, #060F1E 100%);
+  background: linear-gradient(160deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
 }
 
 /* Titoli e testi principali hardcoded */
@@ -131,81 +146,81 @@ body {
 .dark h2:not(.no-dark),
 .dark h3:not(.no-dark),
 .dark h4:not(.no-dark) {
-  color: #E2E8F0;
+  color: #e6edf3;
 }
 
-/* "Byte dice" box */
+/* Sezione "In sintesi" */
 .dark .byte-box {
-  background: rgba(37, 99, 235, 0.15) !important;
-  border-color: #3B82F6 !important;
+  background: rgba(88, 166, 255, 0.06) !important;
+  border-color: #30363d !important;
 }
 
-.dark .byte-box .byte-label { color: #93C5FD !important; }
-.dark .byte-box .byte-text  { color: #93C5FD !important; }
+.dark .byte-box .byte-label { color: #79c0ff !important; }
+.dark .byte-box .byte-text  { color: #cdd9e5 !important; }
 
-/* Filtri e bottoni bianchi */
+/* Filtri e bottoni */
 .dark .filter-btn-inactive {
-  background: #0B1F3A !important;
-  border-color: #1E3A5F !important;
-  color: #94A3B8 !important;
+  background: #161b22 !important;
+  border-color: #30363d !important;
+  color: #8b949e !important;
 }
 
 .dark .filter-btn-inactive:hover {
-  border-color: #3B82F6 !important;
-  color: #60A5FA !important;
+  border-color: #58a6ff !important;
+  color: #58a6ff !important;
 }
 
 /* Tag btn */
 .dark .tag-toggle-btn {
-  background: #0B1F3A !important;
-  border-color: #1E3A5F !important;
-  color: #94A3B8 !important;
+  background: #161b22 !important;
+  border-color: #30363d !important;
+  color: #8b949e !important;
 }
 
 /* Paginazione */
 .dark .page-btn-prev {
-  border-color: #1E3A5F !important;
-  color: #CBD5E1 !important;
+  border-color: #30363d !important;
+  color: #e6edf3 !important;
 }
 
 .dark .page-btn-prev:hover {
-  border-color: #3B82F6 !important;
-  background: rgba(37,99,235,0.1) !important;
+  border-color: #58a6ff !important;
+  background: rgba(88,166,255,0.08) !important;
 }
 
 /* Badge sezione evidenza */
 .dark .evidenza-badge {
-  background: rgba(37,99,235,0.15) !important;
-  border-color: #1E3A5F !important;
-  color: #94A3B8 !important;
+  background: rgba(88,166,255,0.08) !important;
+  border-color: #30363d !important;
+  color: #8b949e !important;
 }
 
-/* Titoli card (colore navy hardcoded) */
-.dark .card-title    { color: #E2E8F0 !important; }
-.dark .card-subtitle { color: #CBD5E1 !important; }
-.dark .card-meta     { color: #64748B !important; }
-.dark .card-img-bg   { background: #1E3A5F !important; }
+/* Titoli card */
+.dark .card-title    { color: #e6edf3 !important; }
+.dark .card-subtitle { color: #cdd9e5 !important; }
+.dark .card-meta     { color: #6e7681 !important; }
+.dark .card-img-bg   { background: #21262d !important; }
 
-/* Threat pills in dark */
-.dark .pill-low    { background: rgba(22,163,74,0.15)  !important; color: #86EFAC !important; border-color: rgba(22,163,74,0.3)  !important; }
-.dark .pill-medium { background: rgba(202,138,4,0.15)  !important; color: #FDE68A !important; border-color: rgba(202,138,4,0.3)  !important; }
-.dark .pill-high   { background: rgba(220,38,38,0.15)  !important; color: #FCA5A5 !important; border-color: rgba(220,38,38,0.3)  !important; }
+/* Threat pills */
+.dark .pill-low    { background: rgba(63,185,80,0.1)    !important; color: #3fb950 !important; border-color: rgba(63,185,80,0.25)   !important; }
+.dark .pill-medium { background: rgba(210,153,34,0.1)   !important; color: #d29922 !important; border-color: rgba(210,153,34,0.25)  !important; }
+.dark .pill-high   { background: rgba(248,81,73,0.1)    !important; color: #f85149 !important; border-color: rgba(248,81,73,0.25)   !important; }
 
 /* Prose dark */
 .dark .prose-cyber h1,
 .dark .prose-cyber h2,
-.dark .prose-cyber h3      { color: #E2E8F0; }
-.dark .prose-cyber p       { color: #CBD5E1; }
-.dark .prose-cyber li      { color: #CBD5E1; }
-.dark .prose-cyber a       { color: #60A5FA; }
-.dark .prose-cyber a:hover { color: #93C5FD; }
-.dark .prose-cyber strong  { color: #E2E8F0; }
-.dark .prose-cyber em      { color: #94A3B8; }
-.dark .prose-cyber blockquote { color: #94A3B8; border-color: #3B82F6; }
-.dark .prose-cyber code    { background: #1E3A5F; color: #93C5FD; }
+.dark .prose-cyber h3      { color: #e6edf3; }
+.dark .prose-cyber p       { color: #cdd9e5; }
+.dark .prose-cyber li      { color: #cdd9e5; }
+.dark .prose-cyber a       { color: #58a6ff; }
+.dark .prose-cyber a:hover { color: #79c0ff; }
+.dark .prose-cyber strong  { color: #e6edf3; }
+.dark .prose-cyber em      { color: #8b949e; }
+.dark .prose-cyber blockquote { color: #8b949e; border-color: #30363d; }
+.dark .prose-cyber code    { background: #21262d; color: #79c0ff; }
 
 /* Footer */
-.dark footer { background: #060F1E !important; }
+.dark footer { background: #010409 !important; }
 
 /* ─── Prose for Article Pages (light) ───────────────────────────────────────── */
 .prose-cyber h1,
