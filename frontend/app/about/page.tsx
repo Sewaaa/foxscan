@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import ByteMascot from "@/components/ByteMascot";
 
 export const metadata: Metadata = {
   title: "About — CyberNews",
@@ -105,23 +106,7 @@ export default function AboutPage() {
 
           {/* Byte mascot */}
           <div className="shrink-0 mt-10 md:mt-0 flex justify-center">
-            <div className="relative w-52 h-52 float-anim">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/byte-mascot.png"
-                alt="Byte, la mascotte di CyberNews"
-                className="w-full h-full object-contain drop-shadow-2xl"
-                onError={(e) => {
-                  const el = e.target as HTMLImageElement;
-                  el.style.display = "none";
-                  if (el.parentElement) {
-                    el.parentElement.innerHTML =
-                      `<div style="width:208px;height:208px;border-radius:50%;background:rgba(6,230,217,0.15);display:flex;align-items:center;justify-content:center;font-size:96px;">👻</div>`;
-                  }
-                }}
-              />
-              <div className="absolute inset-0 rounded-full bg-[#06E6D9] opacity-10 blur-3xl" />
-            </div>
+            <ByteMascot size={208} />
           </div>
         </div>
       </section>
