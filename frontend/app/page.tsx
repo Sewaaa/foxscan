@@ -341,7 +341,7 @@ export default function HomePage() {
               </div>
             )}
             {featuredSmall.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
+              <div className="flex flex-col gap-3">
                 {featuredSmall.map((a) => <FeaturedSmallCard key={a.id} article={a} />)}
               </div>
             )}
@@ -351,11 +351,12 @@ export default function HomePage() {
 
       {/* ── Filtri ── */}
       <section className="mb-6 md:mb-8">
-        <div className="flex items-center gap-2 flex-wrap mb-4">
-          <span className="text-xs text-gray-500 dark:text-slate-400 font-medium mr-1">Rilevanza:</span>
+        {/* Scroll orizzontale su mobile — nessun a-capo */}
+        <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-0.5 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible scrollbar-hide">
+          <span className="hidden md:inline text-xs text-gray-500 dark:text-slate-400 font-medium mr-1 shrink-0">Rilevanza:</span>
           {([0, 1, 2, 3] as const).map((lvl) => (
             <button key={lvl} onClick={() => changeLevel(lvl)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-all ${
+              className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-all ${
                 levelFilter === lvl
                   ? "border-blue-600 bg-blue-600 text-white"
                   : "filter-btn-inactive border-blue-200 text-gray-600 hover:border-blue-400 hover:text-blue-600 bg-white"
