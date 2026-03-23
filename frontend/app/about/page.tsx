@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import ByteMascot from "@/components/ByteMascot";
 
 export const metadata: Metadata = {
-  title: "About — CyberNews",
+  title: "Chi siamo — CyberNews",
   description:
     "CyberNews è una piattaforma AI-powered che aggrega e sintetizza le notizie di cybersecurity più rilevanti da 7+ fonti top.",
 };
@@ -69,8 +69,8 @@ export default function AboutPage() {
               🛡️ La piattaforma
             </span>
             <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-6">
-              Stay Ahead of<br />
-              <span className="text-[#06E6D9]">Every Threat.</span>
+              Sempre un passo avanti<br />
+              <span className="text-[#06E6D9]">su ogni minaccia.</span>
             </h1>
             <p className="text-blue-200 text-lg leading-relaxed mb-8 max-w-lg">
               Byte scansiona ogni giorno 7+ fonti top di cybersecurity, raggruppa gli articoli duplicati

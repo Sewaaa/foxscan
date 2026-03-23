@@ -51,32 +51,6 @@ function formatDate(iso: string) {
   });
 }
 
-/* ─── Breaking Ticker ─────────────────────────────────────────────────────── */
-function BreakingTicker({ articles }: { articles: ArticleSummary[] }) {
-  if (articles.length === 0) return null;
-  const items = [...articles, ...articles];
-  return (
-    <div className="bg-[#0B1F3A] overflow-hidden py-2.5 relative select-none">
-      <div className="ticker-track whitespace-nowrap">
-        {items.map((a, i) => (
-          <span key={i} className="inline-flex items-center gap-2 mx-8">
-            <span className="text-[#06E6D9] font-bold text-xs">⚡</span>
-            <Link
-              href={`/article/${a.id}`}
-              className="text-sm text-blue-100 hover:text-[#06E6D9] transition-colors font-medium"
-            >
-              {a.title}
-            </Link>
-            <span className="text-blue-700 mx-2">·</span>
-          </span>
-        ))}
-      </div>
-      <div className="absolute left-0 top-0 h-full w-16 bg-gradient-to-r from-[#0B1F3A] to-transparent pointer-events-none" />
-      <div className="absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-[#0B1F3A] to-transparent pointer-events-none" />
-    </div>
-  );
-}
-
 /* ─── Featured Large Card ─────────────────────────────────────────────────── */
 function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
   const level = getLevel(article.relevance_score);
@@ -306,11 +280,6 @@ export default function HomePage() {
   return (
     <div className="fade-up">
 
-      {/* ── Breaking Ticker ── */}
-      <div className="-mx-4 sm:-mx-6 mb-10">
-        <BreakingTicker articles={allLatest.slice(0, 12)} />
-      </div>
-
       {/* ── In Evidenza ── */}
       {inEvidenza.length > 0 && (
         <section className="mb-14">
@@ -375,8 +344,7 @@ export default function HomePage() {
       {/* ── Latest Intelligence ── */}
       <section className="mb-4">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-extrabold text-[#0B1F3A]">Latest Intelligence</h2>
-          {total > 0 && <span className="text-xs text-gray-400">{total} articoli</span>}
+          <h2 className="text-xl font-extrabold text-[#0B1F3A] dark:text-slate-100">Ultime notizie</h2>
         </div>
 
         {loading ? (

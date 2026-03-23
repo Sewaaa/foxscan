@@ -85,6 +85,37 @@ body {
   100% { background-position: -200% 0; }
 }
 
+/* ─── Dark Mode Overrides ────────────────────────────────────────────────────── */
+.dark body {
+  background-color: #060F1E;
+  color: #CBD5E1;
+}
+
+.dark .glass {
+  background: rgba(6, 15, 30, 0.88);
+  border-color: rgba(30, 58, 95, 0.6);
+}
+
+.dark .card-blue {
+  background: #0B1F3A;
+  border-color: #1E3A5F;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.dark .card-blue:hover {
+  border-color: #2563EB;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.dark .skeleton {
+  background: linear-gradient(90deg, #1E3A5F 25%, #0B1F3A 50%, #1E3A5F 75%);
+  background-size: 200% 100%;
+}
+
+.dark .dot-grid-bg {
+  background-image: radial-gradient(circle, rgba(37,99,235,0.15) 1px, transparent 1px);
+}
+
 /* ─── Prose for Article Pages (light theme) ──────────────────────────────────── */
 .prose-cyber h1,
 .prose-cyber h2,
