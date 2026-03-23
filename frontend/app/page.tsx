@@ -351,40 +351,72 @@ export default function HomePage() {
 
       {/* ── Filtri ── */}
       <section className="mb-6 md:mb-8">
-        {/* Desktop: riga singola [Categoria | sep | Rilevanza: Tutti Bassa Media Critica]
-            Mobile: 2 righe — Categoria sopra, segmented control sotto */}
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2 mb-3">
+        {/* Mobile: Categoria su riga 1, pill rilevanza su riga 2 (4 pill stanno senza scroll)
+            Desktop: tutto su una riga con separatore */}
 
-          {/* Riga 1 mobile / inline desktop: Categoria + etichetta desktop */}
-          <div className="flex items-center gap-2">
-            {topTags.length > 0 && (
-              <button onClick={() => setTagsOpen(!tagsOpen)}
-                className="shrink-0 tag-toggle-btn flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-blue-600 transition-colors px-3 py-2 border border-blue-100 hover:border-blue-300 rounded-lg bg-white">
-                🏷 Categoria
-                <span className="opacity-60">{tagsOpen ? "▲" : "▼"}</span>
-              </button>
-            )}
-            {topTags.length > 0 && (
-              <div className="hidden md:block w-px h-5 bg-blue-100 dark:bg-blue-800 mx-1 shrink-0" />
-            )}
-            <span className="hidden md:inline text-xs text-gray-500 dark:text-slate-400 font-medium shrink-0">Rilevanza:</span>
-          </div>
+        {/* Riga 1: Categoria (mobile) / Categoria + sep + label (desktop) */}
+        <div className="flex items-center gap-2 mb-2">
+          {topTags.length > 0 && (
+            <button onClick={() => setTagsOpen(!tagsOpen)}
+              className="shrink-0 tag-toggle-btn flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-blue-600 transition-colors px-3 py-2 border border-blue-100 hover:border-blue-300 rounded-full bg-white">
+              🏷 Categoria
+              <span className="opacity-60">{tagsOpen ? "▲" : "▼"}</span>
+            </button>
+          )}
+          {topTags.length > 0 && (
+            <div className="hidden md:block w-px h-5 bg-blue-100 dark:bg-blue-800 mx-1 shrink-0" />
+          )}
+          <span className="hidden md:inline text-xs text-gray-500 dark:text-slate-400 font-medium shrink-0">Rilevanza:</span>
 
-          {/* Riga 2 mobile: segmented control 4 colonne uguali.
-              Desktop: flex normale con pillole arrotondate. */}
-          <div className="grid grid-cols-4 gap-1 md:flex md:flex-row md:gap-1.5">
+          {/* Su desktop i pill stanno sulla stessa riga del Categoria */}
+          <div className="hidden md:flex items-center gap-1.5">
             {([0, 1, 2, 3] as const).map((lvl) => (
               <button key={lvl} onClick={() => changeLevel(lvl)}
-                className={`flex items-center justify-center gap-1 px-2 md:px-3 py-2 rounded-lg md:rounded-full text-xs font-semibold border transition-all ${
+                className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
                   levelFilter === lvl
                     ? "border-blue-600 bg-blue-600 text-white"
                     : "filter-btn-inactive border-blue-200 text-gray-600 hover:border-blue-400 hover:text-blue-600 bg-white"
                 }`}>
-                <span className="hidden md:inline">{lvl > 0 && THREAT_ICON[lvl]}</span>
+                {lvl > 0 && (
+                  <span className="flex gap-0.5 items-center">
+                    {[0,1,2].map(i => (
+                      <span key={i} className={`w-1.5 h-1.5 rounded-full ${
+                        i < lvl
+                          ? i === 0 ? "bg-green-400" : i === 1 ? "bg-yellow-400" : "bg-red-500"
+                          : levelFilter === lvl ? "bg-white/40" : "bg-blue-100 dark:bg-slate-600"
+                      }`} />
+                    ))}
+                  </span>
+                )}
                 {LEVEL_LABELS[lvl]}
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Riga 2: pill rilevanza — solo mobile, flex centrato senza scroll */}
+        <div className="flex md:hidden items-center gap-2">
+          {([0, 1, 2, 3] as const).map((lvl) => (
+            <button key={lvl} onClick={() => changeLevel(lvl)}
+              className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                levelFilter === lvl
+                  ? "border-blue-600 bg-blue-600 text-white"
+                  : "filter-btn-inactive border-blue-200 text-gray-600 hover:border-blue-400 hover:text-blue-600 bg-white"
+              }`}>
+              {lvl > 0 && (
+                <span className="flex gap-0.5 items-center">
+                  {[0,1,2].map(i => (
+                    <span key={i} className={`w-1.5 h-1.5 rounded-full ${
+                      i < lvl
+                        ? i === 0 ? "bg-green-400" : i === 1 ? "bg-yellow-400" : "bg-red-500"
+                        : levelFilter === lvl ? "bg-white/40" : "bg-blue-100 dark:bg-slate-600"
+                    }`} />
+                  ))}
+                </span>
+              )}
+              {LEVEL_LABELS[lvl]}
+            </button>
+          ))}
         </div>
 
         {/* Tag espansi */}
