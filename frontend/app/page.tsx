@@ -49,14 +49,16 @@ function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
   const level = getLevel(article.relevance_score);
   return (
     <Link href={`/article/${article.id}`} className="card-blue block overflow-hidden group h-full">
-      {article.image_url && (
-        <div className="w-full h-52 overflow-hidden bg-blue-50 card-img-bg">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div className={`w-full h-52 overflow-hidden card-img-bg ${article.image_url ? "bg-blue-50" : "img-placeholder"}`}>
+        {article.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={article.image_url} alt=""
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }} />
-        </div>
-      )}
+            onError={(e) => { (e.target as HTMLImageElement).parentElement!.classList.add("img-placeholder"); (e.target as HTMLImageElement).style.display = "none"; }} />
+        ) : (
+          <span style={{ fontSize: "3rem", opacity: 0.25 }}>🔒</span>
+        )}
+      </div>
       <div className="p-6">
         <div className="flex items-center gap-2 mb-3">
           <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${pillCls(level)}`}>
@@ -120,7 +122,7 @@ function DailyBriefing({ articles }: { articles: ArticleSummary[] }) {
 
         {/* Byte mascot — grande e prominente */}
         <div className="shrink-0 flex justify-center mb-8 md:mb-0 md:order-last">
-          <div className="relative w-72 h-72 float-anim">
+          <div className="relative w-96 h-96 float-anim">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/byte-mascot.png"
@@ -130,7 +132,7 @@ function DailyBriefing({ articles }: { articles: ArticleSummary[] }) {
                 const el = e.target as HTMLImageElement;
                 el.style.display = "none";
                 if (el.parentElement)
-                  el.parentElement.innerHTML = `<div style="width:288px;height:288px;border-radius:50%;background:rgba(6,230,217,0.15);display:flex;align-items:center;justify-content:center;font-size:120px;">👻</div>`;
+                  el.parentElement.innerHTML = `<div style="width:384px;height:384px;border-radius:50%;background:rgba(6,230,217,0.15);display:flex;align-items:center;justify-content:center;font-size:140px;">👻</div>`;
               }}
             />
             {/* Glow */}
@@ -141,7 +143,7 @@ function DailyBriefing({ articles }: { articles: ArticleSummary[] }) {
         {/* Content */}
         <div className="flex-1 min-w-0">
           <span className="text-[#06E6D9] text-xs font-bold tracking-widest uppercase mb-2 block">
-            ⚡ Byte&apos;s Daily Briefing
+            ⚡ Il Briefing di Byte
           </span>
           <h2 className="no-dark text-white font-extrabold text-2xl mb-6">Le minacce di oggi</h2>
           <ol className="space-y-3 mb-7">
@@ -180,14 +182,16 @@ function GridCard({ article }: { article: ArticleSummary }) {
   const level = getLevel(article.relevance_score);
   return (
     <article className="card-blue group flex flex-col overflow-hidden">
-      {article.image_url && (
-        <div className="w-full h-36 overflow-hidden bg-blue-50 card-img-bg shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div className={`w-full h-36 overflow-hidden card-img-bg shrink-0 ${article.image_url ? "bg-blue-50" : "img-placeholder"}`}>
+        {article.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={article.image_url} alt=""
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }} />
-        </div>
-      )}
+            onError={(e) => { (e.target as HTMLImageElement).parentElement!.classList.add("img-placeholder"); (e.target as HTMLImageElement).style.display = "none"; }} />
+        ) : (
+          <span style={{ fontSize: "2.5rem", opacity: 0.25 }}>🔒</span>
+        )}
+      </div>
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-center justify-between gap-2 mb-3">
           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${pillCls(level)}`}>
@@ -285,7 +289,7 @@ export default function HomePage() {
       {inEvidenza.length > 0 && (
         <section className="mb-14">
           <div className="flex items-center gap-3 mb-6">
-            <h2 className="text-xl font-extrabold text-[#0B1F3A] dark:text-slate-100">⚠ In Evidenza</h2>
+            <h2 className="text-xl font-extrabold text-red-600 dark:text-red-400">⚠ In Evidenza</h2>
             <span className="evidenza-badge text-xs text-gray-400 border border-blue-100 rounded-full px-2.5 py-0.5 bg-blue-50">
               ultime {EVIDENZA_HOURS}h · critica
             </span>

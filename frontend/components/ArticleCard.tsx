@@ -19,32 +19,34 @@ function formatDate(iso: string): string {
 
 export default function ArticleCard({ article }: ArticleCardProps) {
   return (
-    <article className="border border-zinc-800 rounded-lg p-5 hover:border-zinc-600 transition-colors bg-zinc-900">
+    <article className="card-blue border rounded-xl p-5 group">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <Link
             href={`/article/${article.id}`}
-            className="text-white font-semibold text-lg leading-snug hover:text-cyan-400 transition-colors line-clamp-2"
+            className="card-title font-semibold text-lg leading-snug hover:text-blue-600 dark:hover:text-cyan-400 transition-colors line-clamp-2 text-[#0B1F3A]"
           >
             {article.title}
           </Link>
           {article.summary && (
-            <p className="mt-2 text-zinc-400 text-sm leading-relaxed line-clamp-3">
+            <p className="mt-2 text-gray-500 dark:text-zinc-400 text-sm leading-relaxed line-clamp-3">
               {article.summary}
             </p>
           )}
         </div>
-        {article.image_url && (
-          <div className="shrink-0 w-24 h-16 rounded-md overflow-hidden bg-zinc-800">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+        <div className={`shrink-0 w-24 h-16 rounded-md overflow-hidden card-img-bg ${article.image_url ? "bg-blue-50" : "img-placeholder"}`}>
+          {article.image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={article.image_url}
               alt=""
               className="w-full h-full object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+              onError={(e) => { (e.target as HTMLImageElement).parentElement!.classList.add("img-placeholder"); (e.target as HTMLImageElement).style.display = "none"; }}
             />
-          </div>
-        )}
+          ) : (
+            <span style={{ fontSize: "1.25rem", opacity: 0.25 }}>🔒</span>
+          )}
+        </div>
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -53,7 +55,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         ))}
       </div>
 
-      <div className="mt-4 flex items-center justify-between text-xs text-zinc-500">
+      <div className="mt-4 flex items-center justify-between text-xs text-gray-400 dark:text-zinc-500 card-meta">
         <div className="flex items-center gap-3">
           <RelevanceDots score={article.relevance_score} />
           <span>{article.sources.length} font{article.sources.length !== 1 ? "i" : "e"}</span>

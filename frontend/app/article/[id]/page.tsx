@@ -79,25 +79,27 @@ export default async function ArticlePage({ params }: PageProps) {
           {article.title}
         </h1>
 
-        {article.image_url && (
-          <div className="mb-6 rounded-2xl overflow-hidden bg-blue-50 max-h-80 shadow-blue-md">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+        <div className={`mb-6 rounded-2xl overflow-hidden max-h-80 shadow-blue-md ${article.image_url ? "bg-blue-50" : "img-placeholder"}`} style={{ minHeight: article.image_url ? undefined : "12rem" }}>
+          {article.image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={article.image_url}
               alt={article.title}
               className="w-full h-full object-cover"
             />
-          </div>
-        )}
+          ) : (
+            <span style={{ fontSize: "4rem", opacity: 0.2 }}>🔒</span>
+          )}
+        </div>
 
         {article.summary && (
           <div className="byte-box bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-6 flex gap-4 items-start">
-            {/* Byte mascot — piccolo, affiancato */}
+            {/* Byte mascot */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/byte-mascot.png"
               alt="Byte"
-              className="shrink-0 w-14 h-14 object-contain"
+              className="shrink-0 w-24 h-24 object-contain float-anim"
             />
             <div>
               <p className="byte-label text-[11px] text-blue-500 font-bold uppercase tracking-widest mb-1.5">

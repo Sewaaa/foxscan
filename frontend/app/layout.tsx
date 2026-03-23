@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Link from "next/link";
 import BackendStatus from "@/components/BackendStatus";
 import ThemeToggle from "@/components/ThemeToggle";
+import NavLinks from "@/components/NavLinks";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -28,21 +29,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 Cyber<span className="text-blue-600">News</span>
               </span>
               <span className="hidden sm:inline ml-1 text-[11px] text-blue-400 font-medium border border-blue-200 dark:border-blue-800 rounded-full px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30">
-                AI‑Powered
+                Intelligenza Artificiale
               </span>
             </Link>
 
             {/* Nav */}
             <nav className="flex items-center gap-0.5 text-sm">
-              <Link href="/" className="px-3 py-1.5 rounded-lg text-gray-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all font-medium">
-                Home
-              </Link>
-              <Link href="/about" className="px-3 py-1.5 rounded-lg text-gray-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all font-medium">
-                Chi siamo
-              </Link>
-              <Link href="/admin" className="px-3 py-1.5 rounded-lg text-gray-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all font-medium">
-                Admin
-              </Link>
+              <NavLinks />
               <ThemeToggle />
               <Link
                 href="/rss"
@@ -112,10 +105,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-400 dark:text-slate-500 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 rounded-full border border-blue-100 dark:border-blue-800">
-                  Powered by Groq AI
+                  AI‑Powered
                 </span>
                 <span className="text-xs text-gray-400 dark:text-slate-500 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 rounded-full border border-blue-100 dark:border-blue-800">
-                  LLaMA 3.1
+                  Aggiornamento continuo
                 </span>
               </div>
             </div>

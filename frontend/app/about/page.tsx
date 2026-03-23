@@ -21,12 +21,12 @@ const SOURCES = [
 const FEATURES = [
   {
     icon: "🤖",
-    title: "AI Synthesis",
-    desc: "Groq + LLaMA 3.1 sintetizza articoli duplicati in un unico briefing completo.",
+    title: "Sintesi AI",
+    desc: "La nostra intelligenza artificiale sintetizza articoli duplicati in un unico briefing completo.",
   },
   {
     icon: "📊",
-    title: "Relevance Scoring",
+    title: "Punteggio di Rilevanza",
     desc: "Ogni notizia riceve un punteggio 1-10. Solo le più rilevanti finiscono In Evidenza.",
   },
   {
@@ -36,7 +36,7 @@ const FEATURES = [
   },
   {
     icon: "🏷",
-    title: "Auto-tagging",
+    title: "Categorizzazione automatica",
     desc: "Categorie automatiche: malware, CVE, breach, APT, ransomware e altro.",
   },
   {
@@ -93,7 +93,7 @@ export default function AboutPage() {
 
             {/* Trust badges */}
             <div className="mt-8 flex flex-wrap gap-3">
-              {["7+ Fonti", "Groq AI", "LLaMA 3.1", "Auto-updated"].map((b) => (
+              {["7+ Fonti", "Sintesi AI", "Aggiornato 24/7"].map((b) => (
                 <span
                   key={b}
                   className="text-xs text-blue-300 border border-blue-700 rounded-full px-3 py-1 bg-blue-900/40"

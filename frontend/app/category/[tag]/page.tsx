@@ -33,10 +33,10 @@ export default async function CategoryPage({ params }: PageProps) {
   return (
     <div>
       <div className="mb-8">
-        <p className="text-sm text-zinc-500 mb-2">Categoria</p>
-        <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+        <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">Categoria</p>
+        <h1 className="text-3xl font-bold text-[#0B1F3A] dark:text-slate-100 mb-2 flex items-center gap-3">
           <TagBadge tag={decoded} linked={false} />
-          <span className="text-zinc-400 text-lg font-normal">
+          <span className="text-gray-400 dark:text-zinc-400 text-lg font-normal">
             {articlesRes.total} articol{articlesRes.total !== 1 ? "i" : "o"}
           </span>
         </h1>
@@ -53,7 +53,7 @@ export default async function CategoryPage({ params }: PageProps) {
       </div>
 
       {articlesRes.items.length === 0 ? (
-        <div className="text-center py-20 text-zinc-500">
+        <div className="text-center py-20 text-gray-500 dark:text-zinc-500">
           Nessun articolo per questa categoria.
         </div>
       ) : (

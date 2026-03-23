@@ -7,7 +7,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -85,7 +85,7 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-white mb-6">Pannello Admin</h1>
+      <h1 className="text-2xl font-bold text-[#0B1F3A] dark:text-slate-100 mb-6">Pannello Admin</h1>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-8">
@@ -100,17 +100,17 @@ export default function AdminPage() {
               : "—",
           },
         ].map(({ label, value }) => (
-          <div key={label} className="border border-zinc-800 rounded-lg p-4 bg-zinc-900">
-            <p className="text-xs text-zinc-500 uppercase tracking-wide mb-1">{label}</p>
-            <p className="text-xl font-semibold text-white">{String(value)}</p>
+          <div key={label} className="border border-blue-100 dark:border-zinc-800 rounded-xl p-4 bg-white dark:bg-zinc-900 shadow-blue-sm">
+            <p className="text-xs text-gray-400 dark:text-zinc-500 uppercase tracking-wide mb-1">{label}</p>
+            <p className="text-xl font-semibold text-[#0B1F3A] dark:text-white">{String(value)}</p>
           </div>
         ))}
       </div>
 
       {/* Pipeline trigger */}
-      <div className="border border-zinc-800 rounded-lg p-6 bg-zinc-900 mb-6">
-        <h2 className="text-lg font-semibold text-white mb-2">Pipeline manuale</h2>
-        <p className="text-sm text-zinc-400 mb-4">
+      <div className="border border-blue-100 dark:border-zinc-800 rounded-xl p-6 bg-white dark:bg-zinc-900 mb-6 shadow-blue-sm">
+        <h2 className="text-lg font-semibold text-[#0B1F3A] dark:text-white mb-2">Pipeline manuale</h2>
+        <p className="text-sm text-gray-500 dark:text-zinc-400 mb-4">
           Esegui subito la pipeline di discovery + clustering + sintesi. Normalmente gira in
           automatico ogni 30 minuti.
         </p>
@@ -118,43 +118,43 @@ export default function AdminPage() {
           <button
             onClick={triggerPipeline}
             disabled={running || resetting || pipelineRunning}
-            className="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-medium rounded-lg transition-colors"
+            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-200 dark:disabled:bg-zinc-700 disabled:text-gray-400 dark:disabled:text-zinc-500 text-white font-medium rounded-lg transition-colors"
           >
             {pipelineRunning ? "⏳ Pipeline in esecuzione…" : running ? "Avvio…" : "Avvia pipeline ora"}
           </button>
           <button
             onClick={resetItems}
             disabled={running || resetting || deleting}
-            className="px-5 py-2.5 bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-800 disabled:text-zinc-600 text-zinc-300 font-medium rounded-lg transition-colors"
+            className="px-5 py-2.5 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 disabled:opacity-50 text-gray-700 dark:text-zinc-300 font-medium rounded-lg transition-colors"
           >
             {resetting ? "Reset in corso…" : "Reset item processati"}
           </button>
         </div>
 
         {message && (
-          <p className="mt-4 text-sm text-zinc-300 border border-zinc-700 rounded p-3 bg-zinc-800">
+          <p className="mt-4 text-sm text-gray-700 dark:text-zinc-300 border border-blue-100 dark:border-zinc-700 rounded-lg p-3 bg-blue-50 dark:bg-zinc-800">
             {message}
           </p>
         )}
       </div>
 
       {/* Zona pericolosa */}
-      <div className="border border-red-900/50 rounded-lg p-6 bg-red-950/20">
-        <h2 className="text-lg font-semibold text-red-400 mb-1">Zona pericolosa</h2>
-        <p className="text-sm text-zinc-500 mb-4">
+      <div className="border border-red-200 dark:border-red-900/50 rounded-xl p-6 bg-red-50/50 dark:bg-red-950/20">
+        <h2 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-1">Zona pericolosa</h2>
+        <p className="text-sm text-gray-500 dark:text-zinc-500 mb-4">
           Azioni irreversibili. Procedi con cautela.
         </p>
         <button
           onClick={deleteAllArticles}
           disabled={running || resetting || deleting}
-          className="px-5 py-2.5 bg-red-700 hover:bg-red-600 disabled:bg-zinc-800 disabled:text-zinc-600 text-white font-medium rounded-lg transition-colors"
+          className="px-5 py-2.5 bg-red-600 hover:bg-red-500 disabled:bg-gray-200 dark:disabled:bg-zinc-800 disabled:text-gray-400 dark:disabled:text-zinc-600 text-white font-medium rounded-lg transition-colors"
         >
           {deleting ? "Eliminazione in corso…" : "🗑️ Elimina tutti gli articoli"}
         </button>
       </div>
 
       {/* Info */}
-      <div className="text-xs text-zinc-600 space-y-1">
+      <div className="mt-6 text-xs text-gray-400 dark:text-zinc-600 space-y-1">
         <p>Backend: {API_BASE}</p>
         {stats && <p>Server time: {new Date(stats.server_time).toLocaleString("it-IT")}</p>}
         <p>La pagina si aggiorna automaticamente ogni 15 secondi.</p>
