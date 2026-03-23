@@ -8,7 +8,7 @@ export function getLevel(score: number): RelevanceLevel {
 
 const LEVEL_CONFIG = {
   1: { label: "Bassa",   dotColor: "bg-green-500",  textColor: "text-green-600"  },
-  2: { label: "Media",   dotColor: "bg-yellow-500", textColor: "text-yellow-600" },
+  2: { label: "Media",   dotColor: "bg-orange-500", textColor: "text-orange-600" },
   3: { label: "Critica", dotColor: "bg-red-500",    textColor: "text-red-600"    },
 } as const;
 

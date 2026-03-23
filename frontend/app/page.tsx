@@ -17,11 +17,10 @@ const LEVEL_RANGES: Record<number, { min_score?: number; max_score?: number }> =
 };
 
 const LEVEL_LABELS: Record<number, string> = { 0: "Tutti", 1: "Bassa", 2: "Media", 3: "Critica" };
-const THREAT_ICON:  Record<number, string> = { 1: "🟢", 2: "🟡", 3: "🔴" };
 
 function pillCls(level: number) {
   if (level === 3) return "pill-high  bg-red-50    text-red-700    border border-red-200";
-  if (level === 2) return "pill-medium bg-yellow-50 text-yellow-700 border border-yellow-200";
+  if (level === 2) return "pill-medium bg-orange-50 text-orange-700 border border-orange-200";
   return              "pill-low   bg-green-50  text-green-700  border border-green-200";
 }
 
@@ -76,9 +75,10 @@ function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent md:hidden" />
             {/* Testo overlay — solo mobile */}
             <div className="absolute bottom-0 left-0 right-0 p-4 md:hidden">
-              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold mb-1.5
-                ${level === 3 ? "bg-red-500/85 text-white" : level === 2 ? "bg-yellow-500/85 text-white" : "bg-green-500/85 text-white"}`}>
-                {THREAT_ICON[level]} {LEVEL_LABELS[level]}
+              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold mb-1.5
+                ${level === 3 ? "bg-red-500/85 text-white" : level === 2 ? "bg-orange-500/85 text-white" : "bg-green-500/85 text-white"}`}>
+                <span className="flex gap-0.5">{[0,1,2].map(i=><span key={i} className={`w-1.5 h-1.5 rounded-full ${i<level?"bg-white":"bg-white/30"}`}/>)}</span>
+                {LEVEL_LABELS[level]}
               </span>
               <h3 className="text-white font-bold text-sm leading-snug line-clamp-2">
                 {article.title}
@@ -91,8 +91,9 @@ function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
       {/* Testo sotto l'immagine — sempre visibile su desktop, solo se no immagine su mobile */}
       <div className={`p-4 md:p-6 ${hasImage ? "hidden md:block" : "block"}`}>
         <div className="flex items-center gap-2 mb-2 md:mb-3">
-          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${pillCls(level)}`}>
-            {THREAT_ICON[level]} {LEVEL_LABELS[level]}
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${pillCls(level)}`}>
+            <span className="flex gap-0.5">{[0,1,2].map(i=><span key={i} className={`w-1.5 h-1.5 rounded-full ${i<level ? level===1?"bg-green-500":level===2?"bg-orange-500":"bg-red-500" : "bg-current opacity-20"}`}/>)}</span>
+            {LEVEL_LABELS[level]}
           </span>
           <time className="text-xs text-gray-400 card-meta">{formatDateShort(article.published_at)}</time>
         </div>
@@ -118,7 +119,7 @@ function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
 /* ─── Featured Small Card ─────────────────────────────────────────────────── */
 function FeaturedSmallCard({ article }: { article: ArticleSummary }) {
   const level = getLevel(article.relevance_score);
-  const accentColor = level === 3 ? "bg-red-500" : level === 2 ? "bg-yellow-400" : "bg-green-500";
+  const accentColor = level === 3 ? "bg-red-500" : level === 2 ? "bg-orange-500" : "bg-green-500";
   return (
     <Link href={`/article/${article.id}`} className="card-blue flex items-stretch group h-full overflow-hidden" style={{ borderRadius: "16px" }}>
       {/* Accent bar sinistra — indicatore livello minaccia */}
@@ -158,7 +159,7 @@ function DailyBriefing({ articles }: { articles: ArticleSummary[] }) {
 
         {/* Content — top on mobile, left on desktop */}
         <div className="flex-1 min-w-0">
-          <h2 className="no-dark text-white font-extrabold text-xl md:text-2xl mb-4 md:mb-6">Le minacce di oggi</h2>
+          <h2 className="no-dark text-white font-extrabold text-xl md:text-2xl mb-4 md:mb-6">Top criticità di oggi</h2>
           <ol className="space-y-2.5 md:space-y-3 mb-5 md:mb-7">
             {top5.map((a, i) => {
               const level = getLevel(a.relevance_score);
@@ -171,11 +172,17 @@ function DailyBriefing({ articles }: { articles: ArticleSummary[] }) {
                     <span className="text-sm text-blue-100 group-hover:text-white transition-colors line-clamp-1 flex-1">
                       {a.title}
                     </span>
-                    <span className={`shrink-0 px-1.5 py-0.5 rounded text-xs font-medium ${
-                      level === 3 ? "bg-red-500/20 text-red-300"
-                      : level === 2 ? "bg-yellow-500/20 text-yellow-300"
-                      : "bg-green-500/20 text-green-300"
-                    }`}>{THREAT_ICON[level]}</span>
+                    <span className="shrink-0 flex gap-0.5 items-center">
+                      {[0,1,2].map(i => (
+                        <span key={i} className={`w-1.5 h-1.5 rounded-full ${
+                          i < level
+                            ? level === 1 ? "bg-green-400"
+                              : level === 2 ? "bg-orange-400"
+                              : "bg-red-400"
+                            : "bg-white/15"
+                        }`} />
+                      ))}
+                    </span>
                   </Link>
                 </li>
               );
@@ -382,7 +389,7 @@ export default function HomePage() {
                     {[0,1,2].map(i => (
                       <span key={i} className={`w-1.5 h-1.5 rounded-full ${
                         i < lvl
-                          ? i === 0 ? "bg-green-400" : i === 1 ? "bg-yellow-400" : "bg-red-500"
+                          ? lvl === 1 ? "bg-green-500" : lvl === 2 ? "bg-orange-500" : "bg-red-500"
                           : levelFilter === lvl ? "bg-white/40" : "bg-blue-100 dark:bg-slate-600"
                       }`} />
                     ))}
@@ -408,7 +415,7 @@ export default function HomePage() {
                   {[0,1,2].map(i => (
                     <span key={i} className={`w-1.5 h-1.5 rounded-full ${
                       i < lvl
-                        ? i === 0 ? "bg-green-400" : i === 1 ? "bg-yellow-400" : "bg-red-500"
+                        ? lvl === 1 ? "bg-green-500" : lvl === 2 ? "bg-orange-500" : "bg-red-500"
                         : levelFilter === lvl ? "bg-white/40" : "bg-blue-100 dark:bg-slate-600"
                     }`} />
                   ))}
