@@ -358,10 +358,7 @@ export default function HomePage() {
 
       {/* ── Filtri ── */}
       <section className="mb-6 md:mb-8">
-        {/* Mobile: Categoria su riga 1, pill rilevanza su riga 2 (4 pill stanno senza scroll)
-            Desktop: tutto su una riga con separatore */}
-
-        {/* Riga 1: Categoria (mobile) / Categoria + sep + label (desktop) */}
+        {/* Riga 1: Categoria + desktop pills */}
         <div className="flex items-center gap-2 mb-2">
           {topTags.length > 0 && (
             <button onClick={() => setTagsOpen(!tagsOpen)}
@@ -374,8 +371,6 @@ export default function HomePage() {
             <div className="hidden md:block w-px h-5 bg-blue-100 dark:bg-blue-800 mx-1 shrink-0" />
           )}
           <span className="hidden md:inline text-xs text-gray-500 dark:text-slate-400 font-medium shrink-0">Rilevanza:</span>
-
-          {/* Su desktop i pill stanno sulla stessa riga del Categoria */}
           <div className="hidden md:flex items-center gap-1.5">
             {([0, 1, 2, 3] as const).map((lvl) => (
               <button key={lvl} onClick={() => changeLevel(lvl)}
@@ -401,7 +396,14 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Riga 2: pill rilevanza — solo mobile, flex centrato senza scroll */}
+        {/* Tag espansi — immediatamente sotto il bottone Categoria */}
+        {tagsOpen && topTags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-2">
+            {topTags.map(({ tag }) => <TagBadge key={tag} tag={tag} />)}
+          </div>
+        )}
+
+        {/* Riga 2: pill rilevanza — solo mobile */}
         <div className="flex md:hidden items-center gap-2">
           {([0, 1, 2, 3] as const).map((lvl) => (
             <button key={lvl} onClick={() => changeLevel(lvl)}
@@ -425,13 +427,6 @@ export default function HomePage() {
             </button>
           ))}
         </div>
-
-        {/* Tag espansi */}
-        {tagsOpen && topTags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {topTags.map(({ tag }) => <TagBadge key={tag} tag={tag} />)}
-          </div>
-        )}
       </section>
 
       {/* ── Ultime notizie ── */}
