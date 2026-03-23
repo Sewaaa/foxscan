@@ -47,21 +47,10 @@ body {
   border-color: #93C5FD;
 }
 
-/* ─── Breaking Ticker ────────────────────────────────────────────────────────── */
-.ticker-track {
-  display: flex;
-  width: max-content;
-  animation: ticker 40s linear infinite;
-}
-
-.ticker-track:hover {
-  animation-play-state: paused;
-}
-
 /* ─── Float Animation ────────────────────────────────────────────────────────── */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-10px); }
+  50%       { transform: translateY(-12px); }
 }
 
 .float-anim {
@@ -73,7 +62,7 @@ body {
   animation: fadeUp 0.4s ease-out;
 }
 
-/* ─── Skeleton Pulse (light theme) ──────────────────────────────────────────── */
+/* ─── Skeleton Pulse ─────────────────────────────────────────────────────────── */
 .skeleton {
   background: linear-gradient(90deg, #DBEAFE 25%, #EFF6FF 50%, #DBEAFE 75%);
   background-size: 200% 100%;
@@ -85,26 +74,26 @@ body {
   100% { background-position: -200% 0; }
 }
 
-/* ─── Dark Mode Overrides ────────────────────────────────────────────────────── */
+/* ─── Dark Mode ──────────────────────────────────────────────────────────────── */
 .dark body {
   background-color: #060F1E;
   color: #CBD5E1;
 }
 
 .dark .glass {
-  background: rgba(6, 15, 30, 0.88);
-  border-color: rgba(30, 58, 95, 0.6);
+  background: rgba(6, 15, 30, 0.92);
+  border-color: rgba(30, 58, 95, 0.7) !important;
 }
 
 .dark .card-blue {
   background: #0B1F3A;
   border-color: #1E3A5F;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
 .dark .card-blue:hover {
-  border-color: #2563EB;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  border-color: #3B82F6;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
 }
 
 .dark .skeleton {
@@ -112,11 +101,88 @@ body {
   background-size: 200% 100%;
 }
 
-.dark .dot-grid-bg {
-  background-image: radial-gradient(circle, rgba(37,99,235,0.15) 1px, transparent 1px);
+/* Titoli e testi principali hardcoded */
+.dark h1:not(.no-dark),
+.dark h2:not(.no-dark),
+.dark h3:not(.no-dark),
+.dark h4:not(.no-dark) {
+  color: #E2E8F0;
 }
 
-/* ─── Prose for Article Pages (light theme) ──────────────────────────────────── */
+/* "Byte dice" box */
+.dark .byte-box {
+  background: rgba(37, 99, 235, 0.15) !important;
+  border-color: #3B82F6 !important;
+}
+
+.dark .byte-box .byte-label { color: #93C5FD !important; }
+.dark .byte-box .byte-text  { color: #93C5FD !important; }
+
+/* Filtri e bottoni bianchi */
+.dark .filter-btn-inactive {
+  background: #0B1F3A !important;
+  border-color: #1E3A5F !important;
+  color: #94A3B8 !important;
+}
+
+.dark .filter-btn-inactive:hover {
+  border-color: #3B82F6 !important;
+  color: #60A5FA !important;
+}
+
+/* Tag btn */
+.dark .tag-toggle-btn {
+  background: #0B1F3A !important;
+  border-color: #1E3A5F !important;
+  color: #94A3B8 !important;
+}
+
+/* Paginazione */
+.dark .page-btn-prev {
+  border-color: #1E3A5F !important;
+  color: #CBD5E1 !important;
+}
+
+.dark .page-btn-prev:hover {
+  border-color: #3B82F6 !important;
+  background: rgba(37,99,235,0.1) !important;
+}
+
+/* Badge sezione evidenza */
+.dark .evidenza-badge {
+  background: rgba(37,99,235,0.15) !important;
+  border-color: #1E3A5F !important;
+  color: #94A3B8 !important;
+}
+
+/* Titoli card (colore navy hardcoded) */
+.dark .card-title    { color: #E2E8F0 !important; }
+.dark .card-subtitle { color: #CBD5E1 !important; }
+.dark .card-meta     { color: #64748B !important; }
+.dark .card-img-bg   { background: #1E3A5F !important; }
+
+/* Threat pills in dark */
+.dark .pill-low    { background: rgba(22,163,74,0.15)  !important; color: #86EFAC !important; border-color: rgba(22,163,74,0.3)  !important; }
+.dark .pill-medium { background: rgba(202,138,4,0.15)  !important; color: #FDE68A !important; border-color: rgba(202,138,4,0.3)  !important; }
+.dark .pill-high   { background: rgba(220,38,38,0.15)  !important; color: #FCA5A5 !important; border-color: rgba(220,38,38,0.3)  !important; }
+
+/* Prose dark */
+.dark .prose-cyber h1,
+.dark .prose-cyber h2,
+.dark .prose-cyber h3      { color: #E2E8F0; }
+.dark .prose-cyber p       { color: #CBD5E1; }
+.dark .prose-cyber li      { color: #CBD5E1; }
+.dark .prose-cyber a       { color: #60A5FA; }
+.dark .prose-cyber a:hover { color: #93C5FD; }
+.dark .prose-cyber strong  { color: #E2E8F0; }
+.dark .prose-cyber em      { color: #94A3B8; }
+.dark .prose-cyber blockquote { color: #94A3B8; border-color: #3B82F6; }
+.dark .prose-cyber code    { background: #1E3A5F; color: #93C5FD; }
+
+/* Footer */
+.dark footer { background: #060F1E !important; }
+
+/* ─── Prose for Article Pages (light) ───────────────────────────────────────── */
 .prose-cyber h1,
 .prose-cyber h2,
 .prose-cyber h3 {

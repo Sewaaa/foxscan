@@ -106,7 +106,7 @@ export default function AboutPage() {
 
           {/* Byte mascot */}
           <div className="shrink-0 mt-10 md:mt-0 flex justify-center">
-            <ByteMascot size={208} />
+            <ByteMascot size={300} />
           </div>
         </div>
       </section>
