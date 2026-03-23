@@ -46,17 +46,39 @@ function formatDate(iso: string) {
 /* ─── Featured Large Card ─────────────────────────────────────────────────── */
 function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
   const level = getLevel(article.relevance_score);
+  const hasImage = !!article.image_url;
   return (
     <Link href={`/article/${article.id}`} className="card-blue block overflow-hidden group h-full">
-      <div className={`w-full h-40 md:h-52 overflow-hidden card-img-bg ${article.image_url ? "bg-blue-50" : "img-placeholder"}`}>
-        {article.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={article.image_url} alt=""
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={(e) => { (e.target as HTMLImageElement).parentElement!.classList.add("img-placeholder"); (e.target as HTMLImageElement).style.display = "none"; }} />
-        ) : null}
+      {/* Image area — gradient overlay su mobile per testo leggibile */}
+      <div className={`relative w-full h-44 md:h-52 overflow-hidden card-img-bg ${hasImage ? "bg-blue-50" : "img-placeholder"}`}>
+        {hasImage && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={article.image_url!} alt=""
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              onError={(e) => {
+                const el = e.target as HTMLImageElement;
+                el.style.display = "none";
+                el.parentElement!.classList.add("img-placeholder");
+              }} />
+            {/* Gradient solo su mobile: testo in overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent md:hidden" />
+            {/* Testo overlay — solo mobile */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 md:hidden">
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold mb-1.5
+                ${level === 3 ? "bg-red-500/85 text-white" : level === 2 ? "bg-yellow-500/85 text-white" : "bg-green-500/85 text-white"}`}>
+                {THREAT_ICON[level]} {LEVEL_LABELS[level]}
+              </span>
+              <h3 className="text-white font-bold text-sm leading-snug line-clamp-2">
+                {article.title}
+              </h3>
+            </div>
+          </>
+        )}
       </div>
-      <div className="p-4 md:p-6">
+
+      {/* Testo sotto l'immagine — sempre visibile su desktop, solo se no immagine su mobile */}
+      <div className={`p-4 md:p-6 ${hasImage ? "hidden md:block" : "block"}`}>
         <div className="flex items-center gap-2 mb-2 md:mb-3">
           <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${pillCls(level)}`}>
             {THREAT_ICON[level]} {LEVEL_LABELS[level]}
@@ -69,10 +91,14 @@ function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
         <div className="hidden sm:flex flex-wrap gap-1.5 mb-4">
           {article.tags.slice(0, 3).map((tag) => <TagBadge key={tag} tag={tag} linked={false} />)}
         </div>
-        <div className="flex items-center justify-between text-xs text-gray-400 card-meta">
-          <span>{article.sources.length} fonte{article.sources.length !== 1 ? "i" : ""}</span>
-          <span className="text-blue-600 font-semibold group-hover:translate-x-1 transition-transform inline-block">Leggi →</span>
-        </div>
+      </div>
+
+      {/* Footer bar — sempre visibile */}
+      <div className={`px-4 py-2.5 flex items-center justify-between border-t border-blue-50 dark:border-blue-900/30 ${hasImage ? "md:border-none md:px-6 md:pb-4 md:pt-0" : ""}`}>
+        <span className="text-xs text-gray-400 card-meta">
+          {formatDateShort(article.published_at)} · {article.sources.length} fonte{article.sources.length !== 1 ? "i" : ""}
+        </span>
+        <span className="text-blue-600 font-semibold text-xs group-hover:translate-x-1 transition-transform inline-block">Leggi →</span>
       </div>
     </Link>
   );
@@ -81,25 +107,29 @@ function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
 /* ─── Featured Small Card ─────────────────────────────────────────────────── */
 function FeaturedSmallCard({ article }: { article: ArticleSummary }) {
   const level = getLevel(article.relevance_score);
+  const accentColor = level === 3 ? "bg-red-500" : level === 2 ? "bg-yellow-400" : "bg-green-500";
   return (
-    <Link href={`/article/${article.id}`} className="card-blue flex items-start gap-3 p-3 md:p-4 group h-full" style={{ borderRadius: "16px" }}>
+    <Link href={`/article/${article.id}`} className="card-blue flex items-stretch group h-full overflow-hidden" style={{ borderRadius: "16px" }}>
+      {/* Accent bar sinistra — indicatore livello minaccia */}
+      <div className={`shrink-0 w-1 ${accentColor} opacity-70`} />
+
+      {/* Thumbnail */}
       {article.image_url && (
-        <div className="shrink-0 w-12 h-12 md:w-16 md:h-14 rounded-xl overflow-hidden bg-blue-50 card-img-bg">
+        <div className="shrink-0 w-14 overflow-hidden bg-blue-50 card-img-bg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={article.image_url} alt="" className="w-full h-full object-cover"
             onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }} />
         </div>
       )}
-      <div className="flex-1 min-w-0">
-        <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${pillCls(level)} mb-1`}>
-          {THREAT_ICON[level]}
-        </span>
-        <h4 className="card-title text-xs font-semibold text-[#0B1F3A] line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+
+      {/* Content */}
+      <div className="flex-1 min-w-0 p-3">
+        <h4 className="card-title text-xs font-semibold text-[#0B1F3A] line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors mb-1.5">
           {article.title}
         </h4>
-        <div className="mt-1.5 flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <time className="text-xs text-gray-400 card-meta">{formatDateShort(article.published_at)}</time>
-          <span className="text-xs text-blue-600 font-medium">→</span>
+          <span className="text-xs text-blue-600 font-semibold">→</span>
         </div>
       </div>
     </Link>
