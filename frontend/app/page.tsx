@@ -67,12 +67,6 @@ function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
         <h3 className="card-title font-bold text-[#0B1F3A] text-lg leading-snug line-clamp-2 mb-4 group-hover:text-blue-600 transition-colors">
           {article.title}
         </h3>
-        {article.summary && (
-          <div className="byte-box bg-blue-50 border-l-[3px] border-blue-500 rounded-r-xl p-3 mb-4">
-            <p className="byte-label text-xs text-blue-700 font-semibold mb-1">🤖 Byte dice:</p>
-            <p className="byte-text text-sm text-blue-600 italic leading-relaxed line-clamp-2">{article.summary}</p>
-          </div>
-        )}
         <div className="flex flex-wrap gap-1.5 mb-4">
           {article.tags.slice(0, 3).map((tag) => <TagBadge key={tag} tag={tag} linked={false} />)}
         </div>
@@ -205,12 +199,6 @@ function GridCard({ article }: { article: ArticleSummary }) {
           className="card-title font-bold text-[#0B1F3A] leading-snug line-clamp-2 mb-3 hover:text-blue-600 transition-colors">
           {article.title}
         </Link>
-        {article.summary && (
-          <div className="byte-box bg-blue-50 border-l-[3px] border-blue-500 rounded-r-lg p-3 mb-4">
-            <p className="byte-label text-xs text-blue-700 font-semibold mb-1">🤖 Byte dice:</p>
-            <p className="byte-text text-xs text-blue-600 italic leading-relaxed line-clamp-3">{article.summary}</p>
-          </div>
-        )}
         <div className="flex flex-wrap gap-1.5 mb-4">
           {article.tags.slice(0, 3).map((tag) => <TagBadge key={tag} tag={tag} />)}
         </div>

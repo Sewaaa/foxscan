@@ -23,10 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="sticky top-0 z-50 glass border-b border-blue-100 dark:border-blue-900/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-lg bg-[#0B1F3A] flex items-center justify-center text-[#06E6D9] font-black text-xs tracking-tight select-none">
-                CN
-              </div>
+            <Link href="/" className="flex items-center gap-2 group">
               <span className="font-extrabold text-xl tracking-tight text-[#0B1F3A] dark:text-slate-100">
                 Cyber<span className="text-blue-600">News</span>
               </span>
@@ -65,10 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 mb-10">
               {/* Brand */}
               <div className="sm:col-span-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#0B1F3A] flex items-center justify-center text-[#06E6D9] font-black text-xs">
-                    CN
-                  </div>
+                <div className="mb-3">
                   <span className="font-extrabold text-lg text-[#0B1F3A] dark:text-slate-100">
                     Cyber<span className="text-blue-600">News</span>
                   </span>

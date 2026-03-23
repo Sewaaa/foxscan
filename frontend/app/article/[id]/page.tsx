@@ -91,13 +91,22 @@ export default async function ArticlePage({ params }: PageProps) {
         )}
 
         {article.summary && (
-          <div className="bg-blue-50 border-l-4 border-blue-500 rounded-r-2xl p-4 mb-6">
-            <p className="text-sm text-blue-700 font-semibold mb-2 flex items-center gap-1.5">
-              🤖 Byte dice:
-            </p>
-            <p className="text-base text-blue-600 italic leading-relaxed">
-              {article.summary}
-            </p>
+          <div className="byte-box bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-6 flex gap-4 items-start">
+            {/* Byte mascot — piccolo, affiancato */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/byte-mascot.png"
+              alt="Byte"
+              className="shrink-0 w-14 h-14 object-contain"
+            />
+            <div>
+              <p className="byte-label text-[11px] text-blue-500 font-bold uppercase tracking-widest mb-1.5">
+                In sintesi
+              </p>
+              <p className="byte-text text-base text-blue-700 leading-relaxed">
+                {article.summary}
+              </p>
+            </div>
           </div>
         )}
 
