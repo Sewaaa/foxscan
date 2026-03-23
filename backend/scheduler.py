@@ -1,15 +1,16 @@
 import json
 import logging
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy.orm import Session
 
-from config import FETCH_INTERVAL_MINUTES, MAX_ARTICLES_PER_CLUSTER, SINGLETON_HOLD_HOURS
+from config import FETCH_INTERVAL_MINUTES, MAX_ARTICLES_PER_CLUSTER
 from database import SessionLocal
 from pipeline.clustering import cluster_items
 from pipeline.discovery import fetch_new_items, get_unprocessed_items, mark_processed
+from pipeline.merger import try_merge_with_existing
 from pipeline.scraper import scrape_cluster
 from pipeline.synthesizer import synthesize
 
@@ -31,7 +32,7 @@ def run_pipeline(db: Session | None = None) -> dict:
         db = SessionLocal()
         close_db = True
 
-    stats = {"discovered": 0, "clusters": 0, "articles_created": 0, "errors": 0}
+    stats = {"discovered": 0, "clusters": 0, "articles_created": 0, "articles_updated": 0, "errors": 0}
 
     try:
         # Step 1: Discovery
@@ -44,32 +45,29 @@ def run_pipeline(db: Session | None = None) -> dict:
             logger.info("Nessun item da processare")
             return stats
 
-        # Step 3: Clustering
-        clusters = cluster_items(pending)
-        stats["clusters"] = len(clusters)
+        # Step 3: Prova a fondere ogni item con articoli recenti (ultime 24h).
+        # Se un item copre la stessa notizia di un articolo già pubblicato,
+        # lo aggiorna invece di creare un duplicato.
+        to_cluster = []
+        for item in pending:
+            try:
+                merged = try_merge_with_existing(db, item)
+                if merged:
+                    mark_processed(db, [item["id"]])
+                    stats["articles_updated"] += 1
+                    time.sleep(2)  # pausa dopo ogni Groq call
+                else:
+                    to_cluster.append(item)
+            except Exception as e:
+                logger.error(f"Errore nel merge di item {item['id']}: {e}")
+                to_cluster.append(item)
 
-        hold_cutoff = datetime.now(timezone.utc) - timedelta(hours=SINGLETON_HOLD_HOURS)
+        # Step 4: Clustering degli item rimasti (nessun articolo esistente trovato)
+        clusters = cluster_items(to_cluster)
+        stats["clusters"] = len(clusters)
 
         for cluster in clusters:
             ids = [item["id"] for item in cluster]
-
-            # Singleton hold: se il cluster ha 1 sola fonte e l'item è stato scoperto
-            # da meno di SINGLETON_HOLD_HOURS ore, lo lasciamo in coda.
-            # Questo permette alle altre testate di pubblicare la stessa notizia
-            # prima che venga processata come articolo a fonte singola.
-            if len(cluster) == 1:
-                discovered = cluster[0].get("discovered_at")
-                if discovered is not None:
-                    # normalizza a UTC-aware se necessario
-                    if discovered.tzinfo is None:
-                        discovered = discovered.replace(tzinfo=timezone.utc)
-                    if discovered > hold_cutoff:
-                        logger.info(
-                            f"Singleton {ids[0]} troppo recente "
-                            f"(scoperto {discovered.isoformat()}), rimandato"
-                        )
-                        continue  # lascia processed=False per il prossimo giro
-
             try:
                 saved = _process_cluster(db, cluster[:MAX_ARTICLES_PER_CLUSTER])
                 mark_processed(db, ids)

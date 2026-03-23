@@ -49,6 +49,37 @@ Per score_rilevanza usa questa scala RIGOROSA — la maggior parte delle notizie
 
 I tag devono essere scelti tra: malware, ransomware, breach, CVE, APT, policy, tool, phishing, vulnerability, espionage"""
 
+UPDATE_SYSTEM_PROMPT = """Sei un giornalista tecnico specializzato in cybersecurity.
+Hai un articolo già pubblicato su una notizia. Sono arrivate nuove fonti sulla stessa notizia.
+Il tuo compito è aggiornare l'articolo incorporando le nuove informazioni.
+
+L'articolo aggiornato deve:
+- Conservare le informazioni già presenti nell'articolo base
+- Integrare le nuove informazioni rilevanti dalle nuove fonti
+- Avere un tono professionale ma accessibile
+- Non copiare frasi intere (parafrasa sempre)
+- Lunghezza 600-900 parole
+
+IGNORA qualsiasi contenuto non editoriale (sponsor, pubblicità, newsletter, boilerplate).
+
+Rispondi SOLO con un oggetto JSON valido con questa struttura:
+{
+  "titolo": "...",
+  "sommario": "... (max 2 righe)",
+  "corpo": "... (markdown, 600-900 parole)",
+  "tag": ["...", "..."],
+  "score_rilevanza": <intero 1-10>
+}
+
+Per score_rilevanza usa questa scala RIGOROSA — la maggior parte deve cadere tra 3 e 7:
+- 1-2: routine, aggiornamenti minori, patch ordinarie, advisory generici
+- 3-4: interesse limitato, software di nicchia, impatto basso
+- 5-6: vulnerabilità significativa o breach con impatto moderato
+- 7-8: vulnerabilità critica, breach su larga scala, campagna malware attiva
+- 9-10: RISERVATO: attacco stato-nazione su infrastrutture critiche, zero-day su milioni di sistemi
+
+I tag devono essere scelti tra: malware, ransomware, breach, CVE, APT, policy, tool, phishing, vulnerability, espionage"""
+
 
 def _build_user_prompt(scraped_items: list[dict]) -> str:
     parts = ["--- ARTICOLI ---\n"]
@@ -56,6 +87,15 @@ def _build_user_prompt(scraped_items: list[dict]) -> str:
         url = item.get("url", "N/A")
         text = item.get("text", "")
         parts.append(f"[FONTE {i}: {url}]\n{text}\n")
+    return "\n".join(parts)
+
+
+def _build_update_prompt(existing_body: str, new_sources: list[dict]) -> str:
+    parts = [f"--- ARTICOLO ESISTENTE ---\n{existing_body}\n\n--- NUOVE FONTI ---\n"]
+    for i, item in enumerate(new_sources, 1):
+        url = item.get("url", "N/A")
+        text = item.get("text", "")
+        parts.append(f"[NUOVA FONTE {i}: {url}]\n{text}\n")
     return "\n".join(parts)
 
 
@@ -167,4 +207,67 @@ def synthesize(scraped_items: list[dict]) -> dict | None:
             return None
 
     logger.error("Tutti i tentativi Groq esauriti")
+    return None
+
+
+def synthesize_update(existing_body: str, new_sources: list[dict]) -> dict | None:
+    """
+    Aggiorna un articolo esistente incorporando nuove fonti.
+    Usa un prompt dedicato che istruisce l'LLM a partire dall'articolo già pubblicato.
+    """
+    if not new_sources or not existing_body:
+        return None
+
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY non trovata nel file .env")
+
+    messages = [
+        {"role": "system", "content": UPDATE_SYSTEM_PROMPT},
+        {"role": "user", "content": _build_update_prompt(existing_body, new_sources)},
+    ]
+
+    for attempt in range(MAX_RETRIES):
+        try:
+            with httpx.Client(timeout=60.0) as client:
+                resp = client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    json={"model": GROQ_MODEL, "messages": messages, "temperature": 0.3, "max_tokens": 2048},
+                    headers={"Authorization": f"Bearer {api_key}"},
+                )
+
+            if resp.status_code == 429:
+                try:
+                    msg = resp.json().get("error", {}).get("message", "")
+                    wait_match = re.search(r"try again in (\d+\.?\d*)s", msg)
+                    wait = float(wait_match.group(1)) + 2 if wait_match else 20
+                except Exception:
+                    wait = 20
+                logger.warning(f"Rate limit Groq (update), attendo {wait:.0f}s (tentativo {attempt + 1}/{MAX_RETRIES})")
+                time.sleep(wait)
+                continue
+
+            resp.raise_for_status()
+
+            raw = resp.json()["choices"][0]["message"]["content"]
+            result = _extract_json(raw)
+
+            if not result:
+                return None
+
+            required = {"titolo", "sommario", "corpo", "tag", "score_rilevanza"}
+            if not required.issubset(result.keys()):
+                logger.error(f"Risposta JSON incompleta (update): {result.keys()}")
+                return None
+
+            return result
+
+        except httpx.HTTPStatusError as e:
+            logger.error(f"HTTP {e.response.status_code} (update): {e.response.text[:300]}")
+            return None
+        except Exception as e:
+            logger.error(f"Errore re-sintesi: {e}")
+            return None
+
+    logger.error("Tutti i tentativi Groq esauriti (update)")
     return None

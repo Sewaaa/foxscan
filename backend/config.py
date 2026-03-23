@@ -26,7 +26,4 @@ SIMILARITY_THRESHOLD = 0.75  # soglia per considerare due articoli dello stesso 
 # Pipeline
 FETCH_INTERVAL_MINUTES = 30
 MAX_ARTICLES_PER_CLUSTER = 3
-# Quante ore tenere in coda un cluster con 1 sola fonte prima di processarlo comunque.
-# Questo dà tempo alle altre testate di pubblicare la stessa notizia.
-SINGLETON_HOLD_HOURS = 2
 MAX_TEXT_CHARS_PER_ARTICLE = 3000  # ridotto per rispettare Groq TPM limit (6000/min)
