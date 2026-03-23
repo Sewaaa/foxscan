@@ -4,7 +4,15 @@ from config import DATABASE_URL
 
 # connect_args check_same_thread è solo per SQLite
 _connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-engine = create_engine(DATABASE_URL, connect_args=_connect_args)
+
+# pool_pre_ping=True: riconnette automaticamente se Neon chiude la connessione idle
+# pool_recycle=300: ricicla connessioni ogni 5 min per evitare SSL drops
+engine = create_engine(
+    DATABASE_URL,
+    connect_args=_connect_args,
+    pool_pre_ping=True,
+    pool_recycle=300,
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

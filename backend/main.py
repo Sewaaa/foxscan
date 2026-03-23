@@ -191,5 +191,6 @@ def get_stats(db: Session = Depends(get_db)):
 
 
 @app.get("/health")
+@app.head("/health")
 def health():
     return {"status": "ok"}
