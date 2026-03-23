@@ -37,7 +37,8 @@ Rispondi SOLO con un oggetto JSON valido con questa struttura:
   "sommario": "... (max 2 righe)",
   "corpo": "... (markdown, 600-900 parole)",
   "tag": ["...", "..."],
-  "score_rilevanza": <intero 1-10>
+  "score_rilevanza": <intero 1-10>,
+  "image_query": "2-4 parole in inglese per cercare una foto stock rilevante su Unsplash (es: 'hacker dark screen', 'data breach server', 'ransomware lock computer', 'phishing email attack')"
 }
 
 Per score_rilevanza usa questa scala RIGOROSA — la maggior parte delle notizie deve cadere tra 3 e 7:
@@ -68,7 +69,8 @@ Rispondi SOLO con un oggetto JSON valido con questa struttura:
   "sommario": "... (max 2 righe)",
   "corpo": "... (markdown, 600-900 parole)",
   "tag": ["...", "..."],
-  "score_rilevanza": <intero 1-10>
+  "score_rilevanza": <intero 1-10>,
+  "image_query": "2-4 parole in inglese per cercare una foto stock rilevante su Unsplash (es: 'hacker dark screen', 'data breach server', 'ransomware lock computer')"
 }
 
 Per score_rilevanza usa questa scala RIGOROSA — la maggior parte deve cadere tra 3 e 7:

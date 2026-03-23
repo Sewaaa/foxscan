@@ -10,6 +10,7 @@ from config import FETCH_INTERVAL_MINUTES, MAX_ARTICLES_PER_CLUSTER
 from database import SessionLocal
 from pipeline.clustering import cluster_items
 from pipeline.discovery import fetch_new_items, get_unprocessed_items, mark_processed
+from pipeline.image_finder import find_image
 from pipeline.merger import try_merge_with_existing
 from pipeline.scraper import scrape_cluster
 from pipeline.synthesizer import synthesize
@@ -102,8 +103,15 @@ def _process_cluster(db: Session, cluster: list[dict]) -> bool:
         logger.warning("Sintesi fallita per il cluster, skip")
         return False
 
-    # Prendi la prima immagine disponibile tra gli articoli del cluster
+    # Prendi la prima immagine disponibile tra gli articoli del cluster;
+    # se nessuna fonte aveva un'immagine, cerca su Unsplash tramite image_query
     image_url = next((item.get("image_url") for item in scraped if item.get("image_url")), None)
+    if not image_url:
+        image_query = result.get("image_query", "")
+        if image_query:
+            image_url = find_image(image_query)
+            if image_url:
+                logger.info(f"Immagine Unsplash trovata per query '{image_query}'")
 
     # Salvataggio
     article = Article(

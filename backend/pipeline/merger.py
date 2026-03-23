@@ -11,6 +11,7 @@ from rapidfuzz import fuzz
 from sqlalchemy.orm import Session
 
 from pipeline.clustering import SIMILARITY_THRESHOLD
+from pipeline.image_finder import find_image
 from pipeline.scraper import scrape_cluster
 from pipeline.synthesizer import synthesize_update
 
@@ -87,9 +88,19 @@ def try_merge_with_existing(db: Session, item: dict) -> bool:
     best_article.relevance_score = int(result.get("score_rilevanza", best_article.relevance_score))
     best_article.published_at = datetime.utcnow()  # rimette in cima al feed
 
-    # Aggiungi immagine se l'articolo non ne aveva una
-    if not best_article.image_url and scraped[0].get("image_url"):
-        best_article.image_url = scraped[0]["image_url"]
+    # Aggiungi immagine se l'articolo non ne aveva una:
+    # prima dalla nuova fonte, poi cerca su Unsplash tramite image_query
+    if not best_article.image_url:
+        new_img = scraped[0].get("image_url")
+        if new_img:
+            best_article.image_url = new_img
+        else:
+            image_query = result.get("image_query", "")
+            if image_query:
+                found = find_image(image_query)
+                if found:
+                    best_article.image_url = found
+                    logger.info(f"Immagine Unsplash aggiunta ad articolo [{best_article.id}]: '{image_query}'")
 
     # Aggiungi la nuova fonte
     new_source = Source(
