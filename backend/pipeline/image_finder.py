@@ -17,14 +17,19 @@ def find_image(query: str) -> str | None:
     Cerca un'immagine landscape su Unsplash coerente con la query.
     Ritorna l'URL `regular` (1080px) o None se non trovata / API key assente.
     """
+    from dotenv import load_dotenv
+    load_dotenv()
+
     access_key = os.getenv("UNSPLASH_ACCESS_KEY")
     if not access_key:
-        logger.debug("UNSPLASH_ACCESS_KEY non configurata, ricerca immagine saltata")
+        logger.warning("UNSPLASH_ACCESS_KEY non configurata — immagine non cercata")
         return None
 
     if not query or not query.strip():
+        logger.debug("Query immagine vuota, skip Unsplash")
         return None
 
+    logger.info(f"Ricerca Unsplash: '{query.strip()}'")
     try:
         with httpx.Client(timeout=10.0) as client:
             resp = client.get(
@@ -35,10 +40,12 @@ def find_image(query: str) -> str | None:
             resp.raise_for_status()
             results = resp.json().get("results", [])
             if results:
-                # Preferisce immagini con buona risoluzione
-                return results[0]["urls"]["regular"]
+                url = results[0]["urls"]["regular"]
+                logger.info(f"Immagine trovata: {url[:80]}...")
+                return url
+            logger.warning(f"Nessun risultato Unsplash per '{query}'")
     except httpx.HTTPStatusError as e:
-        logger.warning(f"Unsplash HTTP {e.response.status_code} per query '{query}'")
+        logger.warning(f"Unsplash HTTP {e.response.status_code} per query '{query}': {e.response.text[:200]}")
     except Exception as e:
         logger.warning(f"Ricerca immagine fallita per '{query}': {e}")
 

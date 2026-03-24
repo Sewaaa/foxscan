@@ -89,18 +89,21 @@ def try_merge_with_existing(db: Session, item: dict) -> bool:
     best_article.published_at = datetime.utcnow()  # rimette in cima al feed
 
     # Aggiungi immagine se l'articolo non ne aveva una:
-    # prima dalla nuova fonte, poi cerca su Unsplash tramite image_query
+    # prima dalla nuova fonte, poi cerca su Unsplash tramite image_query.
+    # Se l'LLM non ha restituito image_query, usa i tag come fallback.
     if not best_article.image_url:
         new_img = scraped[0].get("image_url")
         if new_img:
             best_article.image_url = new_img
         else:
-            image_query = result.get("image_query", "")
-            if image_query:
-                found = find_image(image_query)
-                if found:
-                    best_article.image_url = found
-                    logger.info(f"Immagine Unsplash aggiunta ad articolo [{best_article.id}]: '{image_query}'")
+            image_query = result.get("image_query", "").strip()
+            if not image_query:
+                tags = result.get("tag", [])
+                image_query = f"{tags[0]} cybersecurity" if tags else "cybersecurity attack hacker"
+                logger.info(f"image_query assente (merge) — fallback: '{image_query}'")
+            found = find_image(image_query)
+            if found:
+                best_article.image_url = found
 
     # Aggiungi la nuova fonte
     new_source = Source(

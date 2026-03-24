@@ -114,14 +114,16 @@ def _process_cluster(db: Session, cluster: list[dict]) -> bool:
         return False
 
     # Prendi la prima immagine disponibile tra gli articoli del cluster;
-    # se nessuna fonte aveva un'immagine, cerca su Unsplash tramite image_query
+    # se nessuna fonte aveva un'immagine, cerca su Unsplash tramite image_query.
+    # Se l'LLM non ha restituito image_query, usa i tag come fallback.
     image_url = next((item.get("image_url") for item in scraped if item.get("image_url")), None)
     if not image_url:
-        image_query = result.get("image_query", "")
-        if image_query:
-            image_url = find_image(image_query)
-            if image_url:
-                logger.info(f"Immagine Unsplash trovata per query '{image_query}'")
+        image_query = result.get("image_query", "").strip()
+        if not image_query:
+            tags = result.get("tag", [])
+            image_query = f"{tags[0]} cybersecurity" if tags else "cybersecurity attack hacker"
+            logger.info(f"image_query assente — uso fallback dai tag: '{image_query}'")
+        image_url = find_image(image_query)
 
     # Salvataggio
     article = Article(
