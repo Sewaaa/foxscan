@@ -1,5 +1,6 @@
 import json
 import logging
+import threading
 import time
 from datetime import datetime
 
@@ -18,6 +19,10 @@ from pipeline.synthesizer import synthesize
 logger = logging.getLogger(__name__)
 scheduler = BackgroundScheduler()
 
+# Lock per evitare che pipeline concorrenti (startup thread + scheduler)
+# processino gli stessi item contemporaneamente creando duplicati
+_pipeline_lock = threading.Lock()
+
 
 def run_pipeline(db: Session | None = None) -> dict:
     """
@@ -28,6 +33,10 @@ def run_pipeline(db: Session | None = None) -> dict:
     4. Scraping + sintesi per ogni cluster
     5. Salvataggio su DB
     """
+    if not _pipeline_lock.acquire(blocking=False):
+        logger.info("Pipeline già in esecuzione, skip")
+        return {"skipped": True}
+
     close_db = False
     if db is None:
         db = SessionLocal()
@@ -83,6 +92,7 @@ def run_pipeline(db: Session | None = None) -> dict:
     finally:
         if close_db:
             db.close()
+        _pipeline_lock.release()
 
     logger.info(f"Pipeline completata: {stats}")
     return stats
