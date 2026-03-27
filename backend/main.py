@@ -8,7 +8,7 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -46,6 +46,12 @@ app = FastAPI(title="FoxScan API", version="1.0.0", lifespan=lifespan)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.exception_handler(Exception)
+async def generic_error_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled error on {request.method} {request.url.path}: {exc}", exc_info=True)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 app.add_middleware(
@@ -163,6 +169,7 @@ def verify_admin(x_admin_key: Optional[str] = Header(default=None)):
 def reset_items(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
     """Rimarca tutti gli item RSS come non processati, così la pipeline li riprocessa."""
     from models import RssItem
+    logger.warning(f"ADMIN reset-items — IP: {request.client.host if request.client else 'unknown'}")
     count = db.query(RssItem).filter(RssItem.processed == True).update(  # noqa: E712
         {"processed": False}, synchronize_session="fetch"
     )
@@ -175,6 +182,7 @@ def reset_items(request: Request, db: Session = Depends(get_db), _: None = Depen
 def delete_all_articles(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
     """Elimina tutti gli articoli e le sorgenti dal DB."""
     from models import Source
+    logger.warning(f"ADMIN delete-all-articles — IP: {request.client.host if request.client else 'unknown'}")
     sources_deleted = db.query(Source).delete()
     articles_deleted = db.query(Article).delete()
     db.commit()
@@ -188,6 +196,7 @@ _pipeline_status: dict = {"running": False, "last_stats": None}
 @limiter.limit("10/minute")
 def trigger_pipeline(request: Request, _: None = Depends(verify_admin)):
     """Avvia la pipeline in background e ritorna subito."""
+    logger.warning(f"ADMIN run-pipeline — IP: {request.client.host if request.client else 'unknown'}")
     if _pipeline_status["running"]:
         return {"status": "already_running"}
 
