@@ -33,8 +33,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <div className="flex items-center gap-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/testa_nobg.png" alt="" className="h-7 w-7 object-contain" />
-                    <span className="font-extrabold text-lg tracking-tight border border-[#0B1F3A]/20 dark:border-transparent rounded-md px-1.5 py-0.5">
-                      <span className="text-[#0B1F3A] dark:text-white">Fox</span><span className="text-blue-600">Scan</span>
+                    <span className="font-extrabold text-lg tracking-tight">
+                      <span className="text-white fox-stroke">Fox</span><span className="text-blue-600">Scan</span>
                     </span>
                   </div>
                 </div>

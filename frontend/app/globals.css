@@ -346,3 +346,7 @@ body {
     padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   }
 }
+
+/* FoxScan wordmark: outline sui caratteri nel tema chiaro */
+.fox-stroke { -webkit-text-stroke: 1px #0B1F3A; }
+.dark .fox-stroke { -webkit-text-stroke: 0px; }
