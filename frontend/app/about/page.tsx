@@ -66,9 +66,8 @@ export default function AboutPage() {
             <span className="text-[#06E6D9] text-xs font-bold tracking-widest uppercase mb-4 block">
               🛡️ La piattaforma
             </span>
-            <h1 className="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-5 md:mb-6">
-              Sempre un passo avanti<br />
-              <span className="text-[#06E6D9]">su ogni minaccia.</span>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-5 md:mb-6">
+              Sempre un passo avanti su ogni minaccia.
             </h1>
             <p className="text-blue-200 text-base md:text-lg leading-relaxed mb-6 md:mb-8 max-w-lg">
               Scansiona ogni giorno 7+ fonti top di cybersecurity, raggruppa gli articoli duplicati
@@ -130,7 +129,7 @@ export default function AboutPage() {
           {SOURCES.map((s) => (
             <span
               key={s.name}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-white border border-blue-100 rounded-xl text-sm font-medium text-[#0B1F3A] shadow-blue-sm"
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-white dark:bg-[#161b22] border border-blue-100 dark:border-[#30363d] rounded-xl text-sm font-medium text-[#0B1F3A] dark:text-slate-200 shadow-blue-sm"
             >
               <span>{s.icon}</span>
               {s.name}

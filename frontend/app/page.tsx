@@ -110,7 +110,7 @@ function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
         <span className="text-xs text-gray-400 card-meta">
           {formatDateShort(article.published_at)} · {article.sources.length} fonte{article.sources.length !== 1 ? "i" : ""}
         </span>
-        <span className="text-blue-600 font-semibold text-xs group-hover:translate-x-1 transition-transform inline-block">Leggi →</span>
+        <span className="text-blue-600 font-semibold text-xs">Leggi</span>
       </div>
     </Link>
   );
@@ -141,7 +141,7 @@ function FeaturedSmallCard({ article }: { article: ArticleSummary }) {
         </h4>
         <div className="flex items-center justify-between">
           <time className="text-xs text-gray-400 card-meta">{formatDateShort(article.published_at)}</time>
-          <span className="text-xs text-blue-600 font-semibold">→</span>
+          <span className="text-xs text-blue-600 font-semibold">Leggi</span>
         </div>
       </div>
     </Link>
@@ -220,7 +220,7 @@ function DailyBriefing({ articles }: { articles: ArticleSummary[] }) {
 function GridCard({ article }: { article: ArticleSummary }) {
   const level = getLevel(article.relevance_score);
   return (
-    <article className="card-blue group overflow-hidden">
+    <Link href={`/article/${article.id}`} className="card-blue block group overflow-hidden">
       {/* Mobile: riga orizzontale (thumbnail sx, testo dx). Desktop: colonna verticale */}
       <div className="flex md:flex-col h-full">
 
@@ -255,7 +255,7 @@ function GridCard({ article }: { article: ArticleSummary }) {
           </div>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
@@ -338,7 +338,7 @@ export default function HomePage() {
       {inEvidenza.length > 0 && (
         <section className="mb-10 md:mb-14">
           <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-            <h2 className="no-dark text-lg md:text-xl font-extrabold text-red-600 dark:text-red-500">⚠ In Evidenza</h2>
+            <h2 className="no-dark text-lg md:text-xl font-extrabold text-red-600 dark:text-red-500">{"⚠\uFE0E"} In Evidenza</h2>
             <span className="evidenza-badge text-xs text-gray-400 border border-blue-100 rounded-full px-2.5 py-0.5 bg-blue-50">
               ultime {EVIDENZA_HOURS}h
             </span>

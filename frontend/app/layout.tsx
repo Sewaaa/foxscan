@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/testa_nobg.png" alt="" className="h-7 w-7 object-contain" />
                     <span className="font-extrabold text-lg tracking-tight">
-                      <span className="text-white" style={{textShadow:"0 1px 4px rgba(11,31,58,0.55)"}}>Fox</span><span className="text-blue-600">Scan</span>
+                      <span className="text-white" style={{textShadow:"0 1px 4px rgba(11,31,58,0.55)"}}>Fox</span><span className="text-blue-600" style={{textShadow:"0 1px 4px rgba(11,31,58,0.4)"}}>Scan</span>
                     </span>
                   </div>
                 </div>

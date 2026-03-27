@@ -35,7 +35,7 @@ Rispondi SOLO con un oggetto JSON valido con questa struttura:
 {
   "titolo": "...",
   "sommario": "... (max 2 righe)",
-  "corpo": "... (markdown, 600-900 parole)",
+  "corpo": "... (markdown ben formattato, 600-900 parole. OBBLIGATORIO: paragrafi separati da riga vuota, **grassetto** per termini tecnici chiave, ## per sottotitoli di sezione, elenchi - o 1. quando appropriato. NON scrivere un blocco unico di testo.)",
   "tag": ["...", "..."],
   "score_rilevanza": <intero 1-10>,
   "image_query": "2-4 parole in inglese per cercare una foto stock rilevante su Unsplash (es: 'hacker dark screen', 'data breach server', 'ransomware lock computer', 'phishing email attack')"
@@ -67,7 +67,7 @@ Rispondi SOLO con un oggetto JSON valido con questa struttura:
 {
   "titolo": "...",
   "sommario": "... (max 2 righe)",
-  "corpo": "... (markdown, 600-900 parole)",
+  "corpo": "... (markdown ben formattato, 600-900 parole. OBBLIGATORIO: paragrafi separati da riga vuota, **grassetto** per termini tecnici chiave, ## per sottotitoli di sezione, elenchi - o 1. quando appropriato. NON scrivere un blocco unico di testo.)",
   "tag": ["...", "..."],
   "score_rilevanza": <intero 1-10>,
   "image_query": "2-4 parole in inglese per cercare una foto stock rilevante su Unsplash (es: 'hacker dark screen', 'data breach server', 'ransomware lock computer')"
