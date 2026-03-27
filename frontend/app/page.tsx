@@ -62,7 +62,7 @@ function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
     <Link href={`/article/${article.id}`} className="card-blue block overflow-hidden group h-full">
       {/* Image area — gradient overlay su mobile per testo leggibile */}
       <div className={`relative w-full h-44 md:h-52 overflow-hidden card-img-bg ${hasImage ? "bg-blue-50" : "img-placeholder"}`}>
-        {hasImage && (
+        {hasImage ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={article.image_url!} alt=""
@@ -86,6 +86,9 @@ function FeaturedLargeCard({ article }: { article: ArticleSummary }) {
               </h3>
             </div>
           </>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src="/testa_nobg.png" alt="" className="absolute inset-0 w-full h-full object-contain p-8 opacity-10" />
         )}
       </div>
 
@@ -232,7 +235,10 @@ function GridCard({ article }: { article: ArticleSummary }) {
             <img src={article.image_url} alt=""
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               onError={(e) => { (e.target as HTMLImageElement).parentElement!.classList.add("img-placeholder"); (e.target as HTMLImageElement).style.display = "none"; }} />
-          ) : null}
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src="/testa_nobg.png" alt="" className="w-full h-full object-contain p-3 md:p-6 opacity-10" />
+          )}
         </div>
 
         {/* Content */}
