@@ -6,9 +6,12 @@ from datetime import datetime
 from typing import Optional
 from xml.etree.ElementTree import Element, SubElement, tostring
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 from database import get_db, init_db
@@ -17,6 +20,8 @@ from scheduler import run_pipeline, start_scheduler, stop_scheduler
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s — %(message)s")
 logger = logging.getLogger(__name__)
+
+limiter = Limiter(key_func=get_remote_address)
 
 
 @asynccontextmanager
@@ -32,11 +37,15 @@ async def lifespan(app: FastAPI):
     stop_scheduler()
 
 
-app = FastAPI(title="CyberNews API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="FoxScan API", version="1.0.0", lifespan=lifespan)
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[frontend_url],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -46,7 +55,9 @@ app.add_middleware(
 
 
 @app.get("/articles")
+@limiter.limit("60/minute")
 def list_articles(
+    request: Request,
     tag: Optional[str] = Query(None, description="Filtra per tag"),
     min_score: Optional[int] = Query(None, ge=1, le=10, description="Score minimo (1-10)"),
     max_score: Optional[int] = Query(None, ge=1, le=10, description="Score massimo (1-10)"),
@@ -75,7 +86,8 @@ def list_articles(
 
 
 @app.get("/articles/{article_id}")
-def get_article(article_id: int, db: Session = Depends(get_db)):
+@limiter.limit("60/minute")
+def get_article(request: Request, article_id: int, db: Session = Depends(get_db)):
     article = db.query(Article).filter(Article.id == article_id).first()
     if not article:
         raise HTTPException(status_code=404, detail="Articolo non trovato")
@@ -86,10 +98,9 @@ def get_article(article_id: int, db: Session = Depends(get_db)):
 
 
 @app.get("/tags")
-def list_tags(db: Session = Depends(get_db)):
+@limiter.limit("30/minute")
+def list_tags(request: Request, db: Session = Depends(get_db)):
     """Restituisce tutti i tag con il conteggio degli articoli per ciascuno."""
-    import json
-
     articles = db.query(Article).all()
     tag_counts: dict[str, int] = {}
     for article in articles:
@@ -103,24 +114,24 @@ def list_tags(db: Session = Depends(get_db)):
 
 
 @app.get("/rss")
-def rss_feed(db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def rss_feed(request: Request, db: Session = Depends(get_db)):
     articles = db.query(Article).order_by(Article.published_at.desc()).limit(50).all()
 
     rss = Element("rss", version="2.0")
     channel = SubElement(rss, "channel")
 
-    import os
-    frontend_url = os.getenv("FRONTEND_URL", "https://cybernews-bxml.onrender.com").rstrip("/")
+    fe_url = os.getenv("FRONTEND_URL", "https://foxscan.vercel.app").rstrip("/")
 
-    SubElement(channel, "title").text = "CyberNews — Cybersecurity in italiano"
-    SubElement(channel, "link").text = frontend_url
+    SubElement(channel, "title").text = "FoxScan — Cybersecurity in italiano"
+    SubElement(channel, "link").text = fe_url
     SubElement(channel, "description").text = "Le notizie di cybersecurity più rilevanti, sintetizzate da AI"
     SubElement(channel, "language").text = "it"
 
     for article in articles:
         item = SubElement(channel, "item")
         SubElement(item, "title").text = article.title
-        SubElement(item, "link").text = f"{frontend_url}/article/{article.id}"
+        SubElement(item, "link").text = f"{fe_url}/article/{article.id}"
         SubElement(item, "description").text = article.summary or ""
         SubElement(item, "pubDate").text = article.published_at.strftime("%a, %d %b %Y %H:%M:%S +0000")
         SubElement(item, "guid").text = str(article.id)
@@ -143,7 +154,8 @@ def verify_admin(x_admin_key: Optional[str] = Header(default=None)):
 
 
 @app.post("/admin/reset-items")
-def reset_items(db: Session = Depends(get_db), _: None = Depends(verify_admin)):
+@limiter.limit("10/minute")
+def reset_items(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
     """Rimarca tutti gli item RSS come non processati, così la pipeline li riprocessa."""
     from models import RssItem
     count = db.query(RssItem).filter(RssItem.processed == True).update(  # noqa: E712
@@ -154,7 +166,8 @@ def reset_items(db: Session = Depends(get_db), _: None = Depends(verify_admin)):
 
 
 @app.delete("/admin/delete-all-articles")
-def delete_all_articles(db: Session = Depends(get_db), _: None = Depends(verify_admin)):
+@limiter.limit("10/minute")
+def delete_all_articles(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
     """Elimina tutti gli articoli e le sorgenti dal DB."""
     from models import Source
     sources_deleted = db.query(Source).delete()
@@ -167,10 +180,9 @@ _pipeline_status: dict = {"running": False, "last_stats": None}
 
 
 @app.post("/admin/run-pipeline")
-def trigger_pipeline(_: None = Depends(verify_admin)):
+@limiter.limit("10/minute")
+def trigger_pipeline(request: Request, _: None = Depends(verify_admin)):
     """Avvia la pipeline in background e ritorna subito."""
-    import threading
-
     if _pipeline_status["running"]:
         return {"status": "already_running"}
 
@@ -187,7 +199,8 @@ def trigger_pipeline(_: None = Depends(verify_admin)):
 
 
 @app.get("/admin/stats")
-def get_stats(db: Session = Depends(get_db), _: None = Depends(verify_admin)):
+@limiter.limit("10/minute")
+def get_stats(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
     from models import RssItem
 
     total_articles = db.query(Article).count()
