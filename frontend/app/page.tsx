@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Flame, Tag } from "lucide-react";
+import { Flame, Filter } from "lucide-react";
 import { getArticles, getTags, ArticleSummary, TagCount } from "@/lib/api";
 import TagBadge from "@/components/TagBadge";
 import RelevanceDots from "@/components/RelevanceDots";
@@ -375,7 +375,7 @@ export default function HomePage() {
           {topTags.length > 0 && (
             <button onClick={() => setTagsOpen(!tagsOpen)}
               className="shrink-0 tag-toggle-btn flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-blue-600 transition-colors px-3 py-2 border border-blue-100 hover:border-blue-300 rounded-full bg-white">
-              <Tag size={13} className="shrink-0" /> Categoria
+              <Filter size={13} className="shrink-0" /> Categoria
               <span className="opacity-60">{tagsOpen ? "▲" : "▼"}</span>
             </button>
           )}

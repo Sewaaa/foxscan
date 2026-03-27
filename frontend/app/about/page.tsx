@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Tag } from "lucide-react";
+import { Layers } from "lucide-react";
 import ByteMascot from "@/components/ByteMascot";
 
 export const metadata: Metadata = {
@@ -36,7 +36,7 @@ const FEATURES = [
     desc: "La pipeline gira automaticamente e aggiorna il feed senza intervento umano.",
   },
   {
-    icon: <Tag size={30} />,
+    icon: <Layers size={30} />,
     title: "Categorizzazione automatica",
     desc: "Categorie automatiche: malware, CVE, breach, APT, ransomware e altro.",
   },

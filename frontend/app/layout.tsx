@@ -81,9 +81,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             {/* Bottom bar */}
             <div className="pt-6 border-t border-blue-100 dark:border-blue-900/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-xs text-gray-400 dark:text-slate-500 text-center sm:text-left">
-                © 2026 FoxScan — Articoli generati da AI · fonti sempre citate
-              </p>
+              <div className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-2">
+                <p className="text-xs text-gray-400 dark:text-slate-500 text-center sm:text-left">
+                  © 2026 FoxScan
+                </p>
+                <span className="hidden sm:inline text-gray-300 dark:text-slate-600">·</span>
+                <p className="text-xs text-gray-400 dark:text-slate-500 text-center sm:text-left">
+                  Articoli sintetizzati da AI — fonti originali sempre citate
+                </p>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-400 dark:text-slate-500 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 rounded-full border border-blue-100 dark:border-blue-800">
                   AI‑Powered
