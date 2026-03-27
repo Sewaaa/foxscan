@@ -93,9 +93,9 @@ export default function Header() {
           <Link
             href="/rss"
             onClick={() => setOpen(false)}
-            className="mt-2 px-4 py-3.5 rounded-full bg-[#0B1F3A] dark:bg-blue-900 text-white text-sm font-semibold text-center hover:bg-blue-700 transition-colors"
+            className="px-4 py-3.5 text-sm text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
-            📡 Feed RSS
+            RSS
           </Link>
         </nav>
       )}
