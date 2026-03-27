@@ -1,11 +1,12 @@
 import logging
+import os
 import threading
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Optional
 from xml.etree.ElementTree import Element, SubElement, tostring
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
@@ -129,11 +130,20 @@ def rss_feed(db: Session = Depends(get_db)):
     return Response(content=xml_output, media_type="application/rss+xml")
 
 
+# ── Admin auth ────────────────────────────────────────────────────────────────
+
+
+def verify_admin(x_admin_key: Optional[str] = Header(default=None)):
+    secret = os.getenv("ADMIN_SECRET")
+    if secret and x_admin_key != secret:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+
 # ── Admin / Pipeline ──────────────────────────────────────────────────────────
 
 
 @app.post("/admin/reset-items")
-def reset_items(db: Session = Depends(get_db)):
+def reset_items(db: Session = Depends(get_db), _: None = Depends(verify_admin)):
     """Rimarca tutti gli item RSS come non processati, così la pipeline li riprocessa."""
     from models import RssItem
     count = db.query(RssItem).filter(RssItem.processed == True).update(  # noqa: E712
@@ -144,7 +154,7 @@ def reset_items(db: Session = Depends(get_db)):
 
 
 @app.delete("/admin/delete-all-articles")
-def delete_all_articles(db: Session = Depends(get_db)):
+def delete_all_articles(db: Session = Depends(get_db), _: None = Depends(verify_admin)):
     """Elimina tutti gli articoli e le sorgenti dal DB."""
     from models import Source
     sources_deleted = db.query(Source).delete()
@@ -157,7 +167,7 @@ _pipeline_status: dict = {"running": False, "last_stats": None}
 
 
 @app.post("/admin/run-pipeline")
-def trigger_pipeline():
+def trigger_pipeline(_: None = Depends(verify_admin)):
     """Avvia la pipeline in background e ritorna subito."""
     import threading
 
@@ -177,7 +187,7 @@ def trigger_pipeline():
 
 
 @app.get("/admin/stats")
-def get_stats(db: Session = Depends(get_db)):
+def get_stats(db: Session = Depends(get_db), _: None = Depends(verify_admin)):
     from models import RssItem
 
     total_articles = db.query(Article).count()

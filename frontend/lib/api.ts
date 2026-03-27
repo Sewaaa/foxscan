@@ -74,6 +74,9 @@ export async function getTags(): Promise<TagCount[]> {
   return apiFetch<TagCount[]>("/tags");
 }
 
-export async function getStats(): Promise<AdminStats> {
-  return apiFetch<AdminStats>("/admin/stats");
+export async function getStats(adminKey?: string): Promise<AdminStats> {
+  const headers: HeadersInit = adminKey ? { "X-Admin-Key": adminKey } : {};
+  const res = await fetch(`${API_BASE}/admin/stats`, { headers });
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  return res.json();
 }

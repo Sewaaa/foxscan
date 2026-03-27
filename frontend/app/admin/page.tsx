@@ -4,8 +4,14 @@ import { useEffect, useState } from "react";
 import { AdminStats, getStats } from "@/lib/api";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+const SESSION_KEY = "foxscan_admin_key";
 
 export default function AdminPage() {
+  const [adminKey, setAdminKey] = useState<string>("");
+  const [keyInput, setKeyInput] = useState<string>("");
+  const [unlocked, setUnlocked] = useState(false);
+  const [authError, setAuthError] = useState(false);
+
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
@@ -14,28 +20,75 @@ export default function AdminPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [pipelineRunning, setPipelineRunning] = useState(false);
 
-  async function loadStats() {
+  // Restore key from sessionStorage on mount
+  useEffect(() => {
+    const saved = sessionStorage.getItem(SESSION_KEY);
+    if (saved) {
+      setAdminKey(saved);
+      setUnlocked(true);
+    }
+  }, []);
+
+  async function loadStats(key: string) {
     setLoading(true);
-    const s = await getStats().catch(() => null);
+    const s = await getStats(key).catch(() => null);
     setStats(s);
     setPipelineRunning(s?.pipeline_running ?? false);
     setLoading(false);
   }
 
   useEffect(() => {
-    loadStats();
-    const interval = setInterval(loadStats, 15000);
+    if (!unlocked || !adminKey) return;
+    loadStats(adminKey);
+    const interval = setInterval(() => loadStats(adminKey), 15000);
     return () => clearInterval(interval);
-  }, []);
+  }, [unlocked, adminKey]);
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setAuthError(false);
+    try {
+      const res = await fetch(`${API_BASE}/admin/stats`, {
+        headers: { "X-Admin-Key": keyInput },
+      });
+      if (res.status === 401) {
+        setAuthError(true);
+        return;
+      }
+      sessionStorage.setItem(SESSION_KEY, keyInput);
+      setAdminKey(keyInput);
+      setUnlocked(true);
+    } catch {
+      setAuthError(true);
+    }
+  }
+
+  function handleLogout() {
+    sessionStorage.removeItem(SESSION_KEY);
+    setAdminKey("");
+    setKeyInput("");
+    setUnlocked(false);
+    setStats(null);
+  }
+
+  function adminFetch(path: string, options: RequestInit = {}) {
+    return fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: {
+        ...(options.headers ?? {}),
+        "X-Admin-Key": adminKey,
+      },
+    });
+  }
 
   async function resetItems() {
     setResetting(true);
     setMessage(null);
     try {
-      const res = await fetch(`${API_BASE}/admin/reset-items`, { method: "POST" });
+      const res = await adminFetch("/admin/reset-items", { method: "POST" });
       const data = await res.json();
       setMessage(`Reset completato — ${data.items_reset} item rimarcati come da processare. Ora avvia la pipeline.`);
-      await loadStats();
+      await loadStats(adminKey);
     } catch {
       setMessage("Errore nel reset.");
     } finally {
@@ -52,10 +105,10 @@ export default function AdminPage() {
     setDeleting(true);
     setMessage(null);
     try {
-      const res = await fetch(`${API_BASE}/admin/delete-all-articles`, { method: "DELETE" });
+      const res = await adminFetch("/admin/delete-all-articles", { method: "DELETE" });
       const data = await res.json();
       setMessage(`🗑️ Eliminati ${data.articles_deleted} articoli e ${data.sources_deleted} sorgenti.`);
-      await loadStats();
+      await loadStats(adminKey);
     } catch {
       setMessage("Errore durante l'eliminazione.");
     } finally {
@@ -67,7 +120,7 @@ export default function AdminPage() {
     setRunning(true);
     setMessage(null);
     try {
-      const res = await fetch(`${API_BASE}/admin/run-pipeline`, { method: "POST" });
+      const res = await adminFetch("/admin/run-pipeline", { method: "POST" });
       const data = await res.json();
       if (data.status === "already_running") {
         setMessage("Pipeline già in esecuzione. Attendi il completamento.");
@@ -75,7 +128,7 @@ export default function AdminPage() {
         setMessage("Pipeline avviata in background. Gli articoli appariranno man mano — la pagina si aggiorna ogni 15s.");
         setPipelineRunning(true);
       }
-      await loadStats();
+      await loadStats(adminKey);
     } catch {
       setMessage("Errore nell'avvio della pipeline. Assicurati che il backend sia avviato.");
     } finally {
@@ -83,9 +136,50 @@ export default function AdminPage() {
     }
   }
 
+  if (!unlocked) {
+    return (
+      <div className="max-w-sm mx-auto mt-16">
+        <h1 className="text-2xl font-bold text-[#0B1F3A] dark:text-slate-100 mb-6">Pannello Admin</h1>
+        <form onSubmit={handleLogin} className="border border-blue-100 dark:border-zinc-800 rounded-xl p-6 bg-white dark:bg-zinc-900 shadow-blue-sm space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">
+              Chiave admin
+            </label>
+            <input
+              type="password"
+              value={keyInput}
+              onChange={(e) => setKeyInput(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-[#0B1F3A] dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="••••••••"
+              autoFocus
+            />
+          </div>
+          {authError && (
+            <p className="text-sm text-red-600 dark:text-red-400">Chiave non valida.</p>
+          )}
+          <button
+            type="submit"
+            disabled={!keyInput}
+            className="w-full px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-200 dark:disabled:bg-zinc-700 disabled:text-gray-400 text-white font-medium rounded-lg transition-colors"
+          >
+            Accedi
+          </button>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-[#0B1F3A] dark:text-slate-100 mb-6">Pannello Admin</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-[#0B1F3A] dark:text-slate-100">Pannello Admin</h1>
+        <button
+          onClick={handleLogout}
+          className="text-sm text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors"
+        >
+          Esci
+        </button>
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-8">
