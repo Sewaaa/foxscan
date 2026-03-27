@@ -27,6 +27,11 @@ limiter = Limiter(key_func=get_remote_address)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    secret = os.getenv("ADMIN_SECRET", "")
+    if not secret:
+        logger.warning("ADMIN_SECRET non impostata — endpoint /admin/* sono aperti!")
+    elif len(secret) < 16:
+        logger.warning("ADMIN_SECRET troppo corta (< 16 char) — usa: openssl rand -base64 32")
     start_scheduler()
     # Esegue la pipeline subito all'avvio (in background per non bloccare il server).
     # Fondamentale su Render free tier: il server va in sleep e si risveglia

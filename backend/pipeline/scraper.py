@@ -1,5 +1,7 @@
+import ipaddress
 import logging
 import re
+import socket
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urlparse
 
@@ -27,11 +29,32 @@ def _clean_text(text: str) -> str:
     return "\n".join(cleaned).strip()
 
 
+def _is_safe_url(url: str) -> bool:
+    """Blocca URL che puntano a IP privati/loopback/link-local (SSRF protection)."""
+    try:
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            return False
+        hostname = parsed.hostname
+        if not hostname:
+            return False
+        ip = ipaddress.ip_address(socket.gethostbyname(hostname))
+        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved:
+            logger.warning(f"SSRF blocked: {url} → {ip}")
+            return False
+        return True
+    except Exception:
+        return False
+
+
 def scrape_url(url: str) -> dict | None:
     """
     Scarica e estrae testo e immagine (og:image) di un articolo tramite trafilatura.
     Ritorna {"text": str, "image_url": str | None} oppure None se l'estrazione fallisce.
     """
+    if not _is_safe_url(url):
+        logger.warning(f"Scraping bloccato (URL non sicuro): {url}")
+        return None
     try:
         downloaded = trafilatura.fetch_url(url)
         if not downloaded:
