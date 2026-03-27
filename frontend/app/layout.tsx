@@ -12,6 +12,21 @@ export const metadata: Metadata = {
   description:
     "Le notizie di cybersecurity più rilevanti, sintetizzate automaticamente da AI in un unico articolo completo.",
   icons: { icon: "/fs_nobg.png" },
+  openGraph: {
+    title: "FoxScan — AI Cybersecurity Intelligence",
+    description: "Le notizie di cybersecurity più rilevanti, sintetizzate automaticamente da AI in un unico articolo completo.",
+    url: "https://foxscan.vercel.app",
+    siteName: "FoxScan",
+    images: [{ url: "https://foxscan.vercel.app/testa_nobg.png", width: 512, height: 512 }],
+    locale: "it_IT",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "FoxScan — AI Cybersecurity Intelligence",
+    description: "Le notizie di cybersecurity più rilevanti, sintetizzate automaticamente da AI.",
+    images: ["https://foxscan.vercel.app/testa_nobg.png"],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

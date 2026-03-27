@@ -16,9 +16,26 @@ export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
   const article = await getArticle(Number(id)).catch(() => null);
   if (!article) return { title: "Articolo non trovato" };
+  const url = `https://foxscan.vercel.app/article/${id}`;
+  const image = article.image_url ?? "https://foxscan.vercel.app/testa_nobg.png";
   return {
     title: `${article.title} — FoxScan`,
     description: article.summary ?? undefined,
+    openGraph: {
+      title: article.title,
+      description: article.summary ?? undefined,
+      url,
+      siteName: "FoxScan",
+      images: [{ url: image }],
+      locale: "it_IT",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description: article.summary ?? undefined,
+      images: [image],
+    },
   };
 }
 
