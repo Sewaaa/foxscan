@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Cursore manina su tutti gli elementi cliccabili ───────────────────────── */
+a, button, [role="button"], label[for], select { cursor: pointer; }
+
 /* ─── CSS Custom Properties ─────────────────────────────────────────────────── */
 :root {
   --navy:           #0B1F3A;
