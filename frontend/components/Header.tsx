@@ -46,9 +46,9 @@ export default function Header() {
           <ThemeToggle />
           <Link
             href="/rss"
-            className="ml-1 px-4 py-1.5 rounded-full bg-[#0B1F3A] text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-blue-sm"
+            className="ml-1 px-3 py-1.5 text-sm text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
-            📡 Feed RSS
+            RSS
           </Link>
         </nav>
 
