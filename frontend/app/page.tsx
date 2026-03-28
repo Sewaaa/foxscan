@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Flame, Zap } from "lucide-react";
+import { Flame, Zap, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getArticles, getTags, ArticleSummary, TagCount } from "@/lib/api";
 import TagBadge from "@/components/TagBadge";
@@ -284,6 +284,7 @@ export default function HomePage() {
   const [tags, setTags]               = useState<TagCount[]>([]);
   const [loading, setLoading]         = useState(true);
   const [retryCount, setRetryCount]   = useState(0);
+  const [catOpen, setCatOpen]         = useState(false);
 
   useEffect(() => {
     getArticles({ min_score: 8, limit: 6 })
@@ -379,8 +380,10 @@ export default function HomePage() {
       )}
 
       {/* ── Sticky Filter Bar ────────────────────────────────────────────── */}
-      <div className="sticky top-16 z-40 -mx-4 sm:-mx-6 px-4 sm:px-6 py-2.5 glass border-b border-blue-100/60 dark:border-white/5">
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+      <div className="sticky top-16 z-40 -mx-4 sm:-mx-6 px-4 sm:px-6 glass border-b border-blue-100/60 dark:border-white/5">
+
+        {/* Prima riga: rilevanza + bottone Categoria */}
+        <div className="flex items-center gap-1.5 py-2.5 overflow-x-auto scrollbar-hide">
 
           {/* Relevance filters */}
           {([0, 1, 2, 3] as const).map((lvl) => (
@@ -389,7 +392,7 @@ export default function HomePage() {
               onClick={() => changeLevel(lvl)}
               className={`shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
                 levelFilter === lvl
-                  ? "border-blue-600 bg-blue-600 text-white dark:border-[#00FFE5] dark:bg-[#00FFE5]/15 dark:text-[#00FFE5]"
+                  ? "border-blue-600 bg-blue-600 text-white dark:border-[#00FFE5] dark:bg-transparent dark:text-[#00FFE5]"
                   : "filter-btn-inactive border-blue-200 dark:border-white/8 text-gray-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:border-[#00FFE5]/40 dark:hover:text-[#00FFE5]"
               }`}
             >
@@ -407,21 +410,41 @@ export default function HomePage() {
             <div className="shrink-0 w-px h-4 bg-blue-100 dark:bg-white/10 mx-1" />
           )}
 
-          {/* Tag pills — filter in-place */}
-          {topTags.map(({ tag }) => (
+          {/* Bottone Categoria */}
+          {topTags.length > 0 && (
             <button
-              key={tag}
-              onClick={() => changeTag(tagFilter === tag ? null : tag)}
-              className={`shrink-0 whitespace-nowrap text-xs px-3 py-1.5 rounded-full border font-medium transition-all ${
-                tagFilter === tag
-                  ? "border-blue-600 bg-blue-600 text-white dark:border-[#00FFE5] dark:bg-[#00FFE5]/15 dark:text-[#00FFE5]"
+              onClick={() => setCatOpen((o) => !o)}
+              className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
+                catOpen || tagFilter
+                  ? "border-blue-600 bg-blue-600 text-white dark:border-[#00FFE5] dark:bg-transparent dark:text-[#00FFE5]"
                   : "filter-btn-inactive border-blue-200 dark:border-white/8 text-gray-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:border-[#00FFE5]/40 dark:hover:text-[#00FFE5]"
               }`}
             >
-              {tag}
+              Categoria
+              {tagFilter && <span className="w-1.5 h-1.5 rounded-full bg-current" />}
+              <ChevronDown size={11} className={`transition-transform ${catOpen ? "rotate-180" : ""}`} />
             </button>
-          ))}
+          )}
         </div>
+
+        {/* Seconda riga: tag pill (collassabile) */}
+        {catOpen && topTags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pb-2.5 border-t border-blue-100/40 dark:border-white/5 pt-2.5">
+            {topTags.map(({ tag }) => (
+              <button
+                key={tag}
+                onClick={() => changeTag(tagFilter === tag ? null : tag)}
+                className={`shrink-0 whitespace-nowrap text-xs px-3 py-1 rounded-full border font-medium transition-all ${
+                  tagFilter === tag
+                    ? "border-blue-600 bg-blue-600 text-white dark:border-[#00FFE5] dark:bg-transparent dark:text-[#00FFE5]"
+                    : "filter-btn-inactive border-blue-200 dark:border-white/8 text-gray-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:border-[#00FFE5]/40 dark:hover:text-[#00FFE5]"
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── Ultime Notizie ───────────────────────────────────────────────── */}

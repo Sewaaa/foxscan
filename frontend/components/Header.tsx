@@ -48,8 +48,8 @@ export default function Header() {
               href={href}
               className={`relative px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 isActive(href)
-                  ? "text-blue-600 bg-blue-50 dark:text-[#00FFE5] dark:bg-[#00FFE5]/8"
-                  : "text-gray-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50/80 dark:hover:text-[#00FFE5] dark:hover:bg-[#00FFE5]/6"
+                  ? "text-blue-600 bg-blue-50 dark:text-[#00FFE5] dark:bg-transparent"
+                  : "text-gray-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50/80 dark:hover:text-[#00FFE5] dark:hover:bg-white/5"
               }`}
             >
               {label}
@@ -106,7 +106,7 @@ export default function Header() {
               onClick={() => setOpen(false)}
               className={`px-4 py-3.5 rounded-xl text-sm font-medium transition-colors ${
                 isActive(href)
-                  ? "text-blue-600 bg-blue-50 dark:text-[#00FFE5] dark:bg-[#00FFE5]/8"
+                  ? "text-blue-600 bg-blue-50 dark:text-[#00FFE5] dark:bg-transparent"
                   : "text-[#0B1F3A] dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/5"
               }`}
             >
