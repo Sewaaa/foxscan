@@ -207,7 +207,7 @@ function GridCard({ article }: { article: ArticleSummary }) {
       className={`card-blue flex flex-row md:flex-col group overflow-hidden min-h-[80px] md:min-h-0 ${level === 3 ? "critical-pulse" : ""}`}
     >
       {/* Image — orizzontale su mobile, verticale su desktop */}
-      <div className={`shrink-0 w-28 self-stretch md:w-full md:h-36 overflow-hidden card-img-bg relative ${article.image_url ? "bg-blue-50" : "img-placeholder"}`}>
+      <div className={`shrink-0 w-28 h-28 md:w-full md:h-36 overflow-hidden card-img-bg relative ${article.image_url ? "bg-blue-50" : "img-placeholder"}`}>
         {article.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
