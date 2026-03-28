@@ -33,10 +33,10 @@ export default function PrivacyPage() {
         <h2 className={H2}>1. Titolare del trattamento</h2>
         <p className={P}>
           Il titolare del trattamento dei dati personali è <strong>FoxScan</strong> (progetto personale).
-          Per qualsiasi richiesta relativa alla privacy puoi scrivere a:{" "}
-          <a href="mailto:privacy@foxscan.it" className="text-blue-600 dark:text-[#00FFE5] hover:underline">
-            privacy@foxscan.it
-          </a>
+          Per qualsiasi richiesta relativa alla privacy puoi usare il{" "}
+          <Link href="/contact" className="text-blue-600 dark:text-[#00FFE5] hover:underline">
+            modulo di contatto
+          </Link>
         </p>
       </div>
 
@@ -134,10 +134,10 @@ export default function PrivacyPage() {
           <li><strong>Opposizione</strong> — opporti al trattamento basato su legittimo interesse</li>
         </ul>
         <p className={P}>
-          Per esercitare i tuoi diritti scrivi a{" "}
-          <a href="mailto:privacy@foxscan.it" className="text-blue-600 dark:text-[#00FFE5] hover:underline">
-            privacy@foxscan.it
-          </a>.
+          Per esercitare i tuoi diritti usa il{" "}
+          <Link href="/contact" className="text-blue-600 dark:text-[#00FFE5] hover:underline">
+            modulo di contatto
+          </Link>.
           Hai inoltre il diritto di proporre reclamo al{" "}
           <a
             href="https://www.garanteprivacy.it"

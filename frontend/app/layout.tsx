@@ -135,6 +135,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       Feed RSS
                     </Link>
                   </li>
+                  <li>
+                    <Link href="/contact" className="hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors">
+                      Contatti
+                    </Link>
+                  </li>
                 </ul>
               </div>
 
