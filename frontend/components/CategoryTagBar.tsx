@@ -65,7 +65,7 @@ export default function CategoryTagBar({ tags, activeTag }: Props) {
       {/* Barra scrollabile — py-1.5 evita che il ring venga tagliato */}
       <div
         ref={scrollRef}
-        className="flex gap-2 overflow-x-auto scrollbar-hide py-1.5 px-0.5"
+        className="flex-1 min-w-0 flex gap-2 overflow-x-auto scrollbar-hide py-1.5 px-0.5"
       >
         {/* Tutti */}
         <Link
