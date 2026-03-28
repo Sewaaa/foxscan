@@ -6,8 +6,9 @@ import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 
 const NAV_LINKS = [
-  { href: "/",      label: "Home" },
-  { href: "/about", label: "Chi siamo" },
+  { href: "/",          label: "Home" },
+  { href: "/category",  label: "Esplora" },
+  { href: "/about",     label: "Chi siamo" },
 ];
 
 export default function Header() {
