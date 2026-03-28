@@ -14,12 +14,12 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "FoxScan — AI Cybersecurity Intelligence",
+  title: "FoxScan — Cybersecurity News",
   description:
     "Le notizie di cybersecurity più rilevanti, sintetizzate automaticamente da AI in un unico articolo completo.",
   icons: { icon: "/icofs.ico" },
   openGraph: {
-    title: "FoxScan — AI Cybersecurity Intelligence",
+    title: "FoxScan — Cybersecurity News",
     description: "Le notizie di cybersecurity più rilevanti, sintetizzate automaticamente da AI in un unico articolo completo.",
     url: "https://foxscan.vercel.app",
     siteName: "FoxScan",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "FoxScan — AI Cybersecurity Intelligence",
+    title: "FoxScan — Cybersecurity News",
     description: "Le notizie di cybersecurity più rilevanti, sintetizzate automaticamente da AI.",
     images: ["https://foxscan.vercel.app/testa_nobg.png"],
   },
