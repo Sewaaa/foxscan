@@ -98,33 +98,30 @@ export default async function ArticlePage({ params }: PageProps) {
 
         {/* Summary box */}
         {article.summary && (
-          <div className="byte-box relative overflow-hidden rounded-2xl mb-5 md:mb-6 border border-blue-200 dark:border-[#00FFE5]/15 bg-gradient-to-br from-blue-50 to-slate-50 dark:from-[#0a1628] dark:to-[#080e1e]">
-            {/* Accent left bar */}
-            <div className="absolute left-0 inset-y-0 w-1 bg-gradient-to-b from-blue-400 via-blue-500 to-blue-300 dark:from-[#00FFE5]/60 dark:via-[#00FFE5]/80 dark:to-[#00FFE5]/40 rounded-l-2xl" />
+          <div className="byte-box relative overflow-hidden rounded-2xl mb-5 md:mb-6 border border-blue-200 dark:border-[#00FFE5]/20 bg-blue-50 dark:bg-[#080e1e]">
+            {/* Top accent stripe */}
+            <div className="h-0.5 w-full bg-gradient-to-r from-blue-400 via-blue-500 to-transparent dark:from-[#00FFE5]/70 dark:via-[#00FFE5]/30 dark:to-transparent" />
 
-            <div className="flex items-start gap-4 px-5 py-4 md:px-6 md:py-5">
+            <div className="flex gap-4 md:gap-5 p-5 md:p-6">
               {/* Mascot */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/sintesi_nobg.png"
                 alt=""
-                className="shrink-0 w-16 h-16 md:w-20 md:h-20 object-contain float-slow self-center opacity-90"
+                className="shrink-0 w-20 h-20 md:w-24 md:h-24 object-contain float-slow self-end opacity-95"
               />
 
               {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="byte-label text-[10px] font-bold uppercase tracking-[0.15em] text-blue-500 dark:text-[#00FFE5]/80">
-                    In sintesi
-                  </span>
-                  <span className="h-px flex-1 bg-blue-200 dark:bg-[#00FFE5]/15" />
-                </div>
-                <div className="byte-text text-sm md:text-[0.925rem] text-blue-800 dark:text-slate-300 leading-relaxed">
+              <div className="flex-1 min-w-0 py-1">
+                <p className="byte-label text-[10px] font-extrabold uppercase tracking-[0.18em] text-blue-500 dark:text-[#00FFE5] mb-2">
+                  ✦ In sintesi
+                </p>
+                <div className="byte-text text-sm md:text-base text-blue-900 dark:text-slate-200 leading-relaxed font-medium">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
                       p: ({ children }) => <span>{children}</span>,
-                      strong: ({ children }) => <strong className="font-semibold text-blue-900 dark:text-white">{children}</strong>,
+                      strong: ({ children }) => <strong className="font-bold text-blue-700 dark:text-[#00FFE5]">{children}</strong>,
                     }}
                   >
                     {article.summary}

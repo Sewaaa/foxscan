@@ -157,12 +157,12 @@ function TopCriticalWidget({ articles }: { articles: ArticleSummary[] }) {
   if (top5.length === 0) return null;
 
   return (
-    <div className="card-blue p-4 md:p-5 h-full flex flex-col">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="card-blue p-4 md:p-5 flex flex-col">
+      <div className="flex items-center gap-2 mb-3">
         <Zap size={14} className="text-blue-600 dark:text-[#00FFE5] shrink-0" />
         <span className="font-grotesk font-bold text-sm text-[#0B1F3A] dark:text-white">Top criticità del giorno</span>
       </div>
-      <ol className="flex flex-col justify-between flex-1 gap-1">
+      <ol className="flex flex-col gap-0.5">
         {top5.map((a, i) => {
           const level = getLevel(a.relevance_score);
           const dotColor =
@@ -195,7 +195,7 @@ function GridCard({ article }: { article: ArticleSummary }) {
   return (
     <Link
       href={`/article/${article.id}`}
-      className={`card-blue flex flex-row md:flex-col group overflow-hidden ${level === 3 ? "critical-pulse" : ""}`}
+      className={`card-blue flex flex-row md:flex-col group overflow-hidden min-h-[80px] md:min-h-0 ${level === 3 ? "critical-pulse" : ""}`}
     >
       {/* Image — orizzontale su mobile, verticale su desktop */}
       <div className={`shrink-0 w-28 self-stretch md:w-full md:h-36 overflow-hidden card-img-bg relative ${article.image_url ? "bg-blue-50" : "img-placeholder"}`}>
@@ -394,47 +394,49 @@ export default function HomePage() {
       {/* ── Filter Bar ───────────────────────────────────────────────────── */}
       <div>
 
-        {/* Prima riga: rilevanza + bottone Categoria */}
-        <div className="flex items-center gap-1.5 py-2.5 overflow-x-auto scrollbar-hide">
+        {/* Su mobile: Categoria sopra, rilevanza sotto. Su desktop: tutto su una riga */}
+        <div className="flex flex-col md:flex-row md:items-center gap-2 py-3">
 
-          {/* Relevance filters */}
-          {([0, 1, 2, 3] as const).map((lvl) => (
-            <button
-              key={lvl}
-              onClick={() => changeLevel(lvl)}
-              className={`shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
-                levelFilter === lvl
-                  ? "border-blue-600 bg-blue-600 text-white dark:border-[#00FFE5] dark:bg-transparent dark:text-[#00FFE5]"
-                  : "filter-btn-inactive border-blue-200 dark:border-white/8 text-gray-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:border-[#00FFE5]/40 dark:hover:text-[#00FFE5]"
-              }`}
-            >
-              {lvl > 0 && (
-                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                  lvl === 1 ? "bg-green-500" : lvl === 2 ? "bg-orange-500" : "bg-red-500"
-                }`} />
-              )}
-              {LEVEL_LABELS[lvl]}
-            </button>
-          ))}
+          {/* Riga 1 mobile / sinistra desktop: rilevanza */}
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+            {([0, 1, 2, 3] as const).map((lvl) => (
+              <button
+                key={lvl}
+                onClick={() => changeLevel(lvl)}
+                className={`shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold border transition-all whitespace-nowrap ${
+                  levelFilter === lvl
+                    ? "border-blue-600 bg-blue-600 text-white dark:border-[#00FFE5] dark:bg-transparent dark:text-[#00FFE5]"
+                    : "filter-btn-inactive border-blue-200 dark:border-white/8 text-gray-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:border-[#00FFE5]/40 dark:hover:text-[#00FFE5]"
+                }`}
+              >
+                {lvl > 0 && (
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${
+                    lvl === 1 ? "bg-green-500" : lvl === 2 ? "bg-orange-500" : "bg-red-500"
+                  }`} />
+                )}
+                {LEVEL_LABELS[lvl]}
+              </button>
+            ))}
+          </div>
 
-          {/* Divider */}
+          {/* Divider desktop */}
           {topTags.length > 0 && (
-            <div className="shrink-0 w-px h-4 bg-blue-100 dark:bg-white/10 mx-1" />
+            <div className="hidden md:block shrink-0 w-px h-5 bg-blue-100 dark:bg-white/10" />
           )}
 
-          {/* Bottone Categoria */}
+          {/* Bottone Categoria — sempre visibile su mobile (riga separata) */}
           {topTags.length > 0 && (
             <button
               onClick={() => setCatOpen((o) => !o)}
-              className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
+              className={`shrink-0 self-start flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-all whitespace-nowrap ${
                 catOpen || tagFilter
                   ? "border-blue-600 bg-blue-600 text-white dark:border-[#00FFE5] dark:bg-transparent dark:text-[#00FFE5]"
                   : "filter-btn-inactive border-blue-200 dark:border-white/8 text-gray-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:border-[#00FFE5]/40 dark:hover:text-[#00FFE5]"
               }`}
             >
               Categoria
-              {tagFilter && <span className="w-1.5 h-1.5 rounded-full bg-current" />}
-              <ChevronDown size={11} className={`transition-transform ${catOpen ? "rotate-180" : ""}`} />
+              {tagFilter && <span className="w-2 h-2 rounded-full bg-current" />}
+              <ChevronDown size={13} className={`transition-transform ${catOpen ? "rotate-180" : ""}`} />
             </button>
           )}
         </div>
