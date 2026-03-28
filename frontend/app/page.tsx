@@ -158,9 +158,18 @@ function TopCriticalWidget({ articles }: { articles: ArticleSummary[] }) {
 
   return (
     <div className="card-blue p-4 md:p-5 flex flex-col">
-      <div className="flex items-center gap-2 mb-3">
-        <Zap size={14} className="text-blue-600 dark:text-[#00FFE5] shrink-0" />
-        <span className="font-grotesk font-bold text-sm text-[#0B1F3A] dark:text-white">Top criticità del giorno</span>
+      {/* Header con mascotte podio */}
+      <div className="flex items-end justify-between mb-3 gap-2">
+        <div className="flex items-center gap-2">
+          <Zap size={14} className="text-blue-600 dark:text-[#00FFE5] shrink-0" />
+          <span className="font-grotesk font-bold text-sm text-[#0B1F3A] dark:text-white">Top criticità del giorno</span>
+        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/podio_nobg.png"
+          alt=""
+          className="shrink-0 h-14 w-14 object-contain float-slow opacity-90"
+        />
       </div>
       <ol className="flex flex-col gap-0.5">
         {top5.map((a, i) => {
@@ -319,10 +328,13 @@ export default function HomePage() {
   function changeLevel(lvl: number) { setLevelFilter(lvl); setPage(1); }
   function changeTag(tag: string | null) { setTagFilter(tag); setPage(1); }
 
-  const totalPages       = Math.ceil(total / PAGE_SIZE);
-  const topTags          = tags.slice(0, 12);
-  const heroArticle      = inEvidenza[0];
+  const totalPages        = Math.ceil(total / PAGE_SIZE);
+  const topTags           = tags.slice(0, 12);
+  const heroArticle       = inEvidenza[0];
   const secondaryArticles = inEvidenza.slice(1, 3);
+  // Escludi dalla griglia gli articoli già mostrati in "In Evidenza"
+  const evidenzaIds       = new Set(inEvidenza.map((a) => a.id));
+  const gridArticles      = articles.filter((a) => !evidenzaIds.has(a.id));
   const briefingArticles = allLatest
     .filter((a) => getLevel(a.relevance_score) >= 2)
     .sort((a, b) => b.relevance_score - a.relevance_score);
@@ -519,7 +531,7 @@ export default function HomePage() {
               animate="show"
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
-              {articles.map((article) => (
+              {gridArticles.map((article) => (
                 <motion.div key={article.id} variants={cardItem}>
                   <GridCard article={article} />
                 </motion.div>
