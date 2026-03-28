@@ -157,20 +157,16 @@ function TopCriticalWidget({ articles }: { articles: ArticleSummary[] }) {
   if (top5.length === 0) return null;
 
   return (
-    <div className="card-blue p-4 md:p-5 flex flex-col">
-      {/* Header con mascotte podio */}
-      <div className="flex items-end justify-between mb-3 gap-2">
-        <div className="flex items-center gap-2">
-          <Zap size={14} className="text-blue-600 dark:text-[#00FFE5] shrink-0" />
-          <span className="font-grotesk font-bold text-sm text-[#0B1F3A] dark:text-white">Top criticità del giorno</span>
-        </div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/podio_nobg.png"
-          alt=""
-          className="shrink-0 h-14 w-14 object-contain float-slow opacity-90"
-        />
+    <div className="flex flex-col">
+      {/* Titolo — stesso stile di "In Evidenza" */}
+      <div className="flex items-center gap-2 mb-4">
+        <Zap size={15} className="text-blue-600 dark:text-[#00FFE5] shrink-0" />
+        <h2 className="font-grotesk font-extrabold text-xs text-blue-600 dark:text-[#00FFE5] uppercase tracking-widest">
+          Top criticità del giorno
+        </h2>
       </div>
+
+      {/* Lista senza riquadro */}
       <ol className="flex flex-col gap-0.5">
         {top5.map((a, i) => {
           const level = getLevel(a.relevance_score);
@@ -180,7 +176,7 @@ function TopCriticalWidget({ articles }: { articles: ArticleSummary[] }) {
                           "bg-green-400";
           return (
             <li key={a.id}>
-              <Link href={`/article/${a.id}`} className="flex items-start gap-2.5 group py-1">
+              <Link href={`/article/${a.id}`} className="flex items-start gap-2.5 group py-1.5 border-b border-blue-50 dark:border-white/5 last:border-0">
                 <span className="shrink-0 w-5 h-5 mt-0.5 rounded-full bg-blue-100 dark:bg-white/10 text-blue-700 dark:text-[#00FFE5] text-[10px] font-bold flex items-center justify-center font-mono">
                   {i + 1}
                 </span>
@@ -193,6 +189,16 @@ function TopCriticalWidget({ articles }: { articles: ArticleSummary[] }) {
           );
         })}
       </ol>
+
+      {/* Mascotte podio sotto l'ultimo articolo */}
+      <div className="flex justify-center mt-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/podio_nobg.png"
+          alt=""
+          className="h-20 w-20 object-contain float-slow opacity-90"
+        />
+      </div>
     </div>
   );
 }
