@@ -76,8 +76,8 @@ FoxScan runs a fully automated pipeline every 30 minutes:
 - **RSS output** — subscribe to AI-generated briefings in any feed reader
 - **Auto-tagging** — LLM assigns tags (ransomware, CVE, phishing, APT, espionage, etc.)
 - **Relevance dots** — articles ranked with 3-level visual indicator (green / orange / red)
-- **"In Evidenza"** — critical articles (score 8–10) pinned at top for 48h in a horizontal strip
-- **Daily briefing** — "Top criticità di oggi" section with the day's most relevant threats
+- **"In Evidenza"** — critical articles (score 8–10) pinned at top for 48h in a featured strip
+- **Daily briefing** — "Top threats of the day" section with the most relevant current threats
 - **About page** — overview of the platform, sources, and pipeline
 - **Dark / light mode** — toggle between themes, cyberpunk-inspired design, fully responsive
 - **Admin panel** — trigger pipeline, view live stats, reset items, delete all articles (password protected)
@@ -225,7 +225,7 @@ FoxScan/
 └── frontend/
     ├── app/
     │   ├── page.tsx                  # Homepage — client-side, handles cold start
-    │   ├── about/page.tsx            # Chi siamo — platform overview
+    │   ├── about/page.tsx            # About — platform overview
     │   ├── article/[id]/page.tsx     # Article detail — ISR (revalidate 1h), OG metadata
     │   ├── category/[tag]/page.tsx   # Tag filter — ISR (revalidate 1min)
     │   ├── admin/page.tsx            # Admin panel — password login, live stats polling
@@ -250,6 +250,8 @@ FoxScan/
 
 ## News Sources
 
+17 RSS feeds polled every 30 minutes:
+
 | Source | Domain |
 |---|---|
 | BleepingComputer | bleepingcomputer.com |
@@ -259,3 +261,13 @@ FoxScan/
 | CISA Advisories | cisa.gov |
 | Security Affairs | securityaffairs.com |
 | Graham Cluley | grahamcluley.com |
+| SecurityWeek | securityweek.com |
+| Help Net Security | helpnetsecurity.com |
+| Infosecurity Magazine | infosecurity-magazine.com |
+| Ars Technica Security | arstechnica.com |
+| Wired Security | wired.com |
+| Naked Security (Sophos) | nakedsecurity.sophos.com |
+| CyberScoop | cyberscoop.com |
+| The Register Security | theregister.com |
+| Malwarebytes Blog | malwarebytes.com |
+| Recorded Future | recordedfuture.com |
