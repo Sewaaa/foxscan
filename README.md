@@ -75,15 +75,17 @@ FoxScan runs a fully automated pipeline every 30 minutes:
 - **Contextual images** — each article gets a cover image fetched from Unsplash based on its tags
 - **RSS output** — subscribe to AI-generated briefings in any feed reader
 - **Auto-tagging** — LLM assigns tags (ransomware, CVE, phishing, APT, espionage, etc.)
-- **Relevance dots** — articles ranked with 3-level visual indicator (gray / orange / red)
+- **Relevance dots** — articles ranked with 3-level visual indicator (green / orange / red)
 - **"In Evidenza"** — critical articles (score 8–10) pinned at top for 48h in a horizontal strip
 - **Daily briefing** — "Top criticità di oggi" section with the day's most relevant threats
 - **About page** — overview of the platform, sources, and pipeline
 - **Dark / light mode** — toggle between themes, cyberpunk-inspired design, fully responsive
-- **Admin panel** — trigger pipeline, view live stats, reset items, delete all articles
+- **Admin panel** — trigger pipeline, view live stats, reset items, delete all articles (password protected)
 - **Resilient scraping** — gracefully falls back to RSS content when web scraping is blocked
 - **Auto-retry on cold start** — frontend retries article fetching automatically while the backend wakes up on Render free tier
 - **Collapsible tag filter** — filter by category or relevance level
+- **SEO** — dynamic sitemap, robots.txt, OG + Twitter card metadata per article
+- **Security** — rate limiting, admin auth, SSRF protection, CSP headers
 
 ---
 
@@ -164,7 +166,8 @@ Frontend: `http://localhost:3000`
 | `GROQ_API_KEY` | Your Groq API key |
 | `UNSPLASH_ACCESS_KEY` | Your Unsplash API key |
 | `DATABASE_URL` | PostgreSQL connection string from Neon |
-| `FRONTEND_URL` | `https://your-vercel-app.vercel.app` |
+| `FRONTEND_URL` | `https://your-vercel-app.vercel.app` (used for CORS) |
+| `ADMIN_SECRET` | A strong random string to protect admin endpoints |
 
 ### 3. Frontend — Vercel
 
@@ -187,17 +190,17 @@ Render's free tier sleeps after 15 minutes of inactivity. Set up a free uptime m
 
 ## API Reference
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/articles` | List articles — supports `?tag=`, `?limit=`, `?offset=` |
-| `GET` | `/articles/{id}` | Full article with markdown body and sources |
-| `GET` | `/tags` | All tags with article counts |
-| `GET` | `/rss` | RSS 2.0 feed (last 50 articles) |
-| `POST` | `/admin/run-pipeline` | Trigger pipeline immediately |
-| `POST` | `/admin/reset-items` | Re-queue all processed RSS items |
-| `DELETE` | `/admin/delete-all-articles` | Delete all articles and sources from DB |
-| `GET` | `/admin/stats` | Live pipeline stats |
-| `GET` / `HEAD` | `/health` | Health check — `{"status": "ok"}` |
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `GET` | `/articles` | — | List articles — supports `?tag=`, `?min_score=`, `?max_score=`, `?limit=`, `?offset=` |
+| `GET` | `/articles/{id}` | — | Full article with markdown body and sources |
+| `GET` | `/tags` | — | All tags with article counts |
+| `GET` | `/rss` | — | RSS 2.0 feed (last 50 articles) |
+| `POST` | `/admin/run-pipeline` | `X-Admin-Key` | Trigger pipeline immediately |
+| `POST` | `/admin/reset-items` | `X-Admin-Key` | Re-queue all processed RSS items |
+| `DELETE` | `/admin/delete-all-articles` | `X-Admin-Key` | Delete all articles and sources from DB |
+| `GET` | `/admin/stats` | `X-Admin-Key` | Live pipeline stats |
+| `GET` / `HEAD` | `/health` | — | Health check — `{"status": "ok"}` |
 
 ---
 
@@ -223,9 +226,11 @@ FoxScan/
     ├── app/
     │   ├── page.tsx                  # Homepage — client-side, handles cold start
     │   ├── about/page.tsx            # Chi siamo — platform overview
-    │   ├── article/[id]/page.tsx     # Article detail — ISR (revalidate 1h)
+    │   ├── article/[id]/page.tsx     # Article detail — ISR (revalidate 1h), OG metadata
     │   ├── category/[tag]/page.tsx   # Tag filter — ISR (revalidate 1min)
-    │   ├── admin/page.tsx            # Admin panel — live stats polling
+    │   ├── admin/page.tsx            # Admin panel — password login, live stats polling
+    │   ├── sitemap.ts                # Dynamic sitemap (last 100 articles)
+    │   ├── error.tsx                 # Global error boundary
     │   └── api/rss-proxy/route.ts    # Serverless RSS proxy
     ├── components/
     │   ├── Header.tsx         # FoxScan header with mascot branding
@@ -237,7 +242,8 @@ FoxScan/
     │   ├── BackendStatus.tsx  # Offline banner with context-aware message
     │   ├── ThemeToggle.tsx    # Dark / light mode toggle
     │   └── SourcesList.tsx    # External source links
-    └── lib/api.ts             # Type-safe API client
+    ├── lib/api.ts             # Type-safe API client
+    └── public/robots.txt      # Disallow /admin, Sitemap pointer
 ```
 
 ---
