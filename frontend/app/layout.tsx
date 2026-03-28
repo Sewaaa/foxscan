@@ -22,6 +22,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
     shortcut: "/icofs.ico",
   },
+  manifest: "/manifest.json",
   openGraph: {
     title: "FoxScan — Cybersecurity News",
     description: "Le notizie di cybersecurity più rilevanti, sintetizzate automaticamente da AI in un unico articolo completo.",
