@@ -172,7 +172,7 @@ function TopCriticalWidget({ articles }: { articles: ArticleSummary[] }) {
           return (
             <li key={a.id}>
               <Link href={`/article/${a.id}`} className="flex items-start gap-2.5 group">
-                <span className="shrink-0 w-5 h-5 mt-0.5 rounded-full bg-blue-50 dark:bg-white/8 text-blue-600 dark:text-[#00FFE5] text-[10px] font-bold flex items-center justify-center font-mono">
+                <span className="shrink-0 w-5 h-5 mt-0.5 rounded-full bg-blue-100 dark:bg-[#00FFE5]/12 text-blue-700 dark:text-[#00FFE5] text-[10px] font-bold flex items-center justify-center font-mono">
                   {i + 1}
                 </span>
                 <p className="flex-1 min-w-0 text-xs text-[#0B1F3A] dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-white transition-colors line-clamp-2 leading-snug">
@@ -352,9 +352,18 @@ export default function HomePage() {
               <HeroCard article={heroArticle} />
             </motion.div>
 
-            {/* Right column: secondary cards + top critical widget */}
+            {/* Right column: solo TopCriticalWidget */}
+            {briefingArticles.length > 0 && (
+              <motion.div variants={cardItem} initial="hidden" animate="show">
+                <TopCriticalWidget articles={briefingArticles} />
+              </motion.div>
+            )}
+          </div>
+
+          {/* Secondary articles — sotto il blocco hero */}
+          {secondaryArticles.length > 0 && (
             <motion.div
-              className="flex flex-col gap-4"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4"
               variants={cardGrid}
               initial="hidden"
               animate="show"
@@ -364,13 +373,8 @@ export default function HomePage() {
                   <SecondaryCard article={a} />
                 </motion.div>
               ))}
-              {briefingArticles.length > 0 && (
-                <motion.div variants={cardItem} className="flex-1">
-                  <TopCriticalWidget articles={briefingArticles} />
-                </motion.div>
-              )}
             </motion.div>
-          </div>
+          )}
         </motion.section>
       )}
 

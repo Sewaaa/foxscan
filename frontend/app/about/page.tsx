@@ -109,14 +109,14 @@ export default function AboutPage() {
 
       {/* ── Features ── */}
       <section className="mb-12 md:mb-16">
-        <h2 className="text-xl md:text-2xl font-extrabold text-[#0B1F3A] mb-2">Come funziona</h2>
-        <p className="text-gray-500 mb-6 md:mb-8">Tutto automatizzato, tutto trasparente.</p>
+        <h2 className="text-xl md:text-2xl font-extrabold text-[#0B1F3A] dark:text-slate-100 mb-2">Come funziona</h2>
+        <p className="text-gray-500 dark:text-slate-400 mb-6 md:mb-8">Tutto automatizzato, tutto trasparente.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {FEATURES.map((f) => (
             <div key={f.title} className="card-blue p-5 md:p-6">
               <div className="text-3xl mb-3">{f.icon}</div>
-              <h3 className="font-bold text-[#0B1F3A] mb-1.5">{f.title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
+              <h3 className="font-bold text-[#0B1F3A] dark:text-slate-100 mb-1.5">{f.title}</h3>
+              <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>
@@ -124,8 +124,8 @@ export default function AboutPage() {
 
       {/* ── Sources ── */}
       <section className="mb-12 md:mb-16">
-        <h2 className="text-xl md:text-2xl font-extrabold text-[#0B1F3A] mb-2">Le fonti</h2>
-        <p className="text-gray-500 mb-6 md:mb-8">Monitorate 24/7.</p>
+        <h2 className="text-xl md:text-2xl font-extrabold text-[#0B1F3A] dark:text-slate-100 mb-2">Le fonti</h2>
+        <p className="text-gray-500 dark:text-slate-400 mb-6 md:mb-8">Monitorate 24/7.</p>
         <div className="flex flex-wrap gap-2 md:gap-3">
           {SOURCES.map((s) => (
             <span
