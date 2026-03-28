@@ -196,7 +196,7 @@ function TopCriticalWidget({ articles }: { articles: ArticleSummary[] }) {
         <img
           src="/podio_nobg.png"
           alt=""
-          className="h-20 w-20 object-contain float-slow opacity-90"
+          className="h-32 w-32 object-contain float-slow opacity-90"
         />
       </div>
     </div>
@@ -399,7 +399,7 @@ export default function HomePage() {
             {/* TopCriticalWidget — col 3, row 1-2 (solo desktop) */}
             {briefingArticles.length > 0 && (
               <motion.div
-                className="hidden md:block md:col-start-3 md:row-start-1 md:row-span-2 md:border-l md:border-blue-100 md:dark:border-white/8 md:pl-5"
+                className="hidden md:block md:col-start-3 md:row-start-1 md:row-span-2 md:border-l border-blue-100 dark:border-[#00FFE5]/15 md:pl-5"
                 variants={cardItem} initial="hidden" animate="show"
               >
                 <TopCriticalWidget articles={briefingArticles} />
