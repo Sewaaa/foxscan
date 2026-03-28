@@ -35,6 +35,18 @@ export default function CategoryTagBar({ tags, activeTag }: Props) {
     };
   }, [update, tags]);
 
+  // Porta il tag attivo in vista al mount
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const active = container.querySelector("[data-active='true']") as HTMLElement | null;
+    if (!active) return;
+    const containerLeft = container.getBoundingClientRect().left;
+    const activeLeft    = active.getBoundingClientRect().left;
+    const offset        = activeLeft - containerLeft - container.clientWidth / 2 + active.offsetWidth / 2;
+    container.scrollBy({ left: offset, behavior: "smooth" });
+  }, [activeTag]);
+
   const scroll = (dir: "left" | "right") =>
     scrollRef.current?.scrollBy({ left: dir === "left" ? -220 : 220, behavior: "smooth" });
 
@@ -58,6 +70,7 @@ export default function CategoryTagBar({ tags, activeTag }: Props) {
         {/* Tutti */}
         <Link
           href="/category/tutti"
+          data-active={activeTag === null ? "true" : "false"}
           className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold border transition-all bg-blue-100 text-blue-800 border-blue-200 dark:bg-white/10 dark:text-slate-200 dark:border-white/10 ${
             activeTag === null
               ? "ring-2 ring-offset-1 ring-blue-400 dark:ring-[#00FFE5] opacity-100"
@@ -75,6 +88,7 @@ export default function CategoryTagBar({ tags, activeTag }: Props) {
             <Link
               key={tag}
               href={`/category/${encodeURIComponent(tag)}`}
+              data-active={isActive ? "true" : "false"}
               className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold border transition-all ${color} ${
                 isActive
                   ? "ring-2 ring-offset-1 ring-current opacity-100"
