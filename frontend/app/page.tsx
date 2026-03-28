@@ -58,60 +58,53 @@ const sectionFade = {
 function HeroCard({ article }: { article: ArticleSummary }) {
   const level = getLevel(article.relevance_score);
   const levelBg = level === 3 ? "bg-red-500" : level === 2 ? "bg-orange-500" : "bg-green-500";
+  const accentBorder = level === 3 ? "border-t-red-500" : level === 2 ? "border-t-orange-500" : "border-t-green-500";
 
   return (
     <Link
       href={`/article/${article.id}`}
-      className={`block relative overflow-hidden rounded-2xl group h-72 md:h-full min-h-[280px] md:min-h-[340px] ${level === 3 ? "critical-pulse" : ""}`}
+      className={`card-blue flex flex-col group overflow-hidden border-t-2 ${accentBorder} ${level === 3 ? "critical-pulse" : ""}`}
     >
-      {/* Background image */}
-      {article.image_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={article.image_url}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-          onError={(e) => {
-            const el = e.target as HTMLImageElement;
-            el.style.display = "none";
-            el.parentElement!.classList.add("img-placeholder");
-          }}
-        />
-      ) : (
-        <div className="absolute inset-0 img-placeholder" />
-      )}
+      {/* Image — fixed height, separated from text */}
+      <div className={`w-full h-48 md:h-52 shrink-0 overflow-hidden card-img-bg relative ${article.image_url ? "bg-blue-50" : "img-placeholder"}`}>
+        {article.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={article.image_url}
+            alt=""
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            onError={(e) => {
+              const el = e.target as HTMLImageElement;
+              el.style.display = "none";
+              el.parentElement!.classList.add("img-placeholder");
+            }}
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src="/testa_nobg.png" alt="" className="w-full h-full object-contain p-10 opacity-10" />
+        )}
+      </div>
 
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/92 via-black/45 to-black/10" />
-      {level === 3 && (
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent" />
-      )}
-
-      {/* Content */}
-      <div className="absolute inset-0 flex flex-col justify-end p-5 md:p-7">
+      {/* Text content — completely separate from image */}
+      <div className="p-5 md:p-6 flex flex-col flex-1">
         <div className="flex items-center gap-2 mb-3">
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold text-white ${levelBg}`}>
             {LEVEL_LABELS[level]}
           </span>
-          <span className="text-white/45 text-xs">
+          <span className="text-xs text-gray-400 card-meta">
             {formatDateShort(article.published_at)} · {article.sources.length} fonte{article.sources.length !== 1 ? "i" : ""}
           </span>
         </div>
 
-        <h2 className="font-grotesk font-extrabold text-white text-xl md:text-2xl leading-tight mb-3 group-hover:text-[#00FFE5] transition-colors duration-300 line-clamp-3 md:line-clamp-2">
+        <h2 className="card-title font-grotesk font-extrabold text-[#0B1F3A] text-lg md:text-xl leading-snug mb-3 group-hover:text-blue-600 dark:group-hover:text-[#00FFE5] transition-colors line-clamp-3">
           {article.title}
         </h2>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="mt-auto flex items-center gap-2 flex-wrap pt-3 border-t border-blue-50 dark:border-white/5">
           {article.tags.slice(0, 3).map((tag) => (
-            <span
-              key={tag}
-              className="text-white/60 text-xs bg-white/10 px-2 py-0.5 rounded-full backdrop-blur-sm border border-white/10"
-            >
-              {tag}
-            </span>
+            <TagBadge key={tag} tag={tag} linked={false} />
           ))}
-          <span className="ml-auto text-[#00FFE5] font-bold text-sm group-hover:translate-x-1 transition-transform inline-block">
+          <span className="ml-auto text-blue-600 dark:text-[#00FFE5] font-bold text-sm group-hover:translate-x-1 transition-transform inline-block">
             Leggi →
           </span>
         </div>
@@ -283,6 +276,7 @@ export default function HomePage() {
     setTimeout(() => document.getElementById("ultime-notizie")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   };
   const [levelFilter, setLevelFilter] = useState(0);
+  const [tagFilter, setTagFilter]     = useState<string | null>(null);
   const [articles, setArticles]       = useState<ArticleSummary[]>([]);
   const [inEvidenza, setInEvidenza]   = useState<ArticleSummary[]>([]);
   const [allLatest, setAllLatest]     = useState<ArticleSummary[]>([]);
@@ -305,7 +299,7 @@ export default function HomePage() {
     const offset      = (page - 1) * PAGE_SIZE;
     const scoreParams = LEVEL_RANGES[levelFilter];
     Promise.all([
-      getArticles({ limit: PAGE_SIZE, offset, ...scoreParams }),
+      getArticles({ limit: PAGE_SIZE, offset, ...scoreParams, ...(tagFilter ? { tag: tagFilter } : {}) }),
       getTags(),
     ]).then(([articlesRes, tagsRes]) => {
       setArticles(articlesRes.items);
@@ -319,9 +313,10 @@ export default function HomePage() {
         setTimeout(() => setRetryCount((r) => r + 1), delay);
       }
     });
-  }, [page, levelFilter, retryCount]);
+  }, [page, levelFilter, tagFilter, retryCount]);
 
   function changeLevel(lvl: number) { setLevelFilter(lvl); setPage(1); }
+  function changeTag(tag: string | null) { setTagFilter(tag); setPage(1); }
 
   const totalPages       = Math.ceil(total / PAGE_SIZE);
   const topTags          = tags.slice(0, 12);
@@ -391,7 +386,7 @@ export default function HomePage() {
               className={`shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
                 levelFilter === lvl
                   ? "border-blue-600 bg-blue-600 text-white dark:border-[#00FFE5] dark:bg-[#00FFE5]/15 dark:text-[#00FFE5]"
-                  : "filter-btn-inactive border-blue-200 text-gray-600 hover:border-blue-400 hover:text-blue-600 bg-white"
+                  : "filter-btn-inactive border-blue-200 dark:border-white/8 text-gray-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:border-[#00FFE5]/40 dark:hover:text-[#00FFE5]"
               }`}
             >
               {lvl > 0 && (
@@ -408,15 +403,19 @@ export default function HomePage() {
             <div className="shrink-0 w-px h-4 bg-blue-100 dark:bg-white/10 mx-1" />
           )}
 
-          {/* Tag pills — navigate to category page */}
+          {/* Tag pills — filter in-place */}
           {topTags.map(({ tag }) => (
-            <Link
+            <button
               key={tag}
-              href={`/category/${tag}`}
-              className="shrink-0 whitespace-nowrap text-xs px-3 py-1.5 rounded-full border font-medium transition-all filter-btn-inactive border-blue-200 text-gray-600 bg-white hover:border-blue-400 hover:text-blue-600"
+              onClick={() => changeTag(tagFilter === tag ? null : tag)}
+              className={`shrink-0 whitespace-nowrap text-xs px-3 py-1.5 rounded-full border font-medium transition-all ${
+                tagFilter === tag
+                  ? "border-blue-600 bg-blue-600 text-white dark:border-[#00FFE5] dark:bg-[#00FFE5]/15 dark:text-[#00FFE5]"
+                  : "filter-btn-inactive border-blue-200 dark:border-white/8 text-gray-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:border-[#00FFE5]/40 dark:hover:text-[#00FFE5]"
+              }`}
             >
               {tag}
-            </Link>
+            </button>
           ))}
         </div>
       </div>
