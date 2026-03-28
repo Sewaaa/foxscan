@@ -160,7 +160,7 @@ function TopCriticalWidget({ articles }: { articles: ArticleSummary[] }) {
     <div className="card-blue p-4 md:p-5 h-full flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <Zap size={14} className="text-blue-600 dark:text-[#00FFE5] shrink-0" />
-        <span className="font-grotesk font-bold text-sm text-[#0B1F3A] dark:text-white">Top criticità</span>
+        <span className="font-grotesk font-bold text-sm text-[#0B1F3A] dark:text-white">Top criticità del giorno</span>
       </div>
       <ol className="flex flex-col justify-between flex-1 gap-1">
         {top5.map((a, i) => {
@@ -345,37 +345,49 @@ export default function HomePage() {
             </span>
           </div>
 
-          {/* Main row: hero + right column */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/*
+            Grid desktop (3 col, 2 righe):
+              Hero          → col 1-2, row 1
+              Secondary     → col 1-2, row 2
+              TopCritical   → col 3,   row 1-2
 
-            {/* Hero — spans 2 cols */}
-            <motion.div className="md:col-span-2" variants={cardItem} initial="hidden" animate="show">
+            Mobile (1 col, ordine JSX):
+              Hero → Secondary → TopCritical ✓
+          */}
+          <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-[auto_auto] gap-4">
+
+            {/* Hero — col 1-2, row 1 */}
+            <motion.div
+              className="md:col-span-2 md:row-start-1"
+              variants={cardItem} initial="hidden" animate="show"
+            >
               <HeroCard article={heroArticle} />
             </motion.div>
 
-            {/* Right column: solo TopCriticalWidget */}
+            {/* Secondary articles — col 1-2, row 2 (su mobile stanno qui, dopo hero) */}
+            {secondaryArticles.length > 0 && (
+              <motion.div
+                className="md:col-span-2 md:row-start-2 grid grid-cols-1 sm:grid-cols-2 gap-4 items-stretch"
+                variants={cardGrid} initial="hidden" animate="show"
+              >
+                {secondaryArticles.map((a) => (
+                  <motion.div key={a.id} variants={cardItem} className="h-full">
+                    <SecondaryCard article={a} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+
+            {/* TopCriticalWidget — col 3, row 1-2 (su mobile va in fondo) */}
             {briefingArticles.length > 0 && (
-              <motion.div variants={cardItem} initial="hidden" animate="show">
+              <motion.div
+                className="md:col-start-3 md:row-start-1 md:row-span-2"
+                variants={cardItem} initial="hidden" animate="show"
+              >
                 <TopCriticalWidget articles={briefingArticles} />
               </motion.div>
             )}
           </div>
-
-          {/* Secondary articles — sotto il blocco hero */}
-          {secondaryArticles.length > 0 && (
-            <motion.div
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 items-stretch"
-              variants={cardGrid}
-              initial="hidden"
-              animate="show"
-            >
-              {secondaryArticles.map((a) => (
-                <motion.div key={a.id} variants={cardItem} className="h-full">
-                  <SecondaryCard article={a} />
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
         </motion.section>
       )}
 
