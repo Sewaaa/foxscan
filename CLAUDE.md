@@ -47,7 +47,7 @@ The core loop runs every 30 minutes via APScheduler and also once on startup (in
 discovery → clustering → [merger | scraper + synthesizer] → image_finder → DB save
 ```
 
-1. **`pipeline/discovery.py`** — fetches 7 RSS feeds, deduplicates via SHA-256 URL hash, stores unprocessed `RssItem` rows
+1. **`pipeline/discovery.py`** — fetches 17 RSS feeds, deduplicates via SHA-256 URL hash, stores unprocessed `RssItem` rows
 2. **`pipeline/clustering.py`** — groups items with `rapidfuzz.token_set_ratio` threshold 55 (greedy)
 3. **`pipeline/merger.py`** — before clustering, tries to match each item against existing articles (< 24h, same threshold); if found, re-synthesizes in-place instead of creating a new article
 4. **`pipeline/scraper.py`** — trafilatura with 2-worker ThreadPoolExecutor; falls back to RSS content cached in `rss_content` column. SSRF protection via `_is_safe_url()` — blocks private/loopback IPs but fails-open on DNS exceptions (intentional — avoids blocking legitimate scraping)

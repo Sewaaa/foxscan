@@ -6,17 +6,27 @@ import ByteMascot from "@/components/ByteMascot";
 export const metadata: Metadata = {
   title: "Chi siamo — FoxScan",
   description:
-    "FoxScan è una piattaforma AI-powered che aggrega e sintetizza le notizie di cybersecurity più rilevanti da 7+ fonti top.",
+    "FoxScan è una piattaforma AI-powered che aggrega e sintetizza le notizie di cybersecurity più rilevanti da 17+ fonti top.",
 };
 
 const SOURCES = [
-  { name: "BleepingComputer",  icon: "🖥️" },
-  { name: "The Hacker News",   icon: "📰" },
-  { name: "Krebs on Security", icon: "🔍" },
-  { name: "Dark Reading",      icon: "🌑" },
-  { name: "SecurityWeek",      icon: "📡" },
-  { name: "CISA Alerts",       icon: "🏛️" },
-  { name: "Recorded Future",   icon: "🧠" },
+  { name: "BleepingComputer",      icon: "🖥️" },
+  { name: "The Hacker News",       icon: "📰" },
+  { name: "Krebs on Security",     icon: "🔍" },
+  { name: "Dark Reading",          icon: "🌑" },
+  { name: "CISA Alerts",           icon: "🏛️" },
+  { name: "Security Affairs",      icon: "🔐" },
+  { name: "Graham Cluley",         icon: "✍️" },
+  { name: "SecurityWeek",          icon: "📡" },
+  { name: "Help Net Security",     icon: "🛡️" },
+  { name: "Infosecurity Magazine", icon: "📋" },
+  { name: "Ars Technica",          icon: "⚙️" },
+  { name: "Wired Security",        icon: "🌐" },
+  { name: "Naked Security",        icon: "🐑" },
+  { name: "CyberScoop",            icon: "🔭" },
+  { name: "The Register",          icon: "📝" },
+  { name: "Malwarebytes",          icon: "🦠" },
+  { name: "Recorded Future",       icon: "🧠" },
 ];
 
 const FEATURES = [

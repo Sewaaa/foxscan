@@ -1,6 +1,7 @@
 import os
 
 RSS_FEEDS = [
+    # Fonti originali
     "https://www.bleepingcomputer.com/feed/",
     "https://feeds.feedburner.com/TheHackersNews",
     "https://krebsonsecurity.com/feed/",
@@ -8,6 +9,17 @@ RSS_FEEDS = [
     "https://www.cisa.gov/cybersecurity-advisories/feed.xml",
     "https://securityaffairs.com/feed",
     "https://grahamcluley.com/feed/",
+    # Fonti aggiuntive
+    "https://www.securityweek.com/feed/",
+    "https://www.helpnetsecurity.com/feed/",
+    "https://www.infosecurity-magazine.com/rss/news/",
+    "https://feeds.arstechnica.com/arstechnica/security",
+    "https://www.wired.com/feed/category/security/latest/rss",
+    "https://nakedsecurity.sophos.com/feed/",
+    "https://cyberscoop.com/feed/",
+    "https://www.theregister.com/security/headlines.atom",
+    "https://www.malwarebytes.com/blog/feed/",
+    "https://www.recordedfuture.com/feed",
 ]
 
 # LLM

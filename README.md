@@ -10,7 +10,7 @@
 
 FoxScan runs a fully automated pipeline every 30 minutes:
 
-1. **Discovery** — polls 7 RSS feeds from top cybersecurity sources and deduplicates via SHA-256
+1. **Discovery** — polls 17 RSS feeds from top cybersecurity sources and deduplicates via SHA-256
 2. **Clustering** — groups related stories by topic using fuzzy string similarity (rapidfuzz, threshold 55)
 3. **Scraping** — extracts full article text via trafilatura, with RSS summary as automatic fallback
 4. **Synthesis** — sends each cluster to Groq LLaMA 3.3 70B, which returns a structured Italian briefing: title, summary, markdown body, tags, and relevance score
@@ -50,7 +50,7 @@ FoxScan runs a fully automated pipeline every 30 minutes:
 │  FastAPI — /articles  /tags  /rss  /admin/*  /health    │
 │                                                          │
 │  APScheduler ──► Pipeline (every 30 min)                │
-│    ├── Discovery    (feedparser → 7 RSS feeds)          │
+│    ├── Discovery    (feedparser → 17 RSS feeds)         │
 │    ├── Clustering   (rapidfuzz similarity)              │
 │    ├── Scraping     (trafilatura + RSS fallback)        │
 │    ├── Synthesis    (Groq → LLaMA 3.3 70B → JSON)      │
