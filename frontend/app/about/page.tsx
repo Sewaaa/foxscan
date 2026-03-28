@@ -81,7 +81,7 @@ export default function AboutPage() {
               Sempre un passo avanti <span className="text-[#06E6D9]">su ogni minaccia.</span>
             </h1>
             <p className="text-blue-200 text-base md:text-lg leading-relaxed mb-6 md:mb-8 max-w-lg">
-              Scansiona ogni giorno 7+ fonti top di cybersecurity, raggruppa gli articoli duplicati
+              Scansiona ogni giorno 17+ fonti top di cybersecurity, raggruppa gli articoli duplicati
               e li sintetizza con AI in un unico briefing — chiaro, completo, gratuito.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -101,7 +101,7 @@ export default function AboutPage() {
 
             {/* Trust badges */}
             <div className="mt-6 md:mt-8 flex flex-wrap gap-3">
-              {["7+ Fonti", "Sintesi AI", "Aggiornato 24/7"].map((b) => (
+              {["17+ Fonti", "Sintesi AI", "Aggiornato 24/7"].map((b) => (
                 <span key={b} className="text-xs text-blue-300 border border-blue-700 rounded-full px-3 py-1 bg-blue-900/40">
                   {b}
                 </span>
