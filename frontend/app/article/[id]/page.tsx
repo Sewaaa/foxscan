@@ -104,7 +104,7 @@ export default async function ArticlePage({ params }: PageProps) {
               <img
                 src="/sintesi_nobg.png"
                 alt="mascotte"
-                className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 object-contain float-slow self-center sm:self-start"
+                className="shrink-0 w-24 h-24 sm:w-28 sm:h-28 object-contain float-slow self-center sm:self-start"
               />
               <div>
                 <p className="byte-label text-[11px] text-blue-500 font-bold uppercase tracking-widest mb-1.5">
