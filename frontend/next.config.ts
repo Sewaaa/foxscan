@@ -15,7 +15,7 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",  // richiesto da Next.js
       "style-src 'self' 'unsafe-inline'",                 // richiesto da Tailwind
       "img-src 'self' https: data: blob:",
-      `connect-src 'self' ${API_URL}`,
+      `connect-src 'self' ${API_URL} https://formspree.io`,
       "font-src 'self' https://fonts.gstatic.com",
       "frame-ancestors 'none'",
     ].join("; "),
