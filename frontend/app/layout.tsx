@@ -179,17 +179,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <p className="text-xs text-gray-400 dark:text-slate-600">
                 © 2026 FoxScan — Tutti i diritti riservati
               </p>
-              <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-slate-600">
-                <Link href="/privacy" className="hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors">
-                  Privacy
-                </Link>
-                <span>·</span>
-                <Link href="/privacy#cookie" className="hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors">
-                  Cookie
-                </Link>
-                <span>·</span>
-                <span>Reg. UE 2016/679 (GDPR)</span>
-              </div>
+              <p className="text-xs text-gray-400 dark:text-slate-600">
+                Reg. UE 2016/679 (GDPR)
+              </p>
             </div>
           </div>
         </footer>
