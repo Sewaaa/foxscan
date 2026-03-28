@@ -13,7 +13,7 @@ export default function ByteMascot({ size = 176, className = "" }: Props) {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/fs_nobg.png"
+        src="/logo fs_nobg.png"
         alt="La mascotte di FoxScan"
         className="w-full h-full object-contain drop-shadow-2xl"
         onError={(e) => {

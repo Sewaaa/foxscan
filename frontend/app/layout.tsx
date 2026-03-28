@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "FoxScan — AI Cybersecurity Intelligence",
   description:
     "Le notizie di cybersecurity più rilevanti, sintetizzate automaticamente da AI in un unico articolo completo.",
-  icons: { icon: "/fs_nobg.png" },
+  icons: { icon: "/icofs.ico" },
   openGraph: {
     title: "FoxScan — AI Cybersecurity Intelligence",
     description: "Le notizie di cybersecurity più rilevanti, sintetizzate automaticamente da AI in un unico articolo completo.",
