@@ -341,38 +341,6 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1rem;
 }
 
-/* ─── Bento Grid ────────────────────────────────────────────────────────── */
-/*
- * Mobile  (< md):   1-col, all items stack
- * Tablet  (md–xl):  2-col, hero = full width (col-span-2)
- * Desktop (≥ xl):   3-col, hero = 2-col × 2-row, side cards fill 3rd col
- */
-.bento-grid {
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 768px) {
-  .bento-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .bento-hero { grid-column: span 2; }
-  .bento-side { grid-column: span 1; }
-  .bento-cell { grid-column: span 1; }
-}
-
-@media (min-width: 1280px) {
-  .bento-grid {
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: minmax(195px, auto);
-  }
-  .bento-hero {
-    grid-column: span 2;
-    grid-row:    span 2;
-  }
-  .bento-side { grid-column: span 1; grid-row: span 1; }
-  .bento-cell { grid-column: span 1; grid-row:  span 1; }
-}
-
 /* ─── Scrollbar hide ────────────────────────────────────────────────────── */
 .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
