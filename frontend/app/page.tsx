@@ -128,7 +128,7 @@ function SecondaryCard({ article }: { article: ArticleSummary }) {
       style={{ borderRadius: "16px" }}
     >
       {article.image_url && (
-        <div className="shrink-0 w-20 overflow-hidden card-img-bg bg-blue-50">
+        <div className="shrink-0 w-20 h-20 overflow-hidden card-img-bg bg-blue-50">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={article.image_url}
