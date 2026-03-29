@@ -143,7 +143,7 @@ def rss_feed(request: Request, db: Session = Depends(get_db)):
         item = SubElement(channel, "item")
         SubElement(item, "title").text = article.title
         SubElement(item, "link").text = f"{fe_url}/article/{article.id}"
-        SubElement(item, "description").text = article.body or article.summary or ""
+        SubElement(item, "description").text = article.summary or ""
         SubElement(item, "pubDate").text = article.published_at.strftime("%a, %d %b %Y %H:%M:%S +0000")
         SubElement(item, "guid").text = str(article.id)
 
