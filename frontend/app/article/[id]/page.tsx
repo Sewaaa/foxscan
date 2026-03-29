@@ -108,7 +108,7 @@ export default async function ArticlePage({ params }: PageProps) {
               <img
                 src="/sintesi_nobg.png"
                 alt=""
-                className="shrink-0 w-20 h-20 md:w-24 md:h-24 object-contain float-slow self-end opacity-95"
+                className="shrink-0 w-20 h-20 md:w-24 md:h-24 object-contain float-slow self-center opacity-95"
               />
 
               {/* Content */}

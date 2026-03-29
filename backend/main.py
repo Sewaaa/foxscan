@@ -134,16 +134,16 @@ def rss_feed(request: Request, db: Session = Depends(get_db)):
 
     fe_url = os.getenv("FRONTEND_URL", "https://foxscan.vercel.app").rstrip("/")
 
-    SubElement(channel, "title").text = "FoxScan — Cybersecurity in italiano"
+    SubElement(channel, "title").text = "FoxScan — Cybersecurity News"
     SubElement(channel, "link").text = fe_url
-    SubElement(channel, "description").text = "Le notizie di cybersecurity più rilevanti, sintetizzate da AI"
+    SubElement(channel, "description").text = "Le notizie di cybersecurity più rilevanti, sintetizzate da AI ogni 30 minuti."
     SubElement(channel, "language").text = "it"
 
     for article in articles:
         item = SubElement(channel, "item")
         SubElement(item, "title").text = article.title
         SubElement(item, "link").text = f"{fe_url}/article/{article.id}"
-        SubElement(item, "description").text = article.summary or ""
+        SubElement(item, "description").text = article.body or article.summary or ""
         SubElement(item, "pubDate").text = article.published_at.strftime("%a, %d %b %Y %H:%M:%S +0000")
         SubElement(item, "guid").text = str(article.id)
 
