@@ -139,7 +139,7 @@ export default async function ArticlePage({ params }: PageProps) {
           <RelevanceDots score={article.relevance_score} />
           <span className="text-gray-300">·</span>
           <a href="#fonti" className="text-blue-600 dark:text-blue-400 hover:underline text-xs md:text-sm">
-            {article.sources.length} fonte{article.sources.length !== 1 ? "i" : ""}
+            {article.sources.length} font{article.sources.length !== 1 ? "i" : "e"}
           </a>
         </div>
       </header>

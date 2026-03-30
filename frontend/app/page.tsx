@@ -92,7 +92,7 @@ function HeroCard({ article }: { article: ArticleSummary }) {
             {LEVEL_LABELS[level]}
           </span>
           <span className="text-xs text-gray-400 card-meta">
-            {formatDateShort(article.published_at)} · {article.sources.length} fonte{article.sources.length !== 1 ? "i" : ""}
+            {formatDateShort(article.published_at)} · {article.sources.length} font{article.sources.length !== 1 ? "i" : "e"}
           </span>
         </div>
 
