@@ -38,16 +38,16 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
   );
 }
 
-function MultiSourceGauge({ pct, count, total }: { pct: number; count: number; total: number }) {
+function MultiSourceGauge({ label, pct, count, total }: { label: string; pct: number; count: number; total: number }) {
   const color = pct >= 60 ? "text-green-500" : pct >= 30 ? "text-amber-400" : "text-red-500";
   const barColor = pct >= 60 ? "bg-green-500" : pct >= 30 ? "bg-amber-400" : "bg-red-500";
 
   return (
-    <div className="border border-blue-100 dark:border-zinc-800 rounded-xl p-5 bg-white dark:bg-zinc-900 col-span-2">
+    <div className="border border-blue-100 dark:border-zinc-800 rounded-xl p-5 bg-white dark:bg-zinc-900">
       <div className="flex items-start justify-between mb-3">
         <div>
           <p className="text-xs text-gray-400 dark:text-zinc-500 uppercase tracking-wide mb-0.5">
-            Copertura multi-fonte (ultime 24h)
+            {label}
           </p>
           <p className="text-xs text-gray-400 dark:text-zinc-600">
             {count} su {total} articoli hanno più di una fonte
@@ -237,12 +237,19 @@ export default function AdminPage() {
         <StatCard label="Ultimo articolo" value={lastAt} />
       </div>
 
-      {/* Multi-source gauge */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Multi-source gauges */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <MultiSourceGauge
-          pct={stats?.multi_source_pct ?? 0}
+          label="Copertura multi-fonte — 24h"
+          pct={stats?.multi_source_pct_24h ?? 0}
           count={stats?.multi_source_last_24h ?? 0}
           total={stats?.articles_last_24h ?? 0}
+        />
+        <MultiSourceGauge
+          label="Copertura multi-fonte — 48h"
+          pct={stats?.multi_source_pct_48h ?? 0}
+          count={stats?.multi_source_last_48h ?? 0}
+          total={stats?.articles_last_48h ?? 0}
         />
       </div>
 

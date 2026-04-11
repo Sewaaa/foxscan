@@ -43,7 +43,10 @@ export interface AdminStats {
   pipeline_running: boolean;
   articles_last_24h: number;
   multi_source_last_24h: number;
-  multi_source_pct: number;
+  multi_source_pct_24h: number;
+  articles_last_48h: number;
+  multi_source_last_48h: number;
+  multi_source_pct_48h: number;
 }
 
 async function apiFetch<T>(path: string): Promise<T> {

@@ -237,23 +237,26 @@ def get_stats(request: Request, db: Session = Depends(get_db), _: None = Depends
 
     last_article = db.query(Article).order_by(Article.published_at.desc()).first()
 
-    # Articoli ultime 24h e percentuale con più di una fonte
-    since = datetime.utcnow() - timedelta(hours=24)
-    recent_articles = db.query(Article).filter(Article.published_at >= since).all()
-    articles_last_24h = len(recent_articles)
-
-    multi_source = 0
-    if recent_articles:
-        recent_ids = [a.id for a in recent_articles]
+    def _multi_source_stats(articles):
+        if not articles:
+            return 0, 0
+        ids = [a.id for a in articles]
         counts = (
             db.query(Source.article_id, func.count(Source.id).label("n"))
-            .filter(Source.article_id.in_(recent_ids))
+            .filter(Source.article_id.in_(ids))
             .group_by(Source.article_id)
             .all()
         )
-        multi_source = sum(1 for _, n in counts if n > 1)
+        multi = sum(1 for _, n in counts if n > 1)
+        pct = round(multi / len(articles) * 100)
+        return multi, pct
 
-    multi_source_pct = round(multi_source / articles_last_24h * 100) if articles_last_24h else 0
+    now = datetime.utcnow()
+    articles_24h = db.query(Article).filter(Article.published_at >= now - timedelta(hours=24)).all()
+    articles_48h = db.query(Article).filter(Article.published_at >= now - timedelta(hours=48)).all()
+
+    multi_24, pct_24 = _multi_source_stats(articles_24h)
+    multi_48, pct_48 = _multi_source_stats(articles_48h)
 
     return {
         "total_articles": total_articles,
@@ -262,9 +265,12 @@ def get_stats(request: Request, db: Session = Depends(get_db), _: None = Depends
         "last_article_at": last_article.published_at.isoformat() if last_article else None,
         "server_time": datetime.utcnow().isoformat(),
         "pipeline_running": _pipeline_status["running"],
-        "articles_last_24h": articles_last_24h,
-        "multi_source_last_24h": multi_source,
-        "multi_source_pct": multi_source_pct,
+        "articles_last_24h": len(articles_24h),
+        "multi_source_last_24h": multi_24,
+        "multi_source_pct_24h": pct_24,
+        "articles_last_48h": len(articles_48h),
+        "multi_source_last_48h": multi_48,
+        "multi_source_pct_48h": pct_48,
     }
 
 
