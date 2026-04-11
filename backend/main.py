@@ -1,10 +1,23 @@
 import logging
 import os
 import threading
+import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Optional
 from xml.etree.ElementTree import Element, SubElement, tostring
+
+import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+
+_sentry_dsn = os.getenv("SENTRY_DSN")
+if _sentry_dsn:
+    sentry_sdk.init(
+        dsn=_sentry_dsn,
+        integrations=[FastApiIntegration()],
+        traces_sample_rate=0.1,
+        environment=os.getenv("ENVIRONMENT", "production"),
+    )
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -108,17 +121,27 @@ def get_article(request: Request, article_id: int, db: Session = Depends(get_db)
 # ── Tags ──────────────────────────────────────────────────────────────────────
 
 
+_tags_cache: dict = {"data": None, "ts": 0.0}
+_TAGS_TTL = 300  # 5 minuti
+
+
 @app.get("/tags")
 @limiter.limit("30/minute")
 def list_tags(request: Request, db: Session = Depends(get_db)):
-    """Restituisce tutti i tag con il conteggio degli articoli per ciascuno."""
+    """Restituisce tutti i tag con il conteggio degli articoli per ciascuno. Cache 5 min."""
+    if _tags_cache["data"] is not None and (time.time() - _tags_cache["ts"]) < _TAGS_TTL:
+        return _tags_cache["data"]
+
     articles = db.query(Article).all()
     tag_counts: dict[str, int] = {}
     for article in articles:
         for tag in article.tags_list:
             tag_counts[tag] = tag_counts.get(tag, 0) + 1
 
-    return [{"tag": k, "count": v} for k, v in sorted(tag_counts.items(), key=lambda x: -x[1])]
+    result = [{"tag": k, "count": v} for k, v in sorted(tag_counts.items(), key=lambda x: -x[1])]
+    _tags_cache["data"] = result
+    _tags_cache["ts"] = time.time()
+    return result
 
 
 # ── RSS feed in uscita ────────────────────────────────────────────────────────

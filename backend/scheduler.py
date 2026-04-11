@@ -5,6 +5,8 @@ import threading
 import time
 from datetime import datetime
 
+import sentry_sdk
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy.orm import Session
 
@@ -74,6 +76,7 @@ def run_pipeline(db: Session | None = None) -> dict:
                     to_cluster.append(item)
             except Exception as e:
                 logger.error(f"Errore nel merge di item {item['id']}: {e}")
+                sentry_sdk.capture_exception(e)
                 to_cluster.append(item)
             gc.collect()
 
@@ -90,6 +93,7 @@ def run_pipeline(db: Session | None = None) -> dict:
                     stats["articles_created"] += 1
             except Exception as e:
                 logger.error(f"Errore su cluster {ids}: {e}")
+                sentry_sdk.capture_exception(e)
                 stats["errors"] += 1
                 mark_processed(db, ids)  # marchia comunque per evitare loop
             gc.collect()

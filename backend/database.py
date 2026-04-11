@@ -49,3 +49,17 @@ def init_db():
                 conn.commit()
             except Exception:
                 pass  # colonna già presente
+
+        # Indici per query frequenti — idempotenti, sicuri su DB popolati
+        indices = [
+            "CREATE INDEX IF NOT EXISTS idx_articles_published_at ON articles (published_at DESC)",
+            "CREATE INDEX IF NOT EXISTS idx_articles_relevance_score ON articles (relevance_score DESC)",
+            "CREATE INDEX IF NOT EXISTS idx_articles_tags ON articles (tags)",
+            "CREATE INDEX IF NOT EXISTS idx_rss_items_processed ON rss_items (processed)",
+        ]
+        for ddl in indices:
+            try:
+                conn.execute(text(ddl))
+                conn.commit()
+            except Exception:
+                pass
