@@ -31,6 +31,7 @@ export default function Header() {
           <img
             src="/testa_nobg.png"
             alt=""
+            decoding="sync"
             className="h-10 w-10 object-contain transition-all duration-300 group-hover:scale-110 neon-glow-logo"
           />
           <span className="font-grotesk font-extrabold text-xl tracking-tight">
