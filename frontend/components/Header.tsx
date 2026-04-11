@@ -112,13 +112,6 @@ export default function Header() {
               {label}
             </Link>
           ))}
-          <Link
-            href="/rss"
-            onClick={() => setOpen(false)}
-            className="px-4 py-3.5 text-sm text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors font-mono text-xs tracking-wide"
-          >
-            RSS
-          </Link>
         </nav>
       )}
     </header>
