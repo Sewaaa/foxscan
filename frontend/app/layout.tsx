@@ -85,7 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </span>
                 </div>
                 <p className="text-sm text-gray-500 dark:text-slate-500 leading-relaxed mb-3">
-                  Il tuo guardiano cyber, 24/7. Notizie di cybersecurity sintetizzate dall&apos;AI, aggiornate ogni 30 minuti.
+                  Il tuo guardiano cyber, 24/7. Le notizie di cybersecurity più rilevanti, aggiornate ogni 30 minuti.
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   <span className="text-[11px] text-gray-400 dark:text-[#00FFE5]/40 px-2.5 py-0.5 rounded-full border border-blue-100 dark:border-[#00FFE5]/10 bg-blue-50 dark:bg-transparent">
