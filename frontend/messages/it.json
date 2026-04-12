@@ -20,7 +20,7 @@
     "critical": "Critica"
   },
   "backendStatus": {
-    "message": "Aggiornamento in corso — riprova tra qualche secondo."
+    "message": "Aggiornamento in corso · riprova tra qualche secondo."
   },
   "sources": {
     "title": "Fonti originali",
@@ -36,8 +36,8 @@
     "cookiePolicy": "Cookie Policy",
     "aiDisclaimer": "Disclaimer AI",
     "noCookies": "Nessun cookie di profilazione. Solo cookie tecnici.",
-    "disclaimer": "Gli articoli sono sintetizzati da intelligenza artificiale — le fonti originali sono sempre citate. I contenuti hanno scopo puramente informativo e non costituiscono consulenza professionale di sicurezza informatica. I diritti sulle fonti originali appartengono ai rispettivi editori.",
-    "copyright": "© 2026 FoxScan — Tutti i diritti riservati",
+    "disclaimer": "Gli articoli sono sintetizzati da intelligenza artificiale · le fonti originali sono sempre citate. I contenuti hanno scopo puramente informativo e non costituiscono consulenza professionale di sicurezza informatica. I diritti sulle fonti originali appartengono ai rispettivi editori.",
+    "copyright": "© 2026 FoxScan · Tutti i diritti riservati",
     "gdpr": "Reg. UE 2016/679 (GDPR)",
     "rss": "Feed RSS",
     "contact": "Contatti",
@@ -89,12 +89,12 @@
     "allArticles": "tutti gli articoli →",
     "noCategories": "Nessuna categoria disponibile al momento.",
     "noArticles": "Nessun articolo per questa categoria.",
-    "endOfFeed": "— Fine del feed —",
+    "endOfFeed": "· Fine del feed ·",
     "sortLabel": "Notizie · dal più recente"
   },
   "about": {
     "hero": "Sempre un passo avanti su ogni minaccia.",
-    "heroDesc": "Scansiona ogni giorno 17+ fonti top di cybersecurity, raggruppa gli articoli duplicati e li sintetizza in un unico briefing — chiaro, completo, gratuito.",
+    "heroDesc": "Scansiona ogni giorno 17+ fonti top di cybersecurity, raggruppa gli articoli duplicati e li sintetizza in un unico briefing · chiaro, completo, gratuito.",
     "exploreBtn": "Esplora le notizie →",
     "howTitle": "Come funziona",
     "howDesc": "Tutto automatizzato, tutto trasparente.",

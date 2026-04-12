@@ -7,8 +7,8 @@ import ByteMascot from "@/components/ByteMascot";
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   return locale === "en"
-    ? { title: "About — FoxScan", description: "FoxScan is an AI-powered platform that aggregates and synthesizes the most relevant cybersecurity news from 17+ top sources." }
-    : { title: "Chi siamo — FoxScan", description: "FoxScan è una piattaforma AI-powered che aggrega e sintetizza le notizie di cybersecurity più rilevanti da 17+ fonti top." };
+    ? { title: "About · FoxScan", description: "FoxScan is an AI-powered platform that aggregates and synthesizes the most relevant cybersecurity news from 17+ top sources." }
+    : { title: "Chi siamo · FoxScan", description: "FoxScan è una piattaforma AI-powered che aggrega e sintetizza le notizie di cybersecurity più rilevanti da 17+ fonti top." };
 }
 
 const SOURCES = [

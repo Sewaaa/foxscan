@@ -7,7 +7,7 @@ import { getTranslations } from "next-intl/server";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Esplora categorie — FoxScan",
+  title: "Esplora categorie · FoxScan",
   description: "Sfoglia tutte le categorie di notizie cybersecurity su FoxScan.",
 };
 
@@ -27,7 +27,7 @@ export default async function CategoryIndexPage() {
           {t("title")}
         </h1>
         <p className="text-sm text-gray-500 dark:text-slate-400">
-          {tags.length} categorie disponibili — clicca per leggere gli articoli.
+          {tags.length} categorie disponibili · clicca per leggere gli articoli.
         </p>
       </div>
 
@@ -37,7 +37,7 @@ export default async function CategoryIndexPage() {
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Tutti — sempre primo */}
+          {/* Tutti · sempre primo */}
           <Link
             href="/category/tutti"
             className="card-blue p-4 flex items-center justify-between group hover:border-blue-300 dark:hover:border-[#00FFE5]/30 transition-colors"

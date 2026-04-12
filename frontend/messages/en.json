@@ -20,7 +20,7 @@
     "critical": "Critical"
   },
   "backendStatus": {
-    "message": "Updating — please retry in a few seconds."
+    "message": "Updating · please retry in a few seconds."
   },
   "sources": {
     "title": "Original sources",
@@ -36,8 +36,8 @@
     "cookiePolicy": "Cookie Policy",
     "aiDisclaimer": "AI Disclaimer",
     "noCookies": "No profiling cookies. Technical cookies only.",
-    "disclaimer": "Articles are synthesized by artificial intelligence — original sources are always cited. Content is for informational purposes only and does not constitute professional cybersecurity advice. Rights to original sources belong to their respective publishers.",
-    "copyright": "© 2026 FoxScan — All rights reserved",
+    "disclaimer": "Articles are synthesized by artificial intelligence · original sources are always cited. Content is for informational purposes only and does not constitute professional cybersecurity advice. Rights to original sources belong to their respective publishers.",
+    "copyright": "© 2026 FoxScan · All rights reserved",
     "gdpr": "EU Reg. 2016/679 (GDPR)",
     "rss": "RSS Feed",
     "contact": "Contact",
@@ -89,12 +89,12 @@
     "allArticles": "all articles →",
     "noCategories": "No categories available yet.",
     "noArticles": "No articles for this category.",
-    "endOfFeed": "— End of feed —",
+    "endOfFeed": "· End of feed ·",
     "sortLabel": "News · most recent first"
   },
   "about": {
     "hero": "Always one step ahead of every threat.",
-    "heroDesc": "Scans 17+ top cybersecurity sources every day, groups duplicate articles and synthesizes them into a single briefing — clear, complete, free.",
+    "heroDesc": "Scans 17+ top cybersecurity sources every day, groups duplicate articles and synthesizes them into a single briefing · clear, complete, free.",
     "exploreBtn": "Explore news →",
     "howTitle": "How it works",
     "howDesc": "Fully automated, fully transparent.",

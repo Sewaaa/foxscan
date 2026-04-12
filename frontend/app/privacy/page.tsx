@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — FoxScan",
+  title: "Privacy Policy · FoxScan",
   description: "Informativa sul trattamento dei dati personali di FoxScan ai sensi del Regolamento UE 2016/679 (GDPR).",
 };
 
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="text-sm text-gray-400 dark:text-slate-500">
-          Ai sensi del Regolamento UE 2016/679 (GDPR) — Ultimo aggiornamento: marzo 2026
+          Ai sensi del Regolamento UE 2016/679 (GDPR) · Ultimo aggiornamento: marzo 2026
         </p>
       </div>
 
@@ -96,11 +96,11 @@ export default function PrivacyPage() {
         </p>
         <ul className={UL}>
           <li>
-            <strong>Vercel Inc.</strong> (USA) — hosting frontend. Trattamento basato su Standard
+            <strong>Vercel Inc.</strong> (USA) · hosting frontend. Trattamento basato su Standard
             Contractual Clauses (SCC) ai sensi dell&apos;Art. 46 GDPR.
           </li>
           <li>
-            <strong>Render Services Inc.</strong> (USA) — hosting backend. Trattamento basato su SCC.
+            <strong>Render Services Inc.</strong> (USA) · hosting backend. Trattamento basato su SCC.
           </li>
         </ul>
         <p className={P}>
@@ -126,12 +126,12 @@ export default function PrivacyPage() {
           Ai sensi degli articoli 15–22 del GDPR, hai il diritto di:
         </p>
         <ul className={UL}>
-          <li><strong>Accesso</strong> — ottenere conferma del trattamento e copia dei dati</li>
-          <li><strong>Rettifica</strong> — correggere dati inesatti</li>
-          <li><strong>Cancellazione</strong> — richiedere la cancellazione (&quot;diritto all&apos;oblio&quot;)</li>
-          <li><strong>Limitazione</strong> — limitare il trattamento in determinati casi</li>
-          <li><strong>Portabilità</strong> — ricevere i dati in formato strutturato</li>
-          <li><strong>Opposizione</strong> — opporti al trattamento basato su legittimo interesse</li>
+          <li><strong>Accesso</strong> · ottenere conferma del trattamento e copia dei dati</li>
+          <li><strong>Rettifica</strong> · correggere dati inesatti</li>
+          <li><strong>Cancellazione</strong> · richiedere la cancellazione (&quot;diritto all&apos;oblio&quot;)</li>
+          <li><strong>Limitazione</strong> · limitare il trattamento in determinati casi</li>
+          <li><strong>Portabilità</strong> · ricevere i dati in formato strutturato</li>
+          <li><strong>Opposizione</strong> · opporti al trattamento basato su legittimo interesse</li>
         </ul>
         <p className={P}>
           Per esercitare i tuoi diritti usa il{" "}

@@ -63,12 +63,12 @@ function MultiSourceGauge({ label, pct, count, total }: { label: string; pct: nu
       </div>
       <p className="mt-2 text-[11px] text-gray-400 dark:text-zinc-600">
         {pct >= 60
-          ? "Il sistema sta funzionando bene — le notizie vengono coperte da più fonti."
+          ? "Il sistema sta funzionando bene · le notizie vengono coperte da più fonti."
           : pct >= 30
-          ? "Copertura media — alcune notizie hanno una sola fonte."
+          ? "Copertura media · alcune notizie hanno una sola fonte."
           : total === 0
           ? "Nessun articolo nelle ultime 24h."
-          : "Copertura bassa — la maggior parte degli articoli ha una sola fonte."}
+          : "Copertura bassa · la maggior parte degli articoli ha una sola fonte."}
       </p>
     </div>
   );
@@ -144,7 +144,7 @@ export default function AdminPage() {
     try {
       const res = await adminFetch("/admin/reset-items", { method: "POST" });
       const data = await res.json();
-      setMessage(`Reset completato — ${data.items_reset} item rimarcati. Ora avvia la pipeline.`);
+      setMessage(`Reset completato · ${data.items_reset} item rimarcati. Ora avvia la pipeline.`);
       await loadStats(adminKey);
     } catch { setMessage("Errore nel reset."); }
     finally { setResetting(false); }
@@ -171,7 +171,7 @@ export default function AdminPage() {
         setMessage("Pipeline già in esecuzione.");
         await loadStats(adminKey);
       } else {
-        setMessage("Pipeline avviata — la pagina si aggiorna ogni 15s.");
+        setMessage("Pipeline avviata · la pagina si aggiorna ogni 15s.");
         setPipelineRunning(true);
       }
     } catch { setMessage("Errore nell'avvio della pipeline."); }
@@ -209,7 +209,7 @@ export default function AdminPage() {
 
   const lastAt = stats?.last_article_at
     ? new Date(stats.last_article_at).toLocaleString("it-IT")
-    : "—";
+    : "·";
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -231,22 +231,22 @@ export default function AdminPage() {
 
       {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Articoli totali" value={stats?.total_articles ?? "—"} />
-        <StatCard label="Articoli ultime 24h" value={stats?.articles_last_24h ?? "—"} />
-        <StatCard label="Item RSS in coda" value={stats?.rss_items_pending ?? "—"} />
+        <StatCard label="Articoli totali" value={stats?.total_articles ?? "·"} />
+        <StatCard label="Articoli ultime 24h" value={stats?.articles_last_24h ?? "·"} />
+        <StatCard label="Item RSS in coda" value={stats?.rss_items_pending ?? "·"} />
         <StatCard label="Ultimo articolo" value={lastAt} />
       </div>
 
       {/* Multi-source gauges */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <MultiSourceGauge
-          label="Copertura multi-fonte — 24h"
+          label="Copertura multi-fonte · 24h"
           pct={stats?.multi_source_pct_24h ?? 0}
           count={stats?.multi_source_last_24h ?? 0}
           total={stats?.articles_last_24h ?? 0}
         />
         <MultiSourceGauge
-          label="Copertura multi-fonte — 48h"
+          label="Copertura multi-fonte · 48h"
           pct={stats?.multi_source_pct_48h ?? 0}
           count={stats?.multi_source_last_48h ?? 0}
           total={stats?.articles_last_48h ?? 0}
@@ -317,7 +317,7 @@ export default function AdminPage() {
                   <p className="text-xs text-gray-400 dark:text-zinc-600">{domain}</p>
                 </div>
                 <span className="shrink-0 text-xs font-mono text-gray-400 dark:text-zinc-500 bg-blue-50 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
-                  {count !== null ? `${count} item` : "—"}
+                  {count !== null ? `${count} item` : "·"}
                 </span>
               </div>
             ))}

@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: PageProps) {
   const { tag } = await params;
   const locale = await getLocale();
   return {
-    title: `#${tag} — FoxScan`,
+    title: `#${tag} · FoxScan`,
     description: locale === "en"
       ? `Cybersecurity articles about ${tag}`
       : `Articoli di cybersecurity sul tema ${tag}`,

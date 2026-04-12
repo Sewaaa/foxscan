@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps) {
   const url = `https://foxscan.vercel.app/article/${id}`;
   const image = article.image_url ?? "https://foxscan.vercel.app/testa_nobg.png";
   return {
-    title: `${article.title} — FoxScan`,
+    title: `${article.title} · FoxScan`,
     description: article.summary ?? undefined,
     openGraph: {
       title: article.title,
@@ -84,7 +84,7 @@ export default async function ArticlePage({ params }: PageProps) {
           ) : null}
         </div>
 
-        {/* Titolo, sommario e body — tradotti lato client */}
+        {/* Titolo, sommario e body · tradotti lato client */}
         <TranslatedArticleContent
           title={article.title}
           summary={article.summary}
