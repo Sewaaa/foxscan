@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { ArticleSummary } from "@/lib/api";
 import TagBadge from "./TagBadge";
 import RelevanceDots from "./RelevanceDots";
+import { translateText } from "@/lib/translate";
 
 interface ArticleCardProps {
   article: ArticleSummary;
@@ -25,6 +27,19 @@ export default function ArticleCard({ article }: ArticleCardProps) {
   const locale = useLocale();
   const t = useTranslations("articleCard");
 
+  const [trTitle,   setTrTitle]   = useState(article.title);
+  const [trSummary, setTrSummary] = useState(article.summary);
+
+  useEffect(() => {
+    if (locale === "it") {
+      setTrTitle(article.title);
+      setTrSummary(article.summary);
+      return;
+    }
+    translateText(article.title, locale).then(setTrTitle);
+    if (article.summary) translateText(article.summary, locale).then(setTrSummary);
+  }, [locale, article.title, article.summary]);
+
   return (
     <article className="card-blue border rounded-xl p-5 group">
       <div className="flex items-start justify-between gap-4">
@@ -33,11 +48,11 @@ export default function ArticleCard({ article }: ArticleCardProps) {
             href={`/article/${article.id}`}
             className="card-title font-semibold text-lg leading-snug hover:text-blue-600 dark:hover:text-cyan-400 transition-colors line-clamp-2 text-[#0B1F3A]"
           >
-            {article.title}
+            {trTitle}
           </Link>
-          {article.summary && (
+          {trSummary && (
             <p className="mt-2 text-gray-500 dark:text-zinc-400 text-sm leading-relaxed line-clamp-3">
-              {article.summary}
+              {trSummary}
             </p>
           )}
         </div>
