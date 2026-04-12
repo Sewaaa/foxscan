@@ -36,6 +36,37 @@ export async function translateText(text: string, to: string): Promise<string> {
   }
 }
 
+/**
+ * Traduci testi lunghi (es. body markdown) spezzandoli in chunk per paragrafo,
+ * così non si supera il limite della API.
+ */
+export async function translateLongText(text: string, to: string): Promise<string> {
+  if (!text.trim() || to === "it") return text;
+
+  // Suddividi in paragrafi (doppio newline)
+  const paragraphs = text.split(/\n\n+/);
+
+  // Raggruppa in chunk da max ~1200 char ciascuno
+  const chunks: string[] = [];
+  let current = "";
+  for (const para of paragraphs) {
+    if (current.length + para.length > 1200 && current.length > 0) {
+      chunks.push(current);
+      current = para;
+    } else {
+      current = current ? current + "\n\n" + para : para;
+    }
+  }
+  if (current) chunks.push(current);
+
+  // Traduci ogni chunk (sequenzialmente per non martellare l'API)
+  const translated: string[] = [];
+  for (const chunk of chunks) {
+    translated.push(await translateText(chunk, to));
+  }
+  return translated.join("\n\n");
+}
+
 export async function translateArticles<
   T extends { title: string; summary?: string | null }
 >(articles: T[], locale: string): Promise<T[]> {

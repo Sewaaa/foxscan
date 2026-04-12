@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { translateText } from "@/lib/translate";
+import { translateText, translateLongText } from "@/lib/translate";
 
 interface Props {
   title: string;
@@ -18,16 +18,24 @@ export default function TranslatedArticleContent({ title, summary, body }: Props
 
   const [trTitle, setTrTitle]     = useState(title);
   const [trSummary, setTrSummary] = useState(summary);
+  const [trBody, setTrBody]       = useState(body);
+  const [bodyLoading, setBodyLoading] = useState(false);
 
   useEffect(() => {
     if (locale === "it") {
       setTrTitle(title);
       setTrSummary(summary);
+      setTrBody(body);
       return;
     }
     translateText(title, locale).then(setTrTitle);
     if (summary) translateText(summary, locale).then(setTrSummary);
-  }, [locale, title, summary]);
+    // Body: traduzione chunked asincrona
+    setBodyLoading(true);
+    translateLongText(body, locale)
+      .then(setTrBody)
+      .finally(() => setBodyLoading(false));
+  }, [locale, title, summary, body]);
 
   return (
     <>
@@ -67,9 +75,17 @@ export default function TranslatedArticleContent({ title, summary, body }: Props
         </div>
       )}
 
-      {/* Body — rimane in italiano (markdown lungo, no traduzione) */}
+      {/* Body — tradotto chunk per chunk */}
       <div className="prose-cyber mt-6">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
+        {bodyLoading ? (
+          <div className="space-y-3 animate-pulse">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-4 bg-blue-100 dark:bg-white/10 rounded" style={{ width: `${75 + (i % 3) * 8}%` }} />
+            ))}
+          </div>
+        ) : (
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{trBody}</ReactMarkdown>
+        )}
       </div>
     </>
   );
