@@ -48,7 +48,8 @@ Per score_rilevanza usa questa scala RIGOROSA — la maggior parte delle notizie
 - 7-8: vulnerabilità critica (CVSS alto), breach su larga scala, campagna malware attiva e diffusa
 - 9-10: RISERVATO a eventi eccezionali: attacco stato-nazione su infrastrutture critiche, zero-day sfruttato attivamente su milioni di sistemi, breach massivo con dati di decine di milioni di persone
 
-I tag devono essere scelti tra: malware, ransomware, breach, CVE, APT, policy, tool, phishing, vulnerability, espionage"""
+I tag devono essere scelti ESCLUSIVAMENTE da questa lista (tutti in inglese). NON usare altri tag, NON tradurre i tag, NON inventare tag nuovi. Massimo 3 tag per articolo:
+malware, ransomware, breach, CVE, APT, policy, tool, phishing, vulnerability, espionage, exploit, zero-day, RCE, privacy, security, supply-chain, social-engineering, AI, patch, DDoS, botnet, spyware, fraud, authentication, cryptojacking"""
 
 UPDATE_SYSTEM_PROMPT = """Sei un giornalista tecnico specializzato in cybersecurity.
 Hai un articolo già pubblicato su una notizia. Sono arrivate nuove fonti sulla stessa notizia.
@@ -80,7 +81,8 @@ Per score_rilevanza usa questa scala RIGOROSA — la maggior parte deve cadere t
 - 7-8: vulnerabilità critica, breach su larga scala, campagna malware attiva
 - 9-10: RISERVATO: attacco stato-nazione su infrastrutture critiche, zero-day su milioni di sistemi
 
-I tag devono essere scelti tra: malware, ransomware, breach, CVE, APT, policy, tool, phishing, vulnerability, espionage"""
+I tag devono essere scelti ESCLUSIVAMENTE da questa lista (tutti in inglese). NON usare altri tag, NON tradurre i tag, NON inventare tag nuovi. Massimo 3 tag per articolo:
+malware, ransomware, breach, CVE, APT, policy, tool, phishing, vulnerability, espionage, exploit, zero-day, RCE, privacy, security, supply-chain, social-engineering, AI, patch, DDoS, botnet, spyware, fraud, authentication, cryptojacking"""
 
 
 def _build_user_prompt(scraped_items: list[dict]) -> str:
