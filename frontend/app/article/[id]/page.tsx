@@ -5,7 +5,7 @@ import SourcesList from "@/components/SourcesList";
 import RelevanceDots from "@/components/RelevanceDots";
 import ShareButtons from "@/components/ShareButtons";
 import TranslatedArticleContent from "@/components/TranslatedArticleContent";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export const revalidate = 3600;
 
@@ -53,9 +53,11 @@ export default async function ArticlePage({ params }: PageProps) {
   if (!article) notFound();
 
   const t = await getTranslations("article");
+  const locale = await getLocale();
   const level = getLevel(article.relevance_score);
 
-  const publishedAt = new Date(article.published_at).toLocaleDateString("it-IT", {
+  const dateLocale = locale === "en" ? "en-US" : "it-IT";
+  const publishedAt = new Date(article.published_at).toLocaleDateString(dateLocale, {
     day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
   });
 

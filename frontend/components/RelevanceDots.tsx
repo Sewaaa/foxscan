@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 export type RelevanceLevel = 1 | 2 | 3;
 
 export function getLevel(score: number): RelevanceLevel {
@@ -7,9 +11,9 @@ export function getLevel(score: number): RelevanceLevel {
 }
 
 const LEVEL_CONFIG = {
-  1: { label: "Bassa",   dotColor: "bg-green-500",  textColor: "text-green-600"  },
-  2: { label: "Media",   dotColor: "bg-orange-500", textColor: "text-orange-600" },
-  3: { label: "Critica", dotColor: "bg-red-500",    textColor: "text-red-600"    },
+  1: { key: "low",      dotColor: "bg-green-500",  textColor: "text-green-600"  },
+  2: { key: "medium",   dotColor: "bg-orange-500", textColor: "text-orange-600" },
+  3: { key: "critical", dotColor: "bg-red-500",    textColor: "text-red-600"    },
 } as const;
 
 interface Props {
@@ -18,11 +22,13 @@ interface Props {
 }
 
 export default function RelevanceDots({ score, showLabel = true }: Props) {
+  const t = useTranslations("relevance");
   const level = getLevel(score);
-  const { label, dotColor, textColor } = LEVEL_CONFIG[level];
+  const { key, dotColor, textColor } = LEVEL_CONFIG[level];
+  const label = t(key);
 
   return (
-    <div className="flex items-center gap-1.5" title={`Rilevanza: ${label} (${score}/10)`}>
+    <div className="flex items-center gap-1.5" title={`${score}/10`}>
       <div className="flex gap-0.5">
         {([1, 2, 3] as RelevanceLevel[]).map((i) => (
           <div
