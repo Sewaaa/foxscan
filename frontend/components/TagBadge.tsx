@@ -45,7 +45,8 @@ export default function TagBadge({ tag, linked = true }: TagBadgeProps) {
   const [label, setLabel] = useState(tag);
 
   useEffect(() => {
-    if (locale === "it") { setLabel(tag); return; }
+    // I tag canonici sono già in inglese — non tradurre (evita "AI" → "to the")
+    if (locale === "it" || tag in TAG_COLORS) { setLabel(tag); return; }
     translateText(tag, locale).then(setLabel);
   }, [locale, tag]);
 
