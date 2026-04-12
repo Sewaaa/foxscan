@@ -3,8 +3,9 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { TAG_COLORS, DEFAULT_TAG_COLOR } from "@/components/TagBadge";
+import { translateText } from "@/lib/translate";
 
 interface TagCount { tag: string; count: number; }
 
@@ -15,9 +16,27 @@ interface Props {
 
 export default function CategoryTagBar({ tags, activeTag }: Props) {
   const t = useTranslations("categories");
-  const scrollRef   = useRef<HTMLDivElement>(null);
+  const locale = useLocale();
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [canLeft,  setCanLeft]  = useState(false);
   const [canRight, setCanRight] = useState(false);
+  // Mappa tag originale → etichetta tradotta
+  const [trLabels, setTrLabels] = useState<Record<string, string>>({});
+
+  // Traduci i tag quando cambia la lingua o la lista
+  useEffect(() => {
+    if (locale === "it") {
+      setTrLabels({});
+      return;
+    }
+    Promise.all(
+      tags.map(({ tag }) =>
+        translateText(tag, locale).then((tr) => [tag, tr] as [string, string])
+      )
+    ).then((pairs) =>
+      setTrLabels(Object.fromEntries(pairs))
+    );
+  }, [locale, tags]);
 
   const update = useCallback(() => {
     const el = scrollRef.current;
@@ -62,66 +81,67 @@ export default function CategoryTagBar({ tags, activeTag }: Props) {
       <p className="text-center text-xs font-mono uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">
         {t("sortLabel")}
       </p>
-    <div className="flex items-center gap-1">
-      {/* Freccia sinistra */}
-      <button
-        onClick={() => scroll("left")}
-        disabled={!canLeft}
-        className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full border border-blue-100 dark:border-white/10 text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-[#00FFE5] hover:border-blue-300 dark:hover:border-[#00FFE5]/30 transition-all disabled:opacity-20 disabled:cursor-default"
-        aria-label={t("back")}
-      >
-        <ChevronLeft size={12} />
-      </button>
-
-      {/* Barra scrollabile */}
-      <div
-        ref={scrollRef}
-        className="flex-1 min-w-0 flex gap-2 overflow-x-auto scrollbar-hide py-2 px-2"
-      >
-        {/* Tutti */}
-        <Link
-          href="/category/tutti"
-          data-active={activeTag === null ? "true" : "false"}
-          className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold border transition-all bg-blue-100 text-blue-800 border-blue-200 dark:bg-white/10 dark:text-slate-200 dark:border-white/10 ${
-            activeTag === null
-              ? "ring-2 ring-offset-1 ring-blue-400 dark:ring-[#00FFE5] opacity-100"
-              : "opacity-60 hover:opacity-100"
-          }`}
+      <div className="flex items-center gap-1">
+        {/* Freccia sinistra */}
+        <button
+          onClick={() => scroll("left")}
+          disabled={!canLeft}
+          className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full border border-blue-100 dark:border-white/10 text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-[#00FFE5] hover:border-blue-300 dark:hover:border-[#00FFE5]/30 transition-all disabled:opacity-20 disabled:cursor-default"
+          aria-label={t("back")}
         >
-          {t("allLabel")}
-        </Link>
+          <ChevronLeft size={12} />
+        </button>
 
-        {/* Altri tag */}
-        {tags.map(({ tag }) => {
-          const isActive = tag === activeTag;
-          const color = TAG_COLORS[tag] ?? DEFAULT_TAG_COLOR;
-          return (
-            <Link
-              key={tag}
-              href={`/category/${encodeURIComponent(tag)}`}
-              data-active={isActive ? "true" : "false"}
-              className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold border transition-all ${color} ${
-                isActive
-                  ? "ring-2 ring-offset-1 ring-current opacity-100"
-                  : "opacity-60 hover:opacity-100"
-              }`}
-            >
-              {tag}
-            </Link>
-          );
-        })}
+        {/* Barra scrollabile */}
+        <div
+          ref={scrollRef}
+          className="flex-1 min-w-0 flex gap-2 overflow-x-auto scrollbar-hide py-2 px-2"
+        >
+          {/* Tutti */}
+          <Link
+            href="/category/tutti"
+            data-active={activeTag === null ? "true" : "false"}
+            className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold border transition-all bg-blue-100 text-blue-800 border-blue-200 dark:bg-white/10 dark:text-slate-200 dark:border-white/10 ${
+              activeTag === null
+                ? "ring-2 ring-offset-1 ring-blue-400 dark:ring-[#00FFE5] opacity-100"
+                : "opacity-60 hover:opacity-100"
+            }`}
+          >
+            {t("allLabel")}
+          </Link>
+
+          {/* Altri tag */}
+          {tags.map(({ tag }) => {
+            const isActive = tag === activeTag;
+            const color = TAG_COLORS[tag] ?? DEFAULT_TAG_COLOR;
+            const label = trLabels[tag] ?? tag;
+            return (
+              <Link
+                key={tag}
+                href={`/category/${encodeURIComponent(tag)}`}
+                data-active={isActive ? "true" : "false"}
+                className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold border transition-all ${color} ${
+                  isActive
+                    ? "ring-2 ring-offset-1 ring-current opacity-100"
+                    : "opacity-60 hover:opacity-100"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Freccia destra */}
+        <button
+          onClick={() => scroll("right")}
+          disabled={!canRight}
+          className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full border border-blue-100 dark:border-white/10 text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-[#00FFE5] hover:border-blue-300 dark:hover:border-[#00FFE5]/30 transition-all disabled:opacity-20 disabled:cursor-default"
+          aria-label={t("allArticles")}
+        >
+          <ChevronRight size={12} />
+        </button>
       </div>
-
-      {/* Freccia destra */}
-      <button
-        onClick={() => scroll("right")}
-        disabled={!canRight}
-        className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full border border-blue-100 dark:border-white/10 text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-[#00FFE5] hover:border-blue-300 dark:hover:border-[#00FFE5]/30 transition-all disabled:opacity-20 disabled:cursor-default"
-        aria-label={t("allArticles")}
-      >
-        <ChevronRight size={12} />
-      </button>
-    </div>
     </div>
   );
 }
