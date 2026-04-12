@@ -1,6 +1,7 @@
 import { getArticles, getTags } from "@/lib/api";
 import ArticleCard from "@/components/ArticleCard";
 import CategoryTagBar from "@/components/CategoryTagBar";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export const revalidate = 60;
 
@@ -10,15 +11,19 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { tag } = await params;
+  const locale = await getLocale();
   return {
     title: `#${tag} — FoxScan`,
-    description: `Articoli di cybersecurity sul tema ${tag}`,
+    description: locale === "en"
+      ? `Cybersecurity articles about ${tag}`
+      : `Articoli di cybersecurity sul tema ${tag}`,
   };
 }
 
 export default async function CategoryPage({ params }: PageProps) {
   const { tag } = await params;
   const decoded = decodeURIComponent(tag);
+  const t = await getTranslations("categories");
 
   const [articlesRes, allTags] = await Promise.all([
     getArticles({ tag: decoded, limit: 30 }).catch(() => ({
@@ -33,7 +38,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
       {articlesRes.items.length === 0 ? (
         <div className="text-center py-20 text-gray-500 dark:text-zinc-500">
-          Nessun articolo per questa categoria.
+          {t("noArticles")}
         </div>
       ) : (
         <div className="space-y-4">

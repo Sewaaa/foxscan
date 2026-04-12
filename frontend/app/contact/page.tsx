@@ -1,18 +1,17 @@
 "use client";
 
-import type { Metadata } from "next";
 import Link from "next/link";
 import { useState } from "react";
 import { Send, CheckCircle, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
-// Sostituisci con il tuo endpoint Formspree dopo la registrazione su formspree.io
-// es. https://formspree.io/f/xyzabcde
 const FORMSPREE_ENDPOINT = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ?? "";
 
 type Status = "idle" | "sending" | "success" | "error";
 
 export default function ContactPage() {
+  const t = useTranslations("contact");
   const [status, setStatus] = useState<Status>("idle");
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
 
@@ -50,13 +49,13 @@ export default function ContactPage() {
       {/* Header */}
       <div className="mb-8">
         <Link href="/" className="text-sm text-blue-600 dark:text-[#00FFE5] hover:underline">
-          ← Torna alla homepage
+          {t("back")}
         </Link>
         <h1 className="text-2xl md:text-3xl font-extrabold text-[#0B1F3A] dark:text-slate-100 mt-4 mb-2 font-grotesk">
-          Contatti
+          {t("title")}
         </h1>
         <p className="text-sm text-gray-500 dark:text-slate-400">
-          Per richieste sulla privacy, segnalazioni o qualsiasi altro motivo.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -69,16 +68,16 @@ export default function ContactPage() {
         >
           <CheckCircle size={48} className="text-green-500" />
           <h2 className="font-grotesk font-bold text-xl text-[#0B1F3A] dark:text-slate-100">
-            Messaggio inviato!
+            {t("success")}
           </h2>
           <p className="text-sm text-gray-500 dark:text-slate-400">
-            Ti risponderemo il prima possibile.
+            {t("successDesc")}
           </p>
           <button
             onClick={() => setStatus("idle")}
             className="mt-2 px-5 py-2 rounded-full bg-blue-600 dark:bg-[#00FFE5] text-white dark:text-[#020817] text-sm font-semibold hover:opacity-90 transition-opacity"
           >
-            Invia un altro messaggio
+            {t("sendAnother")}
           </button>
         </motion.div>
       ) : (
@@ -88,7 +87,7 @@ export default function ContactPage() {
             {/* Nome */}
             <div>
               <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
-                Nome
+                {t("name")}
               </label>
               <input
                 type="text"
@@ -96,7 +95,7 @@ export default function ContactPage() {
                 value={form.name}
                 onChange={handleChange}
                 required
-                placeholder="Il tuo nome"
+                placeholder={t("namePlaceholder")}
                 className="w-full px-4 py-2.5 rounded-xl border border-blue-100 dark:border-white/10 bg-white dark:bg-white/5 text-sm text-[#0B1F3A] dark:text-slate-200 placeholder-gray-300 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-[#00FFE5]/40 transition"
               />
             </div>
@@ -104,7 +103,7 @@ export default function ContactPage() {
             {/* Email */}
             <div>
               <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
-                Email
+                {t("email")}
               </label>
               <input
                 type="email"
@@ -112,7 +111,7 @@ export default function ContactPage() {
                 value={form.email}
                 onChange={handleChange}
                 required
-                placeholder="la-tua@email.com"
+                placeholder={t("emailPlaceholder")}
                 className="w-full px-4 py-2.5 rounded-xl border border-blue-100 dark:border-white/10 bg-white dark:bg-white/5 text-sm text-[#0B1F3A] dark:text-slate-200 placeholder-gray-300 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-[#00FFE5]/40 transition"
               />
             </div>
@@ -120,7 +119,7 @@ export default function ContactPage() {
             {/* Oggetto */}
             <div>
               <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
-                Oggetto
+                {t("subject")}
               </label>
               <select
                 name="subject"
@@ -129,19 +128,19 @@ export default function ContactPage() {
                 required
                 className="w-full px-4 py-2.5 rounded-xl border border-blue-100 dark:border-white/10 bg-white dark:bg-[#0d1526] text-sm text-[#0B1F3A] dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-[#00FFE5]/40 transition"
               >
-                <option value="">Seleziona un motivo…</option>
-                <option value="Privacy / GDPR">Privacy / GDPR</option>
-                <option value="Segnalazione errore">Segnalazione errore</option>
-                <option value="Richiesta rimozione contenuto">Richiesta rimozione contenuto</option>
-                <option value="Collaborazione">Collaborazione</option>
-                <option value="Altro">Altro</option>
+                <option value="">{t("subjectPlaceholder")}</option>
+                <option value="Privacy / GDPR">{t("subjectOpt1")}</option>
+                <option value="Segnalazione errore">{t("subjectOpt2")}</option>
+                <option value="Richiesta rimozione contenuto">{t("subjectOpt3")}</option>
+                <option value="Collaborazione">{t("subjectOpt4")}</option>
+                <option value="Altro">{t("subjectOpt5")}</option>
               </select>
             </div>
 
             {/* Messaggio */}
             <div>
               <label className="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">
-                Messaggio
+                {t("message")}
               </label>
               <textarea
                 name="message"
@@ -149,7 +148,7 @@ export default function ContactPage() {
                 onChange={handleChange}
                 required
                 rows={5}
-                placeholder="Scrivi qui il tuo messaggio…"
+                placeholder={t("messagePlaceholder")}
                 className="w-full px-4 py-2.5 rounded-xl border border-blue-100 dark:border-white/10 bg-white dark:bg-white/5 text-sm text-[#0B1F3A] dark:text-slate-200 placeholder-gray-300 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-[#00FFE5]/40 transition resize-none"
               />
             </div>
@@ -158,9 +157,7 @@ export default function ContactPage() {
             {status === "error" && (
               <div className="flex items-center gap-2 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl px-4 py-3">
                 <AlertCircle size={15} className="shrink-0" />
-                {!FORMSPREE_ENDPOINT
-                  ? "Il form non è ancora configurato. Contatta l'amministratore."
-                  : "Errore nell'invio. Riprova tra qualche secondo."}
+                {!FORMSPREE_ENDPOINT ? t("notConfigured") : t("error")}
               </div>
             )}
 
@@ -173,12 +170,12 @@ export default function ContactPage() {
               {status === "sending" ? (
                 <>
                   <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  Invio…
+                  {t("sending")}
                 </>
               ) : (
                 <>
                   <Send size={14} />
-                  Invia messaggio
+                  {t("send")}
                 </>
               )}
             </button>
@@ -188,10 +185,9 @@ export default function ContactPage() {
 
       {/* GDPR note */}
       <p className="mt-6 text-xs text-gray-400 dark:text-slate-600 leading-relaxed">
-        I dati inviati tramite questo modulo sono utilizzati esclusivamente per rispondere alla tua richiesta,
-        ai sensi dell&apos;art. 6(1)(b) GDPR. Non vengono ceduti a terzi né usati per profilazione.{" "}
+        {t("privacy")}{" "}
         <Link href="/privacy" className="text-blue-500 dark:text-[#00FFE5]/60 hover:underline">
-          Leggi la Privacy Policy completa.
+          {t("privacyLink")}
         </Link>
       </p>
     </div>

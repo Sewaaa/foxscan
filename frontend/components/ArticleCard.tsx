@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { ArticleSummary } from "@/lib/api";
 import TagBadge from "./TagBadge";
 import RelevanceDots from "./RelevanceDots";
@@ -9,8 +10,9 @@ interface ArticleCardProps {
   article: ArticleSummary;
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("it-IT", {
+function formatDate(iso: string, locale: string): string {
+  const dateLocale = locale === "en" ? "en-US" : "it-IT";
+  return new Date(iso).toLocaleDateString(dateLocale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -20,6 +22,9 @@ function formatDate(iso: string): string {
 }
 
 export default function ArticleCard({ article }: ArticleCardProps) {
+  const locale = useLocale();
+  const t = useTranslations("articleCard");
+
   return (
     <article className="card-blue border rounded-xl p-5 group">
       <div className="flex items-start justify-between gap-4">
@@ -58,9 +63,9 @@ export default function ArticleCard({ article }: ArticleCardProps) {
       <div className="mt-4 flex items-center justify-between text-xs text-gray-400 dark:text-zinc-500 card-meta">
         <div className="flex items-center gap-3">
           <RelevanceDots score={article.relevance_score} />
-          <span>{article.sources.length} font{article.sources.length !== 1 ? "i" : "e"}</span>
+          <span>{t("sources", { count: article.sources.length })}</span>
         </div>
-        <time dateTime={article.published_at}>{formatDate(article.published_at)}</time>
+        <time dateTime={article.published_at}>{formatDate(article.published_at, locale)}</time>
       </div>
     </article>
   );

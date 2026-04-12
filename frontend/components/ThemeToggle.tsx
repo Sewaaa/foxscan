@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function ThemeToggle() {
+  const t = useTranslations("themeToggle");
   const [dark, setDark] = useState(true); // default dark
 
   useEffect(() => {
     const stored = localStorage.getItem("theme");
-    // Default to dark unless user explicitly chose light
     const isDark = stored ? stored === "dark" : true;
     setDark(isDark);
     document.documentElement.classList.toggle("dark", isDark);
@@ -23,8 +24,8 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      aria-label="Cambia tema"
-      title={dark ? "Passa al tema chiaro" : "Passa al tema scuro"}
+      aria-label={t("ariaLabel")}
+      title={dark ? t("toLight") : t("toDark")}
       className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50/80 dark:hover:text-[#00FFE5] dark:hover:bg-white/5 transition-all"
     >
       {dark ? (

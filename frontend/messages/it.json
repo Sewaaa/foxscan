@@ -67,6 +67,9 @@
     "back": "← Torna alla homepage",
     "inSummary": "✦ In sintesi"
   },
+  "articleCard": {
+    "sources": "{count, plural, one {# fonte} other {# fonti}}"
+  },
   "notFound": {
     "code": "404",
     "title": "Pagina non trovata",
@@ -82,8 +85,12 @@
     "back": "← Torna alla homepage",
     "title": "Esplora categorie",
     "all": "Tutti",
+    "allLabel": "Tutti",
     "allArticles": "tutti gli articoli →",
-    "noCategories": "Nessuna categoria disponibile al momento."
+    "noCategories": "Nessuna categoria disponibile al momento.",
+    "noArticles": "Nessun articolo per questa categoria.",
+    "endOfFeed": "— Fine del feed —",
+    "sortLabel": "Notizie · dal più recente"
   },
   "about": {
     "hero": "Sempre un passo avanti su ogni minaccia.",
@@ -93,7 +100,53 @@
     "howDesc": "Tutto automatizzato, tutto trasparente.",
     "sources": "Le fonti",
     "sourcesDesc": "Monitorate 24/7.",
-    "goToNews": "Vai alle notizie →"
+    "goToNews": "Vai alle notizie →",
+    "platform": "La piattaforma",
+    "rssBtn": "Feed RSS",
+    "trust0": "17+ Fonti",
+    "trust1": "Sintesi AI",
+    "trust2": "Aggiornato 24/7",
+    "f1Title": "Sintesi AI",
+    "f1Desc": "La nostra intelligenza artificiale sintetizza articoli duplicati in un unico briefing completo.",
+    "f2Title": "Punteggio di Rilevanza",
+    "f2Desc": "Ogni notizia riceve un punteggio 1-10. Solo le più rilevanti finiscono In Evidenza.",
+    "f3Title": "Aggiornamento continuo",
+    "f3Desc": "La pipeline gira automaticamente e aggiorna il feed senza intervento umano.",
+    "f4Title": "Categorizzazione automatica",
+    "f4Desc": "Categorie automatiche: malware, CVE, breach, APT, ransomware e altro.",
+    "f5Title": "Feed RSS",
+    "f5Desc": "Integra FoxScan nel tuo lettore RSS preferito con un click.",
+    "f6Title": "Zero tracciamento",
+    "f6Desc": "Nessun cookie di profilazione. Solo notizie, senza rumore."
+  },
+  "themeToggle": {
+    "ariaLabel": "Cambia tema",
+    "toLight": "Passa al tema chiaro",
+    "toDark": "Passa al tema scuro"
+  },
+  "languageToggle": {
+    "toEn": "Switch to English",
+    "toIt": "Passa all'italiano"
+  },
+  "rss": {
+    "title": "Feed RSS",
+    "desc": "RSS è un formato standard che ti permette di ricevere automaticamente i nuovi articoli di FoxScan nel tuo lettore preferito, senza doverti ricordare di tornare sul sito.",
+    "feedUrlLabel": "URL del feed",
+    "loading": "caricamento…",
+    "copy": "Copia",
+    "copied": "✓ Copiato",
+    "feedHint": "Incolla questo URL nel tuo lettore RSS per iscriverti agli aggiornamenti.",
+    "howTitle": "Come si usa",
+    "step1": "Scegli un lettore RSS dalla lista qui sotto e creati un account gratuito.",
+    "step2": "Cerca il pulsante \"Add feed\" o \"Subscribe\".",
+    "step3": "Incolla l'URL del feed qui sopra e conferma.",
+    "step4": "Da quel momento riceverai automaticamente ogni nuovo articolo generato da FoxScan.",
+    "readersTitle": "Lettori RSS consigliati",
+    "r1Desc": "Il più popolare, gratuito",
+    "r2Desc": "Potente e gratuito",
+    "r3Desc": "Open source",
+    "r4Desc": "Mac e iOS, gratuito",
+    "techNote": "Il feed viene aggiornato ogni 30 minuti in sincronia con la pipeline AI. Contiene gli ultimi 50 articoli in formato RSS 2.0."
   },
   "contact": {
     "back": "← Torna alla homepage",
@@ -102,8 +155,14 @@
     "name": "Nome",
     "namePlaceholder": "Il tuo nome",
     "email": "Email",
+    "emailPlaceholder": "la-tua@email.com",
     "subject": "Oggetto",
     "subjectPlaceholder": "Seleziona un motivo…",
+    "subjectOpt1": "Privacy / GDPR",
+    "subjectOpt2": "Segnalazione errore",
+    "subjectOpt3": "Richiesta rimozione contenuto",
+    "subjectOpt4": "Collaborazione",
+    "subjectOpt5": "Altro",
     "message": "Messaggio",
     "messagePlaceholder": "Scrivi qui il tuo messaggio…",
     "send": "Invia messaggio",
@@ -111,7 +170,8 @@
     "success": "Messaggio inviato!",
     "successDesc": "Ti risponderemo il prima possibile.",
     "sendAnother": "Invia un altro messaggio",
-    "privacy": "I dati inviati tramite questo modulo sono utilizzati esclusivamente per rispondere alla tua richiesta, ai sensi dell'art. 6(1)(b) GDPR.",
+    "privacy": "I dati inviati tramite questo modulo sono utilizzati esclusivamente per rispondere alla tua richiesta, ai sensi dell'art. 6(1)(b) GDPR. Non vengono ceduti a terzi né usati per profilazione.",
+    "privacyLink": "Leggi la Privacy Policy completa.",
     "notConfigured": "Il form non è ancora configurato. Contatta l'amministratore.",
     "error": "Errore nell'invio. Riprova tra qualche secondo."
   }

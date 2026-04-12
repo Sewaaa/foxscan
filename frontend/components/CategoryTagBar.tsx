@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { TAG_COLORS, DEFAULT_TAG_COLOR } from "@/components/TagBadge";
 
 interface TagCount { tag: string; count: number; }
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function CategoryTagBar({ tags, activeTag }: Props) {
+  const t = useTranslations("categories");
   const scrollRef   = useRef<HTMLDivElement>(null);
   const [canLeft,  setCanLeft]  = useState(false);
   const [canRight, setCanRight] = useState(false);
@@ -50,16 +52,15 @@ export default function CategoryTagBar({ tags, activeTag }: Props) {
   const scroll = (dir: "left" | "right") => {
     const container = scrollRef.current;
     if (!container) return;
-    // Calcola la larghezza di 8 tag (elementi figli)
     const items = Array.from(container.children) as HTMLElement[];
-    const eight = items.slice(0, 8).reduce((sum, el) => sum + el.offsetWidth + 8, 0); // 8px = gap-2
+    const eight = items.slice(0, 8).reduce((sum, el) => sum + el.offsetWidth + 8, 0);
     container.scrollBy({ left: dir === "left" ? -eight : eight, behavior: "smooth" });
   };
 
   return (
     <div className="mb-8">
       <p className="text-center text-xs font-mono uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">
-        Notizie · dal più recente
+        {t("sortLabel")}
       </p>
     <div className="flex items-center gap-1">
       {/* Freccia sinistra */}
@@ -67,12 +68,12 @@ export default function CategoryTagBar({ tags, activeTag }: Props) {
         onClick={() => scroll("left")}
         disabled={!canLeft}
         className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full border border-blue-100 dark:border-white/10 text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-[#00FFE5] hover:border-blue-300 dark:hover:border-[#00FFE5]/30 transition-all disabled:opacity-20 disabled:cursor-default"
-        aria-label="Scorri sinistra"
+        aria-label={t("back")}
       >
         <ChevronLeft size={12} />
       </button>
 
-      {/* Barra scrollabile — py-1.5 evita che il ring venga tagliato */}
+      {/* Barra scrollabile */}
       <div
         ref={scrollRef}
         className="flex-1 min-w-0 flex gap-2 overflow-x-auto scrollbar-hide py-2 px-2"
@@ -87,7 +88,7 @@ export default function CategoryTagBar({ tags, activeTag }: Props) {
               : "opacity-60 hover:opacity-100"
           }`}
         >
-          Tutti
+          {t("allLabel")}
         </Link>
 
         {/* Altri tag */}
@@ -116,7 +117,7 @@ export default function CategoryTagBar({ tags, activeTag }: Props) {
         onClick={() => scroll("right")}
         disabled={!canRight}
         className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full border border-blue-100 dark:border-white/10 text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-[#00FFE5] hover:border-blue-300 dark:hover:border-[#00FFE5]/30 transition-all disabled:opacity-20 disabled:cursor-default"
-        aria-label="Scorri destra"
+        aria-label={t("allArticles")}
       >
         <ChevronRight size={12} />
       </button>

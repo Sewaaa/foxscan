@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "Chi siamo" },
-  { href: "/admin", label: "Admin" },
-];
+import { useTranslations } from "next-intl";
 
 export default function NavLinks() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
+
+  const NAV_LINKS = [
+    { href: "/",      label: t("home") },
+    { href: "/about", label: t("about") },
+  ];
 
   return (
     <>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { getArticles, getTags, ArticleSummary, TagCount } from "@/lib/api";
 import ArticleCard from "@/components/ArticleCard";
 import CategoryTagBar from "@/components/CategoryTagBar";
@@ -9,6 +10,7 @@ import CyberLoader from "@/components/CyberLoader";
 const PAGE_SIZE = 15;
 
 export default function TuttiPage() {
+  const t = useTranslations("categories");
   const [articles, setArticles]   = useState<ArticleSummary[]>([]);
   const [tags, setTags]           = useState<TagCount[]>([]);
   const [total, setTotal]         = useState<number | null>(null);
@@ -83,7 +85,7 @@ export default function TuttiPage() {
       {/* Fine feed */}
       {!hasMore && articles.length > 0 && (
         <p className="text-center text-xs text-gray-400 dark:text-slate-600 py-8 font-mono tracking-widest uppercase">
-          — Fine del feed —
+          {t("endOfFeed")}
         </p>
       )}
     </div>
