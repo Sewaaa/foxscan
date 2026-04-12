@@ -8,7 +8,8 @@ import { getArticles, getTags, ArticleSummary, TagCount } from "@/lib/api";
 import TagBadge, { TAG_COLORS, DEFAULT_TAG_COLOR } from "@/components/TagBadge";
 import RelevanceDots from "@/components/RelevanceDots";
 import CyberLoader from "@/components/CyberLoader";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { translateArticles } from "@/lib/translate";
 
 const PAGE_SIZE = 9;
 const EVIDENZA_HOURS = 48;
@@ -28,14 +29,21 @@ function getLevel(score: number) {
   if (score >= 5) return 2;
   return 1;
 }
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, locale = "it"): string {
   const diff = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diff / 60_000);
   const hours   = Math.floor(diff / 3_600_000);
+  const lang = locale === "en" ? "en-GB" : "it-IT";
+  if (locale === "en") {
+    if (minutes < 2)  return "just now";
+    if (minutes < 60) return `${minutes} min ago`;
+    if (hours   < 24) return `${hours}h ago`;
+    return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+  }
   if (minutes < 2)  return "pochi minuti fa";
   if (minutes < 60) return `${minutes} min fa`;
   if (hours   < 24) return `${hours} or${hours === 1 ? "a" : "e"} fa`;
-  return new Date(iso).toLocaleDateString("it-IT", { day: "2-digit", month: "short" });
+  return new Date(iso).toLocaleDateString(lang, { day: "2-digit", month: "short" });
 }
 function formatDateShort(iso: string) {
   return new Date(iso).toLocaleDateString("it-IT", { day: "2-digit", month: "short" });
@@ -114,7 +122,7 @@ function HeroCard({ article, levelLabels, readMore }: { article: ArticleSummary;
 }
 
 /* ─── Secondary Card ─────────────────────────────────────────────────────── */
-function SecondaryCard({ article, readMore }: { article: ArticleSummary; readMore: string }) {
+function SecondaryCard({ article, readMore, locale }: { article: ArticleSummary; readMore: string; locale: string }) {
   const level = getLevel(article.relevance_score);
   const accentBorder =
     level === 3 ? "border-t-red-500" :
@@ -143,7 +151,7 @@ function SecondaryCard({ article, readMore }: { article: ArticleSummary; readMor
           {article.title}
         </h3>
         <div className="flex items-center justify-between">
-          <time className="text-xs text-gray-400 card-meta">{timeAgo(article.published_at)}</time>
+          <time className="text-xs text-gray-400 card-meta">{timeAgo(article.published_at, locale)}</time>
           <span className="text-xs text-blue-600 dark:text-[#00FFE5]/80 font-semibold">{readMore}</span>
         </div>
       </div>
@@ -204,7 +212,7 @@ function TopCriticalWidget({ articles, title }: { articles: ArticleSummary[]; ti
 }
 
 /* ─── Grid Card ──────────────────────────────────────────────────────────── */
-function GridCard({ article, readMore }: { article: ArticleSummary; readMore: string }) {
+function GridCard({ article, readMore, locale }: { article: ArticleSummary; readMore: string; locale: string }) {
   const level = getLevel(article.relevance_score);
 
   return (
@@ -244,7 +252,7 @@ function GridCard({ article, readMore }: { article: ArticleSummary; readMore: st
         </div>
         <div className="mt-auto flex items-center gap-2 pt-2 border-t border-blue-50 dark:border-white/5">
           <RelevanceDots score={article.relevance_score} showLabel={false} />
-          <time className="text-xs text-gray-400 card-meta flex-1 truncate">{timeAgo(article.published_at)}</time>
+          <time className="text-xs text-gray-400 card-meta flex-1 truncate">{timeAgo(article.published_at, locale)}</time>
           <span className="shrink-0 text-blue-600 dark:text-[#00FFE5]/80 font-semibold text-xs group-hover:translate-x-0.5 transition-transform inline-block">
             {readMore}
           </span>
@@ -296,6 +304,8 @@ export default function HomePage() {
     3: tRel("critical"),
   };
 
+  const locale = useLocale();
+
   const [page, setPage] = useState(1);
   const goToPage = (n: number) => {
     setPage(n);
@@ -306,6 +316,9 @@ export default function HomePage() {
   const [articles, setArticles]       = useState<ArticleSummary[]>([]);
   const [inEvidenza, setInEvidenza]   = useState<ArticleSummary[]>([]);
   const [allLatest, setAllLatest]     = useState<ArticleSummary[]>([]);
+  // Versioni tradotte
+  const [trArticles, setTrArticles]     = useState<ArticleSummary[]>([]);
+  const [trEvidenza, setTrEvidenza]     = useState<ArticleSummary[]>([]);
   const [total, setTotal]             = useState(0);
   const [tags, setTags]               = useState<TagCount[]>([]);
   const [loading, setLoading]         = useState(true);
@@ -342,16 +355,25 @@ export default function HomePage() {
     });
   }, [page, levelFilter, tagFilter, retryCount]);
 
+  // Traduci articoli quando cambiano o quando cambia la lingua
+  useEffect(() => {
+    translateArticles(articles, locale).then(setTrArticles);
+  }, [articles, locale]);
+
+  useEffect(() => {
+    translateArticles(inEvidenza, locale).then(setTrEvidenza);
+  }, [inEvidenza, locale]);
+
   function changeLevel(lvl: number) { setLevelFilter(lvl); setPage(1); }
   function changeTag(tag: string | null) { setTagFilter(tag); setPage(1); }
 
   const totalPages        = Math.ceil(total / PAGE_SIZE);
   const topTags           = tags.slice(0, 12);
-  const heroArticle       = inEvidenza[0];
-  const secondaryArticles = inEvidenza.slice(1, 3);
+  const heroArticle       = trEvidenza[0];
+  const secondaryArticles = trEvidenza.slice(1, 3);
   // Escludi dalla griglia gli articoli già mostrati in "In Evidenza"
   const evidenzaIds       = new Set(inEvidenza.map((a) => a.id));
-  const gridArticles      = articles.filter((a) => !evidenzaIds.has(a.id));
+  const gridArticles      = trArticles.filter((a) => !evidenzaIds.has(a.id));
   const briefingArticles = allLatest
     .filter((a) => getLevel(a.relevance_score) >= 2)
     .sort((a, b) => b.relevance_score - a.relevance_score);
@@ -392,7 +414,7 @@ export default function HomePage() {
               >
                 {secondaryArticles.map((a) => (
                   <motion.div key={a.id} variants={cardItem} className="h-full">
-                    <SecondaryCard article={a} readMore={tHome("readMore")} />
+                    <SecondaryCard article={a} readMore={tHome("readMore")} locale={locale} />
                   </motion.div>
                 ))}
               </motion.div>
@@ -528,7 +550,7 @@ export default function HomePage() {
             >
               {gridArticles.map((article) => (
                 <motion.div key={article.id} variants={cardItem}>
-                  <GridCard article={article} readMore={tHome("readMore")} />
+                  <GridCard article={article} readMore={tHome("readMore")} locale={locale} />
                 </motion.div>
               ))}
             </motion.div>

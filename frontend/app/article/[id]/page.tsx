@@ -4,8 +4,8 @@ import TagBadge from "@/components/TagBadge";
 import SourcesList from "@/components/SourcesList";
 import RelevanceDots from "@/components/RelevanceDots";
 import ShareButtons from "@/components/ShareButtons";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import TranslatedArticleContent from "@/components/TranslatedArticleContent";
+import { getTranslations } from "next-intl/server";
 
 export const revalidate = 3600;
 
@@ -52,14 +52,11 @@ export default async function ArticlePage({ params }: PageProps) {
   const article = await getArticle(Number(id)).catch(() => null);
   if (!article) notFound();
 
+  const t = await getTranslations("article");
   const level = getLevel(article.relevance_score);
 
   const publishedAt = new Date(article.published_at).toLocaleDateString("it-IT", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+    day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
   });
 
   return (
@@ -67,95 +64,51 @@ export default async function ArticlePage({ params }: PageProps) {
 
       {/* ── Back ── */}
       <div className="mb-5 md:mb-6">
-        <a
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors py-1"
-        >
-          ← Torna alla homepage
+        <a href="/" className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors py-1">
+          {t("back")}
         </a>
       </div>
 
       {/* ── Header ── */}
       <header className="mb-6 md:mb-8">
-        {/* Title */}
-        <h1 className="text-2xl md:text-3xl font-extrabold text-[#0B1F3A] leading-tight mb-4 md:mb-5">
-          {article.title}
-        </h1>
-
-        {/* Hero image */}
+        {/* Hero image (statica, non tradotta) */}
         <div
           className={`mb-5 md:mb-6 rounded-2xl overflow-hidden shadow-blue-md ${article.image_url ? "bg-blue-50" : "img-placeholder"}`}
           style={{ maxHeight: article.image_url ? undefined : "10rem", minHeight: "8rem" }}
         >
           {article.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={article.image_url}
-              alt={article.title}
-              className="w-full object-cover max-h-52 md:max-h-80"
-            />
+            <img src={article.image_url} alt={article.title} className="w-full object-cover max-h-52 md:max-h-80" />
           ) : null}
         </div>
 
-        {/* Summary box */}
-        {article.summary && (
-          <div className="byte-box relative overflow-hidden rounded-2xl mb-5 md:mb-6 border border-blue-200 dark:border-[#00FFE5]/20 bg-blue-50 dark:bg-[#080e1e]">
-            {/* Top accent stripe */}
-            <div className="h-0.5 w-full bg-gradient-to-r from-blue-400 via-blue-500 to-transparent dark:from-[#00FFE5]/70 dark:via-[#00FFE5]/30 dark:to-transparent" />
-
-            <div className="flex gap-4 md:gap-5 p-5 md:p-6">
-              {/* Mascot */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/sintesi_nobg.png"
-                alt=""
-                className="shrink-0 w-20 h-20 md:w-24 md:h-24 object-contain float-slow self-center opacity-95"
-              />
-
-              {/* Content */}
-              <div className="flex-1 min-w-0 py-1">
-                <p className="byte-label text-[10px] font-extrabold uppercase tracking-[0.18em] text-blue-500 dark:text-[#00FFE5] mb-2">
-                  ✦ In sintesi
-                </p>
-                <div className="byte-text text-sm md:text-base text-blue-900 dark:text-slate-200 leading-relaxed font-medium">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      p: ({ children }) => <span>{children}</span>,
-                      strong: ({ children }) => <strong className="font-bold text-blue-700 dark:text-[#00FFE5]">{children}</strong>,
-                    }}
-                  >
-                    {article.summary}
-                  </ReactMarkdown>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Titolo, sommario e body — tradotti lato client */}
+        <TranslatedArticleContent
+          title={article.title}
+          summary={article.summary}
+          body={article.body}
+        />
 
         {/* Metadata */}
-        <div className="flex items-center gap-3 text-gray-500 flex-wrap">
+        <div className="flex items-center gap-3 text-gray-500 flex-wrap mt-4">
           <time dateTime={article.published_at} className="text-xs md:text-sm">{publishedAt}</time>
           <span className="text-gray-300">·</span>
           <RelevanceDots score={article.relevance_score} />
-          <span className="text-gray-300">·</span>
-          <a href="#fonti" className="text-blue-600 dark:text-blue-400 hover:underline text-xs md:text-sm">
-            {article.sources.length} font{article.sources.length !== 1 ? "i" : "e"}
-          </a>
         </div>
-      </header>
 
-      {/* ── Body ── */}
-      <div className="prose-cyber">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.body}</ReactMarkdown>
-      </div>
+        {/* Tags */}
+        {article.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {article.tags.map((tag) => (
+              <TagBadge key={tag} tag={tag} />
+            ))}
+          </div>
+        )}
+      </header>
 
       {/* ── Share ── */}
       <div className="mt-8 pt-6 border-t border-blue-100 dark:border-white/5">
-        <ShareButtons
-          title={article.title}
-          url={`https://foxscan.vercel.app/article/${id}`}
-        />
+        <ShareButtons title={article.title} url={`https://foxscan.vercel.app/article/${id}`} />
       </div>
 
       {/* ── Sources ── */}

@@ -18,7 +18,7 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' https: data: blob:",
-      `connect-src 'self' ${API_URL} https://formspree.io`,
+      `connect-src 'self' ${API_URL} https://formspree.io https://translate.googleapis.com`,
       "font-src 'self' https://fonts.gstatic.com",
       "frame-ancestors 'none'",
     ].join("; "),
