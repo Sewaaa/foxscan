@@ -65,6 +65,33 @@ class Source(Base):
         }
 
 
+class PipelineRun(Base):
+    __tablename__ = "pipeline_runs"
+
+    id           = Column(Integer, primary_key=True, autoincrement=True)
+    started_at   = Column(DateTime, default=datetime.utcnow, nullable=False)
+    completed_at = Column(DateTime, nullable=True)
+    duration_s   = Column(Integer, nullable=True)          # secondi interi
+    discovered   = Column(Integer, default=0)
+    created      = Column(Integer, default=0)
+    updated      = Column(Integer, default=0)
+    errors       = Column(Integer, default=0)
+    skipped      = Column(Boolean, default=False)
+
+    def to_dict(self) -> dict:
+        return {
+            "id":           self.id,
+            "started_at":   self.started_at.isoformat() if self.started_at else None,
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "duration_s":   self.duration_s,
+            "discovered":   self.discovered,
+            "created":      self.created,
+            "updated":      self.updated,
+            "errors":       self.errors,
+            "skipped":      self.skipped,
+        }
+
+
 class RssItem(Base):
     __tablename__ = "rss_items"
 

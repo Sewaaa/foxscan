@@ -80,9 +80,29 @@ export async function getTags(): Promise<TagCount[]> {
   return apiFetch<TagCount[]>("/tags");
 }
 
+export interface PipelineRun {
+  id: number;
+  started_at: string;
+  completed_at: string | null;
+  duration_s: number | null;
+  discovered: number;
+  created: number;
+  updated: number;
+  errors: number;
+  skipped: number;
+}
+
 export async function getStats(adminKey?: string): Promise<AdminStats> {
   const headers: HeadersInit = adminKey ? { "X-Admin-Key": adminKey } : {};
   const res = await fetch(`${API_BASE}/admin/stats`, { headers });
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  return res.json();
+}
+
+export async function getPipelineHistory(adminKey: string): Promise<PipelineRun[]> {
+  const res = await fetch(`${API_BASE}/admin/pipeline-history`, {
+    headers: { "X-Admin-Key": adminKey },
+  });
   if (!res.ok) throw new Error(`API error ${res.status}`);
   return res.json();
 }

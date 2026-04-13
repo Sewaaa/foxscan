@@ -148,6 +148,12 @@
     "r4Desc": "Mac e iOS, gratuito",
     "techNote": "Il feed viene aggiornato ogni 30 minuti in sincronia con la pipeline AI. Contiene gli ultimi 50 articoli in formato RSS 2.0."
   },
+  "pwa": {
+    "title": "Aggiungi FoxScan alla schermata home",
+    "desc": "Accedi più velocemente alle notizie cyber, come un'app.",
+    "install": "Installa",
+    "dismiss": "Non ora"
+  },
   "contact": {
     "back": "← Torna alla homepage",
     "title": "Contatti",

@@ -4,6 +4,7 @@ import Link from "next/link";
 import BackendStatus from "@/components/BackendStatus";
 import Header from "@/components/Header";
 import AnimatedBackground from "@/components/AnimatedBackground";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import "./globals.css";
@@ -61,6 +62,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AnimatedBackground />
+          <PWAInstallPrompt />
           <BackendStatus />
           <Header />
 

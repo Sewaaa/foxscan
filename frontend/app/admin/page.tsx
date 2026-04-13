@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AdminStats, getStats } from "@/lib/api";
+import { AdminStats, PipelineRun, getStats, getPipelineHistory } from "@/lib/api";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 const SESSION_KEY = "foxscan_admin_key";
@@ -82,6 +82,7 @@ export default function AdminPage() {
 
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [feedStats, setFeedStats] = useState<FeedStat[]>([]);
+  const [pipelineHistory, setPipelineHistory] = useState<PipelineRun[]>([]);
   const [, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -96,14 +97,16 @@ export default function AdminPage() {
 
   async function loadStats(key: string) {
     setLoading(true);
-    const [s, fs] = await Promise.all([
+    const [s, fs, ph] = await Promise.all([
       getStats(key).catch(() => null),
       fetch(`${API_BASE}/admin/feed-stats`, { headers: { "X-Admin-Key": key } })
         .then((r) => r.ok ? r.json() : [])
         .catch(() => []),
+      getPipelineHistory(key).catch(() => []),
     ]);
     setStats(s);
     setFeedStats(fs);
+    setPipelineHistory(ph);
     setPipelineRunning(s?.pipeline_running ?? false);
     setLoading(false);
   }
@@ -322,6 +325,51 @@ export default function AdminPage() {
               </div>
             ))}
         </div>
+      </div>
+
+      {/* Storico pipeline */}
+      <div className="border border-blue-100 dark:border-zinc-800 rounded-xl p-5 bg-white dark:bg-zinc-900">
+        <h2 className="text-base font-semibold text-[#0B1F3A] dark:text-white mb-4">
+          Storico pipeline <span className="text-sm font-normal text-gray-400 dark:text-zinc-500">(ultime 30)</span>
+        </h2>
+        {pipelineHistory.length === 0 ? (
+          <p className="text-sm text-gray-400 dark:text-zinc-600">Nessuna esecuzione registrata.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-left text-gray-400 dark:text-zinc-500 border-b border-blue-50 dark:border-zinc-800">
+                  <th className="pb-2 pr-4 font-medium">Avvio</th>
+                  <th className="pb-2 pr-4 font-medium">Durata</th>
+                  <th className="pb-2 pr-4 font-medium">Trovati</th>
+                  <th className="pb-2 pr-4 font-medium">Creati</th>
+                  <th className="pb-2 pr-4 font-medium">Aggiornati</th>
+                  <th className="pb-2 pr-4 font-medium">Saltati</th>
+                  <th className="pb-2 font-medium">Errori</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-blue-50 dark:divide-zinc-800">
+                {pipelineHistory.map((run) => (
+                  <tr key={run.id} className="text-gray-600 dark:text-zinc-400">
+                    <td className="py-2 pr-4 font-mono whitespace-nowrap">
+                      {new Date(run.started_at).toLocaleString("it-IT")}
+                    </td>
+                    <td className="py-2 pr-4 font-mono">
+                      {run.duration_s != null ? `${run.duration_s}s` : run.completed_at ? "·" : <span className="text-amber-500">in corso</span>}
+                    </td>
+                    <td className="py-2 pr-4">{run.discovered}</td>
+                    <td className="py-2 pr-4 text-green-600 dark:text-green-400 font-medium">{run.created}</td>
+                    <td className="py-2 pr-4 text-blue-600 dark:text-blue-400">{run.updated}</td>
+                    <td className="py-2 pr-4 text-gray-400 dark:text-zinc-600">{run.skipped}</td>
+                    <td className={`py-2 font-medium ${run.errors > 0 ? "text-red-500" : "text-gray-400 dark:text-zinc-600"}`}>
+                      {run.errors}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Zona pericolosa */}

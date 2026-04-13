@@ -274,6 +274,15 @@ def get_stats(request: Request, db: Session = Depends(get_db), _: None = Depends
     }
 
 
+@app.get("/admin/pipeline-history")
+@limiter.limit("10/minute")
+def get_pipeline_history(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
+    """Ultime 30 esecuzioni della pipeline."""
+    from models import PipelineRun
+    runs = db.query(PipelineRun).order_by(PipelineRun.started_at.desc()).limit(30).all()
+    return [r.to_dict() for r in runs]
+
+
 @app.get("/admin/feed-stats")
 @limiter.limit("10/minute")
 def get_feed_stats(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):

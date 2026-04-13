@@ -3,7 +3,7 @@ import json
 import logging
 import threading
 import time
-from datetime import datetime
+from datetime import datetime  # noqa: F401
 
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -26,7 +26,7 @@ scheduler = BackgroundScheduler()
 _pipeline_lock = threading.Lock()
 
 
-def run_pipeline(db: Session | None = None) -> dict:
+def run_pipeline(db: Session | None = None) -> dict:  # noqa: C901
     """
     Esegue l'intera pipeline:
     1. Fetch nuovi item dai feed RSS
@@ -43,6 +43,13 @@ def run_pipeline(db: Session | None = None) -> dict:
     if db is None:
         db = SessionLocal()
         close_db = True
+
+    from models import PipelineRun
+    run = PipelineRun(started_at=datetime.utcnow())
+    db.add(run)
+    db.commit()
+    db.refresh(run)
+    t0 = time.time()
 
     stats = {"discovered": 0, "clusters": 0, "articles_created": 0, "articles_updated": 0, "errors": 0}
 
@@ -97,6 +104,17 @@ def run_pipeline(db: Session | None = None) -> dict:
             time.sleep(2)  # piccola pausa tra cluster; il retry 429 gestisce i rate limit
 
     finally:
+        # Salva esito della run
+        try:
+            run.completed_at = datetime.utcnow()
+            run.duration_s = int(time.time() - t0)
+            run.discovered = stats.get("discovered", 0)
+            run.created = stats.get("articles_created", 0)
+            run.updated = stats.get("articles_updated", 0)
+            run.errors = stats.get("errors", 0)
+            db.commit()
+        except Exception as e:
+            logger.warning(f"Impossibile salvare PipelineRun: {e}")
         if close_db:
             db.close()
         _pipeline_lock.release()

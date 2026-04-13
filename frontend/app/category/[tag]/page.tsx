@@ -11,12 +11,29 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { tag } = await params;
+  const decoded = decodeURIComponent(tag);
   const locale = await getLocale();
+  const description = locale === "en"
+    ? `Cybersecurity articles about ${decoded}`
+    : `Articoli di cybersecurity sul tema ${decoded}`;
   return {
-    title: `#${tag} · FoxScan`,
-    description: locale === "en"
-      ? `Cybersecurity articles about ${tag}`
-      : `Articoli di cybersecurity sul tema ${tag}`,
+    title: `#${decoded} · FoxScan`,
+    description,
+    openGraph: {
+      title: `#${decoded} · FoxScan`,
+      description,
+      url: `https://foxscan.vercel.app/category/${tag}`,
+      siteName: "FoxScan",
+      images: [{ url: "https://foxscan.vercel.app/testa_nobg.png", width: 512, height: 512 }],
+      locale: locale === "en" ? "en_US" : "it_IT",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title: `#${decoded} · FoxScan`,
+      description,
+      images: ["https://foxscan.vercel.app/testa_nobg.png"],
+    },
   };
 }
 

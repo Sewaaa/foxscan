@@ -29,7 +29,7 @@ def get_db():
 
 
 def init_db():
-    from models import Article, Source, RssItem  # noqa: F401
+    from models import Article, Source, RssItem, PipelineRun  # noqa: F401
     from sqlalchemy import text
 
     Base.metadata.create_all(bind=engine)
