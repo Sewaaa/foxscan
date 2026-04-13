@@ -8,7 +8,7 @@ import ThemeToggle from "./ThemeToggle";
 import TopCriticalDropdown from "./TopCriticalDropdown";
 import LanguageToggle from "./LanguageToggle";
 
-/* ── Riga tema per il drawer mobile ── */
+/* ── Toggle tema (riusato anche nel drawer mobile) ── */
 function MobileThemeRow() {
   const t = useTranslations("themeToggle");
   const [dark, setDark] = useState(true);
@@ -28,12 +28,11 @@ function MobileThemeRow() {
   return (
     <button
       onClick={toggle}
-      className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl text-sm font-medium text-[#0B1F3A] dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/5 transition-colors"
+      title={dark ? t("toLight") : t("toDark")}
+      className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50/80 dark:hover:text-[#00FFE5] dark:hover:bg-white/5 transition-all"
     >
-      <span>{dark ? t("toLight") : t("toDark")}</span>
       {dark ? (
-        /* sole */
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="5"/>
           <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
@@ -42,8 +41,7 @@ function MobileThemeRow() {
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
         </svg>
       ) : (
-        /* luna */
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
         </svg>
@@ -52,7 +50,7 @@ function MobileThemeRow() {
   );
 }
 
-/* ── Riga lingua per il drawer mobile ── */
+/* ── Toggle lingua (riusato anche nel drawer mobile) ── */
 function MobileLanguageRow() {
   const locale = useLocale();
   const t = useTranslations("languageToggle");
@@ -69,16 +67,14 @@ function MobileLanguageRow() {
     <button
       onClick={switchLocale}
       disabled={isPending}
-      className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl text-sm font-medium text-[#0B1F3A] dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+      title={locale === "it" ? t("toEn") : t("toIt")}
+      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-mono font-semibold rounded-lg border border-blue-200 dark:border-white/10 text-gray-500 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:border-[#00FFE5]/40 dark:hover:text-[#00FFE5] transition-all disabled:opacity-50"
     >
-      <span>{locale === "it" ? t("toEn") : t("toIt")}</span>
-      <span className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold px-2.5 py-1 rounded-lg border border-blue-200 dark:border-white/10 text-gray-500 dark:text-slate-400">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-        </svg>
-        {locale.toUpperCase()}
-      </span>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 shrink-0">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      </svg>
+      {locale.toUpperCase()}
     </button>
   );
 }
@@ -192,14 +188,11 @@ export default function Header() {
             </Link>
           ))}
 
-          {/* Divider */}
-          <div className="my-1 border-t border-blue-100/60 dark:border-white/5" />
-
-          {/* Tema */}
-          <MobileThemeRow />
-
-          {/* Lingua */}
-          <MobileLanguageRow />
+          {/* Tema + Lingua — minimal icon row */}
+          <div className="mt-1 pt-2 border-t border-blue-100/60 dark:border-white/5 flex items-center gap-1 px-2">
+            <MobileThemeRow />
+            <MobileLanguageRow />
+          </div>
         </nav>
       )}
     </header>
