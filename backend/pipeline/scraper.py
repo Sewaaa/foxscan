@@ -64,6 +64,12 @@ def scrape_url(url: str) -> dict | None:
             logger.warning(f"Download fallito per {url}")
             return None
 
+        # Tronca l'HTML grezzo a 2MB prima di passarlo a trafilatura:
+        # pagine più grandi (JS-heavy, immagini inline) non aggiungono testo utile
+        # ma consumano molta RAM durante il parsing.
+        if len(downloaded) > 2_000_000:
+            downloaded = downloaded[:2_000_000]
+
         # Estrai metadata (og:image, title, ecc.)
         metadata = trafilatura.extract_metadata(downloaded)
         image_url = metadata.image if metadata and metadata.image else None
@@ -74,6 +80,10 @@ def scrape_url(url: str) -> dict | None:
             include_tables=False,
             no_fallback=False,
         )
+
+        # Libera subito l'HTML grezzo — può pesare svariati MB
+        del downloaded
+
         if not text:
             logger.warning(f"Estrazione testo fallita per {url}")
             return None

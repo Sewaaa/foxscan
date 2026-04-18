@@ -39,4 +39,4 @@ SIMILARITY_THRESHOLD = 0.75  # soglia per considerare due articoli dello stesso 
 FETCH_INTERVAL_MINUTES = 30
 MAX_ARTICLES_PER_CLUSTER = 3
 MAX_TEXT_CHARS_PER_ARTICLE = 3000  # ridotto per rispettare Groq TPM limit (6000/min)
-MAX_ITEMS_PER_RUN = 20  # cap per evitare OOM su Render free (512MB)
+MAX_ITEMS_PER_RUN = 15  # cap per evitare OOM su Render free (512MB)

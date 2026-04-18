@@ -58,14 +58,11 @@ def run_pipeline(db: Session | None = None) -> dict:  # noqa: C901
         new = fetch_new_items(db)
         stats["discovered"] = len(new)
 
-        # Step 2: Recupera tutti i pending (cap per evitare OOM)
-        pending = get_unprocessed_items(db)
+        # Step 2: Recupera i pending con cap diretto in SQL (evita caricare migliaia di righe in RAM)
+        pending = get_unprocessed_items(db, limit=MAX_ITEMS_PER_RUN)
         if not pending:
             logger.info("Nessun item da processare")
             return stats
-        if len(pending) > MAX_ITEMS_PER_RUN:
-            logger.info(f"Troppi item ({len(pending)}), processo solo i primi {MAX_ITEMS_PER_RUN}")
-            pending = pending[:MAX_ITEMS_PER_RUN]
 
         # Step 3: Prova a fondere ogni item con articoli recenti (ultime 24h).
         # Se un item copre la stessa notizia di un articolo già pubblicato,
@@ -100,6 +97,8 @@ def run_pipeline(db: Session | None = None) -> dict:  # noqa: C901
                 logger.error(f"Errore su cluster {ids}: {e}")
                 stats["errors"] += 1
                 mark_processed(db, ids)  # marchia comunque per evitare loop
+            # Svuota l'identity map di SQLAlchemy per evitare accumulo di oggetti in sessione
+            db.expire_all()
             gc.collect()
             time.sleep(2)  # piccola pausa tra cluster; il retry 429 gestisce i rate limit
 

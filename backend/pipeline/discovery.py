@@ -1,3 +1,4 @@
+import gc
 import hashlib
 import logging
 import re
@@ -73,15 +74,25 @@ def fetch_new_items(db: Session) -> list[dict]:
             db.add(item)
             new_items.append({"url": url, "title": title, "feed_source": domain})
 
+        # Libera subito il feed parsato — ogni feed può occupare svariati MB
+        del parsed
+        gc.collect()
+
     db.commit()
     logger.info(f"Scoperti {len(new_items)} nuovi articoli")
     return new_items
 
 
-def get_unprocessed_items(db: Session) -> list[dict]:
+def get_unprocessed_items(db: Session, limit: int = 20) -> list[dict]:
     from models import RssItem
 
-    rows = db.query(RssItem).filter(RssItem.processed == False).all()  # noqa: E712
+    rows = (
+        db.query(RssItem)
+        .filter(RssItem.processed == False)  # noqa: E712
+        .order_by(RssItem.discovered_at.asc())
+        .limit(limit)
+        .all()
+    )
     return [
         {
             "id": r.id,
