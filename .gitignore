@@ -26,3 +26,4 @@ info.txt
 # Collegamenti web (Windows .url, macOS .webloc)
 *.url
 *.webloc
+DEPLOYMENT.md
