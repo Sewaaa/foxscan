@@ -13,7 +13,7 @@ function getStatusMessage(locale: string): string {
     hour12: false,
   });
   const hour = parseInt(italianHour, 10);
-  const isNightMode = hour >= 0 && hour < WAKE_HOUR;
+  const isNightMode = hour >= 23 || hour < WAKE_HOUR;
 
   if (locale === "it") {
     return isNightMode
