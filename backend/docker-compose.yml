@@ -18,7 +18,7 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8888:8080"
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY}
       - UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}
@@ -35,15 +35,6 @@ services:
       retries: 3
       start_period: 20s
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    restart: unless-stopped
-    command: tunnel --no-autoupdate run
-    environment:
-      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
-    depends_on:
-      backend:
-        condition: service_healthy
 
 volumes:
   postgres_data:
