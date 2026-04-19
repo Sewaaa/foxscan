@@ -17,11 +17,11 @@ function getStatusMessage(locale: string): string {
 
   if (locale === "it") {
     return isNightMode
-      ? `FoxScan è in pausa notturna · il servizio riprende automaticamente alle 0${WAKE_HOUR}:00`
+      ? `FoxScan è in pausa notturna · il servizio riprende automaticamente alle 0${WAKE_HOUR}:00 CET`
       : "Servizio temporaneamente non disponibile · ripristino automatico in corso";
   }
   return isNightMode
-    ? `FoxScan is in night mode · service resumes automatically at 0${WAKE_HOUR}:00 (Italian time)`
+    ? `FoxScan is in night mode · service resumes automatically at 0${WAKE_HOUR}:00 CET`
     : "Service temporarily unavailable · automatic recovery in progress";
 }
 
