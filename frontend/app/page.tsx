@@ -526,7 +526,7 @@ export default function HomePage() {
               <div className="flex justify-center mb-6">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/error_nobg.png"
+                  src={(() => { const h = parseInt(new Date().toLocaleString("en-US", { timeZone: "Europe/Rome", hour: "numeric", hour12: false }), 10); return (h >= 23 || h < 8) ? "/sleep.png" : "/error_nobg.png"; })()}
                   alt=""
                   className="w-32 h-32 object-contain float-anim opacity-70 neon-glow-logo"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
