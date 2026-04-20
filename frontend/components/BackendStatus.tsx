@@ -40,18 +40,5 @@ export default function BackendStatus() {
 
   if (!offline) return null;
 
-  const italianHour = parseInt(
-    new Date().toLocaleString("en-US", { timeZone: "Europe/Rome", hour: "numeric", hour12: false }),
-    10
-  );
-  const isNightMode = italianHour >= 23 || italianHour < 8;
-
-  // Di notte nessun banner — il sito mostra già lo stato vuoto
-  if (isNightMode) return null;
-
-  return (
-    <div className="bg-amber-50 border-b border-amber-200 text-amber-800 text-sm text-center py-2.5 px-4">
-      {getStatusMessage(locale)}
-    </div>
-  );
+  return null;
 }
