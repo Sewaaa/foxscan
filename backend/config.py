@@ -1,25 +1,29 @@
 import os
 
 RSS_FEEDS = [
-    # Fonti originali
+    # News generaliste — alta sovrapposizione, buon clustering
     "https://www.bleepingcomputer.com/feed/",
     "https://feeds.feedburner.com/TheHackersNews",
     "https://krebsonsecurity.com/feed/",
     "https://www.darkreading.com/rss.xml",
-    "https://www.cisa.gov/cybersecurity-advisories/feed.xml",
     "https://securityaffairs.com/feed",
     "https://grahamcluley.com/feed/",
-    # Fonti aggiuntive
     "https://www.securityweek.com/feed/",
     "https://www.helpnetsecurity.com/feed/",
     "https://www.infosecurity-magazine.com/rss/news/",
-    "https://feeds.arstechnica.com/arstechnica/security",
     "https://www.wired.com/feed/category/security/latest/rss",
-    "https://nakedsecurity.sophos.com/feed/",
     "https://cyberscoop.com/feed/",
     "https://www.theregister.com/security/headlines.atom",
+    "https://www.scmagazine.com/feed/",
+    "https://techcrunch.com/tag/security/feed/",
+    # Threat research — contenuti unici, alta qualità
     "https://www.malwarebytes.com/blog/feed/",
     "https://www.recordedfuture.com/feed",
+    "https://unit42.paloaltonetworks.com/feed/",
+    "https://blog.talosintelligence.com/feeds/posts/default",
+    "https://www.microsoft.com/en-us/security/blog/feed/",
+    "https://news.sophos.com/en-us/feed/",
+    "https://www.schneier.com/feed/atom/",
 ]
 
 # LLM
@@ -39,4 +43,4 @@ SIMILARITY_THRESHOLD = 0.75  # soglia per considerare due articoli dello stesso 
 FETCH_INTERVAL_MINUTES = 30
 MAX_ARTICLES_PER_CLUSTER = 3
 MAX_TEXT_CHARS_PER_ARTICLE = 3000  # ridotto per rispettare Groq TPM limit (6000/min)
-MAX_ITEMS_PER_RUN = 15  # cap per evitare OOM su Render free (512MB)
+MAX_ITEMS_PER_RUN = 25  # alzato da 15 — NAS ha 7.66GB RAM, nessun limite Render
