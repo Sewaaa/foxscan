@@ -528,7 +528,7 @@ export default function HomePage() {
                 <img
                   src={(() => { const h = parseInt(new Date().toLocaleString("en-US", { timeZone: "Europe/Rome", hour: "numeric", hour12: false }), 10); return (h >= 11 && h < 13) ? "/sleep.png" : "/error_nobg.png"; })()}
                   alt=""
-                  className="w-32 h-32 object-contain float-anim opacity-70 neon-glow-logo"
+                  className="w-32 h-32 md:w-48 md:h-48 object-contain float-anim opacity-70 neon-glow-logo"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
               </div>
