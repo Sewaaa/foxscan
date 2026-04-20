@@ -57,8 +57,10 @@
     "category": "Category",
     "loading": "Loading feed...",
     "noArticlesLevel": "No articles with this relevance.",
-    "noNews": "No news yet...",
-    "startPipeline": "Start the pipeline from the Admin panel.",
+    "noNews": "No articles available at the moment.",
+    "startPipeline": "Content is updated automatically every 30 minutes. Check back shortly.",
+    "nightTitle": "FoxScan is in night mode.",
+    "nightSubtitle": "Service resumes automatically at 08:00 CET.",
     "readMore": "Read →",
     "justNow": "just now"
   },

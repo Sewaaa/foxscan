@@ -532,11 +532,17 @@ export default function HomePage() {
               <p className="text-base font-grotesk font-semibold text-gray-500 dark:text-slate-400 mb-2">
                 {levelFilter > 0
                   ? tHome("noArticlesLevel")
-                  : tHome("noNews")}
+                  : (() => {
+                      const h = parseInt(new Date().toLocaleString("en-US", { timeZone: "Europe/Rome", hour: "numeric", hour12: false }), 10);
+                      return (h >= 23 || h < 8) ? tHome("nightTitle") : tHome("noNews");
+                    })()}
               </p>
               {levelFilter === 0 && (
                 <p className="text-sm text-gray-400 dark:text-slate-500">
-                  {tHome("startPipeline")}
+                  {(() => {
+                    const h = parseInt(new Date().toLocaleString("en-US", { timeZone: "Europe/Rome", hour: "numeric", hour12: false }), 10);
+                    return (h >= 23 || h < 8) ? tHome("nightSubtitle") : tHome("startPipeline");
+                  })()}
                 </p>
               )}
             </motion.div>

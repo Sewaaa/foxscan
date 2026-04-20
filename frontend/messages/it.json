@@ -57,8 +57,10 @@
     "category": "Categoria",
     "loading": "Caricamento feed...",
     "noArticlesLevel": "Nessun articolo con questa rilevanza.",
-    "noNews": "Nessuna notizia ancora...",
-    "startPipeline": "Avvia la pipeline dal pannello Admin.",
+    "noNews": "Nessun articolo disponibile al momento.",
+    "startPipeline": "I contenuti vengono aggiornati automaticamente ogni 30 minuti. Riprova tra poco.",
+    "nightTitle": "FoxScan è in pausa notturna.",
+    "nightSubtitle": "Il servizio riprende automaticamente alle 08:00 CET.",
     "readMore": "Leggi →",
     "justNow": "pochi minuti fa"
   },
