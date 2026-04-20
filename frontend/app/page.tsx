@@ -526,7 +526,7 @@ export default function HomePage() {
               <div className="flex justify-center mb-6">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={(() => { const h = parseInt(new Date().toLocaleString("en-US", { timeZone: "Europe/Rome", hour: "numeric", hour12: false }), 10); return (h >= 11 && h < 13) ? "/sleep.png" : "/error_nobg.png"; })()}
+                  src={(() => { const h = parseInt(new Date().toLocaleString("en-US", { timeZone: "Europe/Rome", hour: "numeric", hour12: false }), 10); return (h >= 23 || h < 9) ? "/sleep.png" : "/error_nobg.png"; })()}
                   alt=""
                   className="w-32 h-32 md:w-48 md:h-48 object-contain float-anim opacity-100 dark:opacity-70 neon-glow-logo"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
@@ -537,14 +537,14 @@ export default function HomePage() {
                   ? tHome("noArticlesLevel")
                   : (() => {
                       const h = parseInt(new Date().toLocaleString("en-US", { timeZone: "Europe/Rome", hour: "numeric", hour12: false }), 10);
-                      return (h >= 11 && h < 13) ? tHome("nightTitle") : tHome("noNews");
+                      return (h >= 23 || h < 9) ? tHome("nightTitle") : tHome("noNews");
                     })()}
               </p>
               {levelFilter === 0 && (
                 <p className="text-sm text-gray-400 dark:text-slate-500">
                   {(() => {
                     const h = parseInt(new Date().toLocaleString("en-US", { timeZone: "Europe/Rome", hour: "numeric", hour12: false }), 10);
-                    return (h >= 11 && h < 13) ? tHome("nightSubtitle") : tHome("startPipeline");
+                    return (h >= 23 || h < 9) ? tHome("nightSubtitle") : tHome("startPipeline");
                   })()}
                 </p>
               )}
