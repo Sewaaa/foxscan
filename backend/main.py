@@ -286,15 +286,41 @@ def get_pipeline_history(request: Request, db: Session = Depends(get_db), _: Non
 @app.get("/admin/feed-stats")
 @limiter.limit("10/minute")
 def get_feed_stats(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
-    """Conta gli item RSS scoperti per ciascuna fonte."""
-    from models import RssItem
+    """Conta gli item RSS scoperti per ciascuna fonte + articoli multi-fonte per dominio."""
+    from models import RssItem, Source
     from sqlalchemy import func
-    rows = (
+
+    # Item RSS scoperti per feed_source
+    rss_rows = (
         db.query(RssItem.feed_source, func.count(RssItem.id))
         .group_by(RssItem.feed_source)
         .all()
     )
-    return [{"feed_source": r[0] or "unknown", "count": r[1]} for r in rows]
+
+    # Per ogni dominio: quanti articoli (in Source) hanno quel dominio
+    # E il loro article_id compare in più di una riga in Source (= multi-fonte)
+    multi_subq = (
+        db.query(Source.article_id)
+        .group_by(Source.article_id)
+        .having(func.count(Source.id) > 1)
+        .subquery()
+    )
+    multi_rows = (
+        db.query(Source.domain, func.count(Source.article_id.distinct()))
+        .filter(Source.article_id.in_(db.query(multi_subq)))
+        .group_by(Source.domain)
+        .all()
+    )
+    multi_map: dict[str, int] = {r[0]: r[1] for r in multi_rows}
+
+    return [
+        {
+            "feed_source": r[0] or "unknown",
+            "count": r[1],
+            "multi_source_count": multi_map.get(r[0] or "unknown", 0),
+        }
+        for r in rss_rows
+    ]
 
 
 @app.get("/health")

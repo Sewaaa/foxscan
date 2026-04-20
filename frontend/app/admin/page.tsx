@@ -6,26 +6,30 @@ import { AdminStats, PipelineRun, getStats, getPipelineHistory } from "@/lib/api
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 const SESSION_KEY = "foxscan_admin_key";
 
-interface FeedStat { feed_source: string; count: number; }
+interface FeedStat { feed_source: string; count: number; multi_source_count: number; }
 
 const FEED_META: Record<string, { name: string; url: string }> = {
-  "www.bleepingcomputer.com":      { name: "BleepingComputer",       url: "https://www.bleepingcomputer.com" },
-  "feeds.feedburner.com":          { name: "The Hacker News",         url: "https://thehackernews.com" },
-  "krebsonsecurity.com":           { name: "Krebs on Security",       url: "https://krebsonsecurity.com" },
-  "www.darkreading.com":           { name: "Dark Reading",            url: "https://www.darkreading.com" },
-  "www.cisa.gov":                  { name: "CISA Advisories",         url: "https://www.cisa.gov" },
-  "securityaffairs.com":           { name: "Security Affairs",        url: "https://securityaffairs.com" },
-  "grahamcluley.com":              { name: "Graham Cluley",           url: "https://grahamcluley.com" },
-  "www.securityweek.com":          { name: "SecurityWeek",            url: "https://www.securityweek.com" },
-  "www.helpnetsecurity.com":       { name: "Help Net Security",       url: "https://www.helpnetsecurity.com" },
-  "www.infosecurity-magazine.com": { name: "Infosecurity Magazine",   url: "https://www.infosecurity-magazine.com" },
-  "feeds.arstechnica.com":         { name: "Ars Technica Security",   url: "https://arstechnica.com/security/" },
-  "www.wired.com":                 { name: "Wired Security",          url: "https://www.wired.com/category/security/" },
-  "nakedsecurity.sophos.com":      { name: "Naked Security (Sophos)", url: "https://nakedsecurity.sophos.com" },
-  "cyberscoop.com":                { name: "CyberScoop",              url: "https://cyberscoop.com" },
-  "www.theregister.com":           { name: "The Register Security",   url: "https://www.theregister.com/security/" },
-  "www.malwarebytes.com":          { name: "Malwarebytes Blog",       url: "https://www.malwarebytes.com/blog/" },
-  "www.recordedfuture.com":        { name: "Recorded Future",         url: "https://www.recordedfuture.com" },
+  "www.bleepingcomputer.com":        { name: "BleepingComputer",         url: "https://www.bleepingcomputer.com" },
+  "feeds.feedburner.com":            { name: "The Hacker News",           url: "https://thehackernews.com" },
+  "krebsonsecurity.com":             { name: "Krebs on Security",         url: "https://krebsonsecurity.com" },
+  "www.darkreading.com":             { name: "Dark Reading",              url: "https://www.darkreading.com" },
+  "securityaffairs.com":             { name: "Security Affairs",          url: "https://securityaffairs.com" },
+  "grahamcluley.com":                { name: "Graham Cluley",             url: "https://grahamcluley.com" },
+  "www.securityweek.com":            { name: "SecurityWeek",              url: "https://www.securityweek.com" },
+  "www.helpnetsecurity.com":         { name: "Help Net Security",         url: "https://www.helpnetsecurity.com" },
+  "www.infosecurity-magazine.com":   { name: "Infosecurity Magazine",     url: "https://www.infosecurity-magazine.com" },
+  "www.wired.com":                   { name: "Wired Security",            url: "https://www.wired.com/category/security/" },
+  "cyberscoop.com":                  { name: "CyberScoop",                url: "https://cyberscoop.com" },
+  "www.theregister.com":             { name: "The Register Security",     url: "https://www.theregister.com/security/" },
+  "www.scmagazine.com":              { name: "SC Magazine",               url: "https://www.scmagazine.com" },
+  "techcrunch.com":                  { name: "TechCrunch Security",       url: "https://techcrunch.com/tag/security/" },
+  "www.malwarebytes.com":            { name: "Malwarebytes Blog",         url: "https://www.malwarebytes.com/blog/" },
+  "www.recordedfuture.com":          { name: "Recorded Future",           url: "https://www.recordedfuture.com" },
+  "unit42.paloaltonetworks.com":     { name: "Unit 42 (Palo Alto)",       url: "https://unit42.paloaltonetworks.com" },
+  "blog.talosintelligence.com":      { name: "Cisco Talos",               url: "https://blog.talosintelligence.com" },
+  "www.microsoft.com":               { name: "Microsoft Security Blog",   url: "https://www.microsoft.com/en-us/security/blog/" },
+  "news.sophos.com":                 { name: "Sophos News",               url: "https://news.sophos.com/en-us/" },
+  "www.schneier.com":                { name: "Schneier on Security",      url: "https://www.schneier.com" },
 };
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
@@ -296,17 +300,33 @@ export default function AdminPage() {
 
       {/* Fonti RSS */}
       <div className="border border-blue-100 dark:border-zinc-800 rounded-xl p-5 bg-white dark:bg-zinc-900">
-        <h2 className="text-base font-semibold text-[#0B1F3A] dark:text-white mb-4">
-          Fonti RSS <span className="text-sm font-normal text-gray-400 dark:text-zinc-500">({Object.keys(FEED_META).length})</span>
-        </h2>
+        <div className="flex items-start justify-between mb-4 gap-4 flex-wrap">
+          <h2 className="text-base font-semibold text-[#0B1F3A] dark:text-white">
+            Fonti RSS <span className="text-sm font-normal text-gray-400 dark:text-zinc-500">({Object.keys(FEED_META).length})</span>
+          </h2>
+          <div className="flex items-center gap-3 text-[11px] text-gray-400 dark:text-zinc-500">
+            <span className="flex items-center gap-1">
+              <span className="bg-blue-50 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full font-mono">N item</span>
+              item RSS scoperti
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded-full font-mono">N ×</span>
+              articoli con &gt;1 fonte
+            </span>
+          </div>
+        </div>
         <div className="divide-y divide-blue-50 dark:divide-zinc-800">
           {Object.entries(FEED_META)
-            .map(([domain, meta]) => ({
-              domain, meta,
-              count: feedStats.find((f) => f.feed_source === domain)?.count ?? null,
-            }))
+            .map(([domain, meta]) => {
+              const stat = feedStats.find((f) => f.feed_source === domain);
+              return {
+                domain, meta,
+                count: stat?.count ?? null,
+                multiCount: stat?.multi_source_count ?? null,
+              };
+            })
             .sort((a, b) => (b.count ?? -1) - (a.count ?? -1))
-            .map(({ domain, meta, count }) => (
+            .map(({ domain, meta, count, multiCount }) => (
               <div key={domain} className="flex items-center justify-between py-2.5 gap-3">
                 <div className="min-w-0">
                   <a
@@ -319,9 +339,21 @@ export default function AdminPage() {
                   </a>
                   <p className="text-xs text-gray-400 dark:text-zinc-600">{domain}</p>
                 </div>
-                <span className="shrink-0 text-xs font-mono text-gray-400 dark:text-zinc-500 bg-blue-50 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
-                  {count !== null ? `${count} item` : "·"}
-                </span>
+                <div className="shrink-0 flex items-center gap-1.5">
+                  <span className="text-xs font-mono text-gray-400 dark:text-zinc-500 bg-blue-50 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
+                    {count !== null ? `${count} item` : "·"}
+                  </span>
+                  <span
+                    title="Articoli con più di una fonte"
+                    className={`text-xs font-mono px-2 py-0.5 rounded-full ${
+                      multiCount
+                        ? "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20"
+                        : "text-gray-300 dark:text-zinc-700 bg-gray-50 dark:bg-zinc-800/50"
+                    }`}
+                  >
+                    {multiCount !== null ? `${multiCount} ×` : "·"}
+                  </span>
+                </div>
               </div>
             ))}
         </div>
