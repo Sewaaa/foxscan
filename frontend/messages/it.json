@@ -58,7 +58,7 @@
     "loading": "Caricamento feed...",
     "noArticlesLevel": "Nessun articolo con questa rilevanza.",
     "noNews": "Qualcosa è andato storto.",
-    "startPipeline": "Il servizio non è raggiungibile al momento. Riprova tra qualche minuto.",
+    "startPipeline": "Il servizio non è raggiungibile al momento. Riprova più tardi — la pagina si aggiornerà automaticamente ogni 5 minuti.",
     "nightTitle": "FoxScan è in pausa notturna.",
     "nightSubtitle": "Il servizio riprende automaticamente alle 08:00 CET.",
     "readMore": "Leggi →",

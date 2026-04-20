@@ -351,6 +351,9 @@ export default function HomePage() {
       if (retryCount < 4) {
         const delay = 5000 * (retryCount + 1);
         setTimeout(() => setRetryCount((r) => r + 1), delay);
+      } else {
+        // Tutti i retry esauriti — ricarica la pagina ogni 5 minuti
+        setTimeout(() => window.location.reload(), 5 * 60 * 1000);
       }
     });
   }, [page, levelFilter, tagFilter, retryCount]);

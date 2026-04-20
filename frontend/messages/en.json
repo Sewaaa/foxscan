@@ -58,7 +58,7 @@
     "loading": "Loading feed...",
     "noArticlesLevel": "No articles with this relevance.",
     "noNews": "Something went wrong.",
-    "startPipeline": "The service is currently unreachable. Please try again in a few minutes.",
+    "startPipeline": "The service is currently unreachable. Please try again later — this page will automatically refresh every 5 minutes.",
     "nightTitle": "FoxScan is in night mode.",
     "nightSubtitle": "Service resumes automatically at 08:00 CET.",
     "readMore": "Read →",
