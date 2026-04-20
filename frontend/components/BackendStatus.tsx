@@ -18,11 +18,11 @@ function getStatusMessage(locale: string): string {
   if (locale === "it") {
     return isNightMode
       ? `FoxScan è in pausa notturna · il servizio riprende automaticamente alle 0${WAKE_HOUR}:00 CET`
-      : "Servizio temporaneamente non disponibile · ripristino automatico in corso";
+      : "Stiamo riscontrando un'interruzione temporanea del servizio · ci scusiamo per il disagio";
   }
   return isNightMode
     ? `FoxScan is in night mode · service resumes automatically at 0${WAKE_HOUR}:00 CET`
-    : "Service temporarily unavailable · automatic recovery in progress";
+    : "We are experiencing a temporary service disruption · we apologise for the inconvenience";
 }
 
 export default function BackendStatus() {
