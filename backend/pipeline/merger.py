@@ -17,7 +17,7 @@ from pipeline.synthesizer import synthesize_update
 
 logger = logging.getLogger(__name__)
 
-MERGE_WINDOW_HOURS = 24  # finestra temporale entro cui cercare articoli da aggiornare
+MERGE_WINDOW_HOURS = 48  # finestra temporale entro cui cercare articoli da aggiornare
 
 
 def _normalize_domain(domain: str) -> str:
