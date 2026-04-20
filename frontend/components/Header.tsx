@@ -150,7 +150,7 @@ export default function Header() {
         <div className="flex md:hidden items-center">
           <button
             onClick={() => setOpen(!open)}
-            className="p-2.5 rounded-xl text-[#0B1F3A] dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/6 transition-colors"
+            className="p-2.5 rounded-xl text-[#0B1F3A] dark:text-slate-300 hover:bg-blue-50/80 dark:hover:bg-white/5 active:bg-blue-100/60 dark:active:bg-white/10 transition-colors"
             aria-label={open ? t("closeMenu") : t("openMenu")}
             aria-expanded={open}
           >
