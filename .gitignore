@@ -23,6 +23,8 @@ todo.txt
 CLAUDE.md
 info.txt
 update-nas.bat
+update-nas.ps1
+update-nas-launcher.bat
 
 # Claude Code — configurazione locale
 .claude/
