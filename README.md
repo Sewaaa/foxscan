@@ -197,7 +197,7 @@ Set in Vercel dashboard → Environment Variables:
 
 | Key | Value |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | Your Tailscale Funnel URL (or any backend URL) |
+| `NEXT_PUBLIC_API_URL` | Your backend public URL (e.g. `https://your-service.onrender.com`) |
 
 ---
 
