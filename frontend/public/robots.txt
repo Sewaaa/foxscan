@@ -2,3 +2,4 @@ User-agent: *
 Disallow: /admin
 
 Sitemap: https://foxscan.vercel.app/sitemap.xml
+LLMs: https://foxscan.vercel.app/llms.txt
