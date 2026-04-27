@@ -23,6 +23,9 @@ todo.txt
 CLAUDE.md
 info.txt
 
+# Claude Code — configurazione locale
+.claude/
+
 # Collegamenti web (Windows .url, macOS .webloc)
 *.url
 *.webloc

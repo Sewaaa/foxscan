@@ -1,8 +1,15 @@
-# FoxScan
+<p align="center">
+  <img src="frontend/public/logo_nobg.png" alt="FoxScan Logo" width="180"/>
+</p>
 
-> AI-powered cybersecurity intelligence — automatically discovers, clusters, and synthesizes the latest security news into concise Italian-language briefings.
+<h1 align="center">FoxScan</h1>
+<p align="center">AI-powered cybersecurity intelligence — automatically discovers, clusters, and synthesizes the latest security news into concise briefings.</p>
 
-🌐 **[foxscan.vercel.app](https://foxscan.vercel.app)** &nbsp;·&nbsp; **[API Docs](https://cybernews-bxml.onrender.com/docs)** &nbsp;·&nbsp; **[RSS Feed](https://foxscan.vercel.app/rss)**
+<p align="center">
+  🌐 <a href="https://foxscan.vercel.app"><strong>foxscan.vercel.app</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://foxscan.vercel.app/rss">RSS Feed</a>
+</p>
 
 ---
 
@@ -10,11 +17,11 @@
 
 FoxScan runs a fully automated pipeline every 30 minutes:
 
-1. **Discovery** — polls 17 RSS feeds from top cybersecurity sources and deduplicates via SHA-256
+1. **Discovery** — polls 21 RSS feeds from top cybersecurity sources and deduplicates via SHA-256
 2. **Clustering** — groups related stories by topic using fuzzy string similarity (rapidfuzz, threshold 55)
 3. **Scraping** — extracts full article text via trafilatura, with RSS summary as automatic fallback
-4. **Synthesis** — sends each cluster to Groq LLaMA 3.3 70B, which returns a structured Italian briefing: title, summary, markdown body, tags, and relevance score
-5. **Merging** — if a similar article already exists (< 24h), it re-synthesizes with the new source merged in rather than creating a duplicate
+4. **Synthesis** — sends each cluster to Groq LLaMA 3.3 70B, which returns a structured briefing: title, summary, markdown body, tags, and relevance score
+5. **Merging** — if a similar article already exists (< 48h), it re-synthesizes with the new source merged in rather than creating a duplicate
 6. **Images** — fetches a contextual cover image from Unsplash based on article tags
 7. **Serving** — exposes articles via a REST API consumed by the Next.js frontend
 
@@ -26,12 +33,12 @@ FoxScan runs a fully automated pipeline every 30 minutes:
 |---|---|
 | Frontend | Next.js 15 (App Router), Tailwind CSS, TypeScript |
 | Backend | FastAPI, SQLAlchemy, APScheduler |
-| Database | PostgreSQL (Neon serverless, persistent, free tier) / SQLite locally |
+| Database | PostgreSQL (Neon serverless, free tier) / SQLite locally |
 | AI / LLM | Groq API — LLaMA 3.3 70B Versatile |
 | Scraping | trafilatura, feedparser |
 | Clustering | rapidfuzz (token set ratio) |
 | Images | Unsplash API |
-| Deploy | Vercel (frontend) + Render (backend) |
+| Deploy | Vercel (frontend) + QNAP NAS via Docker + Tailscale Funnel (backend) |
 
 ---
 
@@ -46,22 +53,28 @@ FoxScan runs a fully automated pipeline every 30 minutes:
                           │  REST API (JSON)
                           ▼
 ┌──────────────────────────────────────────────────────────┐
-│                  RENDER (Web Service)                    │
+│           TAILSCALE FUNNEL (public HTTPS endpoint)       │
+│  https://nas-*.ts.net  →  localhost:8888 on NAS         │
+└─────────────────────────┬────────────────────────────────┘
+                          │
+                          ▼
+┌──────────────────────────────────────────────────────────┐
+│              QNAP NAS — Docker (Container Station)       │
 │  FastAPI — /articles  /tags  /rss  /admin/*  /health    │
 │                                                          │
 │  APScheduler ──► Pipeline (every 30 min)                │
-│    ├── Discovery    (feedparser → 17 RSS feeds)         │
+│    ├── Discovery    (feedparser → 21 RSS feeds)         │
 │    ├── Clustering   (rapidfuzz similarity)              │
 │    ├── Scraping     (trafilatura + RSS fallback)        │
 │    ├── Synthesis    (Groq → LLaMA 3.3 70B → JSON)      │
-│    ├── Merging      (re-synthesis if duplicate < 24h)   │
+│    ├── Merging      (re-synthesis if duplicate < 48h)   │
 │    └── Image finder (Unsplash contextual cover)         │
 └─────────────────────────┬────────────────────────────────┘
                           │  SQLAlchemy ORM
                           ▼
 ┌──────────────────────────────────────────────────────────┐
 │           NEON (Serverless PostgreSQL — EU Frankfurt)    │
-│  Articles · Sources · RssItems                          │
+│  Articles · Sources · RssItems · PipelineRuns           │
 └──────────────────────────────────────────────────────────┘
 ```
 
@@ -71,21 +84,20 @@ FoxScan runs a fully automated pipeline every 30 minutes:
 
 - **Fully automated** — no manual curation, pipeline runs on a schedule every 30 minutes
 - **Smart deduplication** — SHA-256 hashing prevents storing the same RSS item twice; fuzzy clustering prevents publishing the same story twice
-- **Source merging** — when a new source covers the same story, the article is re-synthesized to include all perspectives
+- **Source merging** — when a new source covers the same story (within 48h), the article is re-synthesized to include all perspectives
 - **Contextual images** — each article gets a cover image fetched from Unsplash based on its tags
 - **RSS output** — subscribe to AI-generated briefings in any feed reader
 - **Auto-tagging** — LLM assigns tags (ransomware, CVE, phishing, APT, espionage, etc.)
-- **Relevance dots** — articles ranked with 3-level visual indicator (green / orange / red)
-- **"In Evidenza"** — critical articles (score 8–10) pinned at top for 48h in a featured strip
+- **Relevance scoring** — articles ranked 1–10 with 3-level visual indicator (green / orange / red)
+- **"In Evidenza"** — critical articles (score 8–10) pinned at top in a featured strip
 - **Daily briefing** — "Top threats of the day" section with the most relevant current threats
-- **About page** — overview of the platform, sources, and pipeline
+- **Night mode UI** — friendly sleep screen when the NAS is in standby (23:00–09:00 CET)
 - **Dark / light mode** — toggle between themes, cyberpunk-inspired design, fully responsive
-- **Admin panel** — trigger pipeline, view live stats, reset items, delete all articles (password protected)
+- **Admin panel** — trigger pipeline, view live stats, feed stats per source, reset items (password protected)
 - **Resilient scraping** — gracefully falls back to RSS content when web scraping is blocked
-- **Auto-retry on cold start** — frontend retries article fetching automatically while the backend wakes up on Render free tier
-- **Collapsible tag filter** — filter by category or relevance level
 - **SEO** — dynamic sitemap, robots.txt, OG + Twitter card metadata per article
 - **Security** — rate limiting, admin auth, SSRF protection, CSP headers
+- **i18n** — Italian and English UI (next-intl)
 
 ---
 
@@ -115,6 +127,8 @@ Create `backend/.env`:
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 UNSPLASH_ACCESS_KEY=your_unsplash_key_here
+ADMIN_SECRET=a_random_secret_string
+FRONTEND_URL=http://localhost:3000
 # Optional: use a remote PostgreSQL URL (defaults to local SQLite)
 # DATABASE_URL=postgresql://user:pass@host/dbname
 ```
@@ -153,38 +167,46 @@ Frontend: `http://localhost:3000`
 1. Create a free project on [neon.tech](https://neon.tech)
 2. Copy the **Connection String** (starts with `postgresql://...`)
 
-### 2. Backend — Render
+### 2. Backend — Docker (any always-on server)
 
-1. **New → Web Service** → connect your GitHub repo
-2. **Root Directory:** `backend`
-3. **Build command:** `pip install -r requirements.txt`
-4. **Start command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
-5. **Environment Variables:**
+The backend ships with a `Dockerfile` and `docker-compose.yml`.
+
+```bash
+cd backend
+cp .env.example .env   # fill in your keys
+sudo docker compose up -d --build
+```
+
+Environment variables in `backend/.env`:
 
 | Key | Value |
 |---|---|
 | `GROQ_API_KEY` | Your Groq API key |
 | `UNSPLASH_ACCESS_KEY` | Your Unsplash API key |
-| `DATABASE_URL` | PostgreSQL connection string from Neon |
+| `DATABASE_URL` | PostgreSQL connection string |
 | `FRONTEND_URL` | `https://your-vercel-app.vercel.app` (used for CORS) |
 | `ADMIN_SECRET` | A strong random string to protect admin endpoints |
 
-### 3. Frontend — Vercel
+### 3. Public HTTPS — Tailscale Funnel (free, no domain needed)
+
+```bash
+tailscale funnel 8888   # exposes localhost:8888 publicly via Tailscale
+```
+
+This gives you a stable `https://<hostname>.ts.net` URL at no cost, without opening router ports.
+
+### 4. Frontend — Vercel
 
 ```bash
 cd frontend
 npx vercel
 ```
 
-Set environment variable in Vercel dashboard:
+Set in Vercel dashboard → Environment Variables:
 
 | Key | Value |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | `https://your-render-service.onrender.com` |
-
-### 4. Keep-alive (Render free tier)
-
-Render's free tier sleeps after 15 minutes of inactivity. Set up a free uptime monitor on [UptimeRobot](https://uptimerobot.com) to ping `https://your-render-service.onrender.com/health` every 5 minutes — the backend stays warm at zero cost. The frontend handles the remaining cold-start delay with automatic retry logic.
+| `NEXT_PUBLIC_API_URL` | Your Tailscale Funnel URL (or any backend URL) |
 
 ---
 
@@ -200,6 +222,8 @@ Render's free tier sleeps after 15 minutes of inactivity. Set up a free uptime m
 | `POST` | `/admin/reset-items` | `X-Admin-Key` | Re-queue all processed RSS items |
 | `DELETE` | `/admin/delete-all-articles` | `X-Admin-Key` | Delete all articles and sources from DB |
 | `GET` | `/admin/stats` | `X-Admin-Key` | Live pipeline stats |
+| `GET` | `/admin/feed-stats` | `X-Admin-Key` | Item count and multi-source count per RSS feed |
+| `GET` | `/admin/pipeline-history` | `X-Admin-Key` | Last 30 pipeline runs |
 | `GET` / `HEAD` | `/health` | — | Health check — `{"status": "ok"}` |
 
 ---
@@ -214,34 +238,37 @@ FoxScan/
 │   │   ├── clustering.py     # Fuzzy topic clustering (rapidfuzz)
 │   │   ├── scraper.py        # Web scraping + RSS summary fallback
 │   │   ├── synthesizer.py    # Groq LLM call, JSON parsing, retry on rate limit
-│   │   ├── merger.py         # Re-synthesis when duplicate source found < 24h
+│   │   ├── merger.py         # Re-synthesis when duplicate source found < 48h
 │   │   └── image_finder.py   # Unsplash cover image fetch per article
 │   ├── main.py               # FastAPI app, endpoints, CORS
-│   ├── models.py             # SQLAlchemy models (Article, Source, RssItem)
+│   ├── models.py             # SQLAlchemy models (Article, Source, RssItem, PipelineRun)
 │   ├── scheduler.py          # APScheduler — pipeline runner with threading lock
 │   ├── database.py           # DB engine, SQLite/PostgreSQL compat, migrations
 │   ├── config.py             # RSS feeds, model name, thresholds
+│   ├── Dockerfile            # Python 3.11-slim image
+│   ├── docker-compose.yml    # Backend service
+│   ├── .env.example          # Environment variable template
 │   └── requirements.txt
 └── frontend/
     ├── app/
-    │   ├── page.tsx                  # Homepage — client-side, handles cold start
+    │   ├── page.tsx                  # Homepage — client-side, retry on backend unavailable
     │   ├── about/page.tsx            # About — platform overview
     │   ├── article/[id]/page.tsx     # Article detail — ISR (revalidate 1h), OG metadata
     │   ├── category/[tag]/page.tsx   # Tag filter — ISR (revalidate 1min)
     │   ├── admin/page.tsx            # Admin panel — password login, live stats polling
     │   ├── sitemap.ts                # Dynamic sitemap (last 100 articles)
-    │   ├── error.tsx                 # Global error boundary
-    │   └── api/rss-proxy/route.ts    # Serverless RSS proxy
+    │   └── error.tsx                 # Global error boundary
     ├── components/
-    │   ├── Header.tsx         # FoxScan header with mascot branding
-    │   ├── NavLinks.tsx       # Navigation links
+    │   ├── Header.tsx         # Navigation with mobile drawer
     │   ├── ArticleCard.tsx    # Article card with image, relevance dots, tags
     │   ├── RelevanceDots.tsx  # 3-dot visual relevance indicator
     │   ├── TagBadge.tsx       # Color-coded tag badge per category
-    │   ├── ByteMascot.tsx     # Animated Fox mascot component
-    │   ├── BackendStatus.tsx  # Offline banner with context-aware message
     │   ├── ThemeToggle.tsx    # Dark / light mode toggle
-    │   └── SourcesList.tsx    # External source links
+    │   ├── LanguageToggle.tsx # IT / EN language switcher
+    │   └── TopCriticalDropdown.tsx  # "Top threats" header dropdown
+    ├── messages/
+    │   ├── it.json            # Italian UI strings
+    │   └── en.json            # English UI strings
     ├── lib/api.ts             # Type-safe API client
     └── public/robots.txt      # Disallow /admin, Sitemap pointer
 ```
@@ -250,7 +277,7 @@ FoxScan/
 
 ## News Sources
 
-17 RSS feeds polled every 30 minutes:
+21 RSS feeds polled every 30 minutes:
 
 | Source | Domain |
 |---|---|
@@ -258,16 +285,26 @@ FoxScan/
 | The Hacker News | thehackernews.com |
 | Krebs on Security | krebsonsecurity.com |
 | Dark Reading | darkreading.com |
-| CISA Advisories | cisa.gov |
 | Security Affairs | securityaffairs.com |
 | Graham Cluley | grahamcluley.com |
 | SecurityWeek | securityweek.com |
 | Help Net Security | helpnetsecurity.com |
 | Infosecurity Magazine | infosecurity-magazine.com |
-| Ars Technica Security | arstechnica.com |
 | Wired Security | wired.com |
-| Naked Security (Sophos) | nakedsecurity.sophos.com |
 | CyberScoop | cyberscoop.com |
 | The Register Security | theregister.com |
+| SC Magazine | scmagazine.com |
+| TechCrunch Security | techcrunch.com |
 | Malwarebytes Blog | malwarebytes.com |
 | Recorded Future | recordedfuture.com |
+| Unit 42 (Palo Alto Networks) | unit42.paloaltonetworks.com |
+| Cisco Talos | blog.talosintelligence.com |
+| Microsoft Security Blog | microsoft.com |
+| Sophos News | news.sophos.com |
+| Schneier on Security | schneier.com |
+
+---
+
+## License
+
+MIT
