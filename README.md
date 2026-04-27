@@ -38,7 +38,7 @@ FoxScan runs a fully automated pipeline every 30 minutes:
 | Scraping | trafilatura, feedparser |
 | Clustering | rapidfuzz (token set ratio) |
 | Images | Unsplash API |
-| Deploy | Vercel (frontend) + QNAP NAS via Docker + Tailscale Funnel (backend) |
+| Deploy | Vercel (frontend) + any Docker-capable server (backend) |
 
 ---
 
@@ -53,13 +53,7 @@ FoxScan runs a fully automated pipeline every 30 minutes:
                           │  REST API (JSON)
                           ▼
 ┌──────────────────────────────────────────────────────────┐
-│           TAILSCALE FUNNEL (public HTTPS endpoint)       │
-│  https://nas-*.ts.net  →  localhost:8888 on NAS         │
-└─────────────────────────┬────────────────────────────────┘
-                          │
-                          ▼
-┌──────────────────────────────────────────────────────────┐
-│              QNAP NAS — Docker (Container Station)       │
+│         ANY SERVER — Docker (Render, VPS, home lab…)     │
 │  FastAPI — /articles  /tags  /rss  /admin/*  /health    │
 │                                                          │
 │  APScheduler ──► Pipeline (every 30 min)                │
@@ -167,9 +161,9 @@ Frontend: `http://localhost:3000`
 1. Create a free project on [neon.tech](https://neon.tech)
 2. Copy the **Connection String** (starts with `postgresql://...`)
 
-### 2. Backend — Docker (any always-on server)
+### 2. Backend — Docker
 
-The backend ships with a `Dockerfile` and `docker-compose.yml`.
+The backend ships with a `Dockerfile` and `docker-compose.yml`. It runs on any Docker-capable host — a VPS, a cloud service (Render, Railway, Fly.io), or a home server.
 
 ```bash
 cd backend
@@ -187,15 +181,12 @@ Environment variables in `backend/.env`:
 | `FRONTEND_URL` | `https://your-vercel-app.vercel.app` (used for CORS) |
 | `ADMIN_SECRET` | A strong random string to protect admin endpoints |
 
-### 3. Public HTTPS — Tailscale Funnel (free, no domain needed)
+**No Docker?** You can also deploy directly on [Render](https://render.com) (free tier):
+- New → Web Service → connect repo, root directory `backend`
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 
-```bash
-tailscale funnel 8888   # exposes localhost:8888 publicly via Tailscale
-```
-
-This gives you a stable `https://<hostname>.ts.net` URL at no cost, without opening router ports.
-
-### 4. Frontend — Vercel
+### 3. Frontend — Vercel
 
 ```bash
 cd frontend
