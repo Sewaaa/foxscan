@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getArticles, ArticleSummary } from "@/lib/api";
 import { Zap } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { translateText } from "@/lib/translate";
 
 function getLevel(score: number) {
   if (score >= 8) return 3;
@@ -15,8 +16,10 @@ function getLevel(score: number) {
 export default function TopCriticalDropdown() {
   const [open, setOpen] = useState(false);
   const [articles, setArticles] = useState<ArticleSummary[]>([]);
+  const [trTitles, setTrTitles] = useState<Record<number, string>>({});
   const ref = useRef<HTMLDivElement>(null);
   const t = useTranslations("topCritical");
+  const locale = useLocale();
 
   useEffect(() => {
     getArticles({ min_score: 5, limit: 20 })
@@ -29,6 +32,18 @@ export default function TopCriticalDropdown() {
       })
       .catch(() => {});
   }, []);
+
+  // Traduci i titoli quando cambia la lingua o gli articoli
+  useEffect(() => {
+    if (locale === "it" || articles.length === 0) return;
+    Promise.all(
+      articles.map((a) =>
+        translateText(a.title, locale).then((tr) => [a.id, tr] as const)
+      )
+    ).then((pairs) =>
+      setTrTitles(Object.fromEntries(pairs))
+    );
+  }, [articles, locale]);
 
   // Chiudi cliccando fuori
   useEffect(() => {
@@ -94,7 +109,7 @@ export default function TopCriticalDropdown() {
                       {i + 1}
                     </span>
                     <p className="flex-1 min-w-0 text-sm text-slate-300 group-hover:text-white transition-colors leading-snug">
-                      {a.title}
+                      {trTitles[a.id] ?? a.title}
                     </p>
                     <span className={`shrink-0 w-2 h-2 mt-1.5 rounded-full ${dotColor}`} />
                   </Link>
