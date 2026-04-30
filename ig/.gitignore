@@ -1,0 +1,8 @@
+.env
+ig_session.json
+carousel_output/*.png
+carousel_output/*.jpg
+__pycache__/
+*.pyc
+ig_data/
+_test_*.json

@@ -36,5 +36,21 @@ services:
       start_period: 20s
 
 
+  ig-pipeline:
+    build:
+      context: ../ig
+    restart: unless-stopped
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}
+      - DATABASE_URL=${IG_DATABASE_URL}
+      - INSTAGRAM_USERNAME=${INSTAGRAM_USERNAME}
+      - INSTAGRAM_PASSWORD=${INSTAGRAM_PASSWORD}
+      - INSTAGRAM_ENABLED=${INSTAGRAM_ENABLED:-false}
+      - IG_DATA_DIR=/app/ig_data
+    volumes:
+      - ig_data:/app/ig_data
+
 volumes:
   postgres_data:
+  ig_data:
