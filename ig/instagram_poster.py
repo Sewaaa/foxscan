@@ -39,9 +39,12 @@ def _get_client() -> Client:
     cl.delay_range = [1, 3]  # ritardo random tra le chiamate API (secondi)
 
     if SESSION_FILE.exists():
+        # Sessione valida: la carichiamo senza rifar il login (evita challenge da nuovo IP)
         cl.load_settings(str(SESSION_FILE))
-    cl.login(username, password)
-    cl.dump_settings(str(SESSION_FILE))
+    else:
+        # Primo avvio: login classico e salva sessione
+        cl.login(username, password)
+        cl.dump_settings(str(SESSION_FILE))
 
     _client = cl
     return cl
