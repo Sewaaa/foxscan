@@ -44,6 +44,7 @@ CAPTION INSTAGRAM:
 - NON includere il consiglio di FoxScan nella caption (è già nelle slide), concentrati sui fatti
 - NON usare **grassetto** markdown nella caption (non funziona su Instagram), scrivi testo normale
 - NON includere "Scorri per approfondire" perché lo aggiungiamo noi separatamente
+- NON scrivere "[link]" o "[URL]" come placeholder: il link viene aggiunto automaticamente, non metterlo nella caption
 
 Rispondi SOLO con JSON valido, niente testo extra, niente markdown.
 

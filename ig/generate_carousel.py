@@ -107,18 +107,29 @@ strong { color: var(--cyan); font-weight: 700; }
 
 .bg-photo {
   position: absolute; inset: 0; z-index: 0;
-  background-size: cover; background-position: center 35%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-color: #020817;
 }
 .bg-grad-bottom {
   position: absolute; inset: 0; z-index: 1;
   background: linear-gradient(
     to top,
-    rgba(0,0,0,0.97) 0%,
-    rgba(0,0,0,0.92) 25%,
-    rgba(0,0,0,0.75) 48%,
-    rgba(0,0,0,0.35) 65%,
-    rgba(0,0,0,0.08) 80%,
-    transparent 100%
+    rgba(2,8,23,1.0) 0%,
+    rgba(2,8,23,0.97) 25%,
+    rgba(2,8,23,0.80) 45%,
+    rgba(2,8,23,0.30) 62%,
+    transparent 75%
+  );
+}
+.bg-grad-top {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(2,8,23,0.95) 0%,
+    rgba(2,8,23,0.50) 15%,
+    transparent 30%
   );
 }
 .bg-grad-left {
@@ -231,6 +242,7 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
 <div class="slide">
   <div class="bg-photo" style="background-image:url('{img}');"></div>
   <div class="bg-grad-bottom"></div>
+  <div class="bg-grad-top"></div>
   <div class="bg-grid" style="opacity:0.5;"></div>
   {chrome(1, show_slide_num=False)}
 
@@ -262,9 +274,9 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
 def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
     return page(f"""
 <div class="slide">
-  <div class="bg-photo" style="background-image:url('{img}');
-    filter:brightness(0.35) blur(3px) saturate(0.7);"></div>
+  <div class="bg-photo" style="background-image:url('{img}');"></div>
   <div class="bg-grad-bottom"></div>
+  <div class="bg-grad-top"></div>
   <div class="bg-grid"></div>
   {chrome(slide_n)}
   <div style="position:absolute;top:560px;left:100px;right:100px;z-index:10;">
@@ -289,10 +301,10 @@ def slide5_opinion(a: dict, img: str, fox_mascot: str) -> str:
     """
     return page(f"""
 <div class="slide">
-  <div class="bg-photo" style="background-image:url('{img}');
-    filter:brightness(0.30) saturate(0.5);"></div>
+  <div class="bg-photo" style="background-image:url('{img}');"></div>
   <div class="bg-grad-bottom" style="background:linear-gradient(to top,
     rgba(2,8,23,0.99) 0%,rgba(2,8,23,0.92) 35%,rgba(2,8,23,0.60) 58%,transparent 100%);"></div>
+  <div class="bg-grad-top"></div>
   <div class="opinion-tint"></div>
   <div class="bg-grid"></div>
   {chrome(5, show_brand=False)}

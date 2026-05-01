@@ -21,6 +21,8 @@ def _strip_markdown(text: str) -> str:
     # Trattini negli hashtag → parola attaccata (es. #zero-day → #zeroday)
     text = re.sub(r'(#[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)+)',
                   lambda m: m.group(0).replace('-', ''), text)
+    # Rimuove placeholder [link], [URL], [url]
+    text = re.sub(r'\[(?:link|url|URL)\]', '', text).strip()
     return text
 
 _IG_DATA_DIR = Path(os.getenv("IG_DATA_DIR", Path(__file__).parent))
