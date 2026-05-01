@@ -10,11 +10,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
+from pathlib import Path
 from instagrapi import Client
 from instagrapi.exceptions import ChallengeRequired, TwoFactorRequired
 
 username = os.environ["INSTAGRAM_USERNAME"]
 password = os.environ["INSTAGRAM_PASSWORD"]
+
+_IG_DATA_DIR = Path(os.getenv("IG_DATA_DIR", Path(__file__).parent))
+_IG_DATA_DIR.mkdir(parents=True, exist_ok=True)
+SESSION_FILE = str(_IG_DATA_DIR / "ig_session.json")
 
 print(f"Login su Instagram come @{username}...")
 
@@ -41,7 +46,7 @@ except TwoFactorRequired:
     cl.two_factor_login(code, username=username_from_form)
 
 # Salva sessione
-cl.dump_settings("ig_session.json")
+cl.dump_settings(SESSION_FILE)
 info = cl.account_info()
 print(f"\nLogin riuscito! Account: @{info.username}")
-print("Sessione salvata in ig_session.json — la pipeline non chiederà più il login.")
+print(f"Sessione salvata in {SESSION_FILE} — la pipeline non chiederà più il login.")
