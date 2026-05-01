@@ -5,11 +5,12 @@ groq_extractor.py — Genera contenuti carosello + caption Instagram via Groq.
 
 import json
 import os
+import re
 
 from groq import Groq
 
-GROQ_MODEL_SLIDES  = "llama-3.1-8b-instant"
-GROQ_MODEL_CAPTION = "llama-3.1-8b-instant"  # passa a llama-3.3-70b-versatile in produzione
+GROQ_MODEL_SLIDES  = "openai/gpt-oss-20b"
+GROQ_MODEL_CAPTION = "openai/gpt-oss-20b"
 
 SYSTEM_PROMPT = """Sei un social media manager italiano esperto di cybersecurity che scrive per Instagram.
 Ricevi un articolo tecnico e produci: i testi per un carosello di 6 slide + una caption professionale per il post.
@@ -99,7 +100,7 @@ def extract_carousel_data(article: dict) -> dict:
         f"Testo completo:\n{article.get('body', '')[:4000]}"
     )
 
-    # Chiamata 1: testi slide con modello veloce (8b)
+    # Chiamata 1: testi slide
     response = client.chat.completions.create(
         model=GROQ_MODEL_SLIDES,
         messages=[
@@ -107,17 +108,10 @@ def extract_carousel_data(article: dict) -> dict:
             {"role": "user",   "content": user_content},
         ],
         temperature=0.5,
-        response_format={"type": "json_object"},
     )
 
     raw = response.choices[0].message.content.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-        raw = raw.strip()
-
-    data = json.loads(raw)
+    data = json.loads(_extract_json(raw))
     _validate(data)
 
     # Chiamata 2: caption con modello migliore (70b) — solo testo breve
@@ -140,8 +134,22 @@ def extract_carousel_data(article: dict) -> dict:
     return data
 
 
+def _extract_json(raw: str) -> str:
+    """Estrae il blocco JSON da una risposta che potrebbe contenere markdown o testo extra."""
+    # Rimuove blocchi ```json ... ``` o ``` ... ```
+    if "```" in raw:
+        raw = re.sub(r"```(?:json)?\s*", "", raw).strip().rstrip("`").strip()
+    # Trova il primo { e l'ultimo } per isolare l'oggetto JSON
+    start = raw.find("{")
+    end   = raw.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        return raw[start:end + 1]
+    return raw
+
+
 def _validate(data: dict) -> None:
-    required_top = {"cover_title", "cover_kicker", "cover_image_query", "slides", "opinion", "caption"}
+    # caption non è ancora presente a questo punto (viene aggiunta dopo)
+    required_top = {"cover_title", "cover_kicker", "cover_image_query", "slides", "opinion"}
     missing = required_top - data.keys()
     if missing:
         raise ValueError(f"Groq output manca di: {missing}")
