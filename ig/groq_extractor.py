@@ -8,8 +8,8 @@ import os
 
 from groq import Groq
 
-GROQ_MODEL_SLIDES = "llama-3.1-8b-instant"      # testi slide (volume alto)
-GROQ_MODEL_CAPTION = "llama-3.3-70b-versatile"  # caption (italiano corretto, volume basso)
+GROQ_MODEL_SLIDES = "gemma2-9b-it"
+GROQ_MODEL_CAPTION = "gemma2-9b-it"
 
 SYSTEM_PROMPT = """Sei un social media manager italiano esperto di cybersecurity che scrive per Instagram.
 Ricevi un articolo tecnico e produci: i testi per un carosello di 6 slide + una caption professionale per il post.
