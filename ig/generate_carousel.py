@@ -231,16 +231,27 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
 <div class="slide">
   <div class="bg-photo" style="background-image:url('{img}');"></div>
   <div class="bg-grad-bottom"></div>
-  <div class="bg-grad-left"></div>
-  <div class="bg-grid"></div>
+  <div class="bg-grid" style="opacity:0.5;"></div>
   {chrome(1, show_slide_num=False)}
-  <img src="{fox_cover}" class="fox-mascot" style="width:420px;left:0px;">
-  <div style="position:absolute;top:220px;left:100px;right:460px;z-index:10;">
-    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:86px;font-weight:900;
-      line-height:1.08;color:#fff;letter-spacing:-0.01em;">
+
+  <!-- Titolo centrato e prominente -->
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:10;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:0 90px 120px;">
+    <div style="width:80px;height:4px;border-radius:2px;margin-bottom:36px;
+      background:linear-gradient(90deg,var(--cyan),var(--purple));"></div>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:96px;font-weight:900;
+      line-height:1.06;color:#fff;letter-spacing:-0.02em;text-align:center;
+      text-shadow:0 4px 32px rgba(0,0,0,0.7);">
       {a['cover_title']}
     </h1>
+    <div style="width:80px;height:4px;border-radius:2px;margin-top:36px;
+      background:linear-gradient(90deg,var(--purple),var(--cyan));"></div>
   </div>
+
+  <!-- Volpe piccola come accento in basso a destra -->
+  <img src="{fox_cover}" class="fox-mascot" style="width:240px;right:0;left:auto;
+    opacity:0.85;filter:drop-shadow(0 0 16px rgba(0,255,229,0.20));">
 </div>
 """)
 

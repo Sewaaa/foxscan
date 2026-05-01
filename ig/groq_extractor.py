@@ -16,7 +16,7 @@ Ricevi un articolo tecnico e produci: i testi per un carosello di 6 slide + una 
 REGOLE OBBLIGATORIE:
 - Scrivi SOLO in italiano corretto con accenti (è, à, ù, ecc.). MAI usare caratteri ASCII al posto degli accenti.
 - NON usare trattini em (—) nel testo delle slide
-- cover_title: titolo allarmante, generico, non tecnico (stile giornale pop), max 10 parole
+- cover_title: titolo CLICKBAIT e allarmante, stile tabloid/giornale pop, max 10 parole. Usa formule come "Attacco globale:", "Allarme sicurezza:", "Scoperta shock:", "Milioni a rischio:", "Nessuno è al sicuro:" oppure domande retoriche come "Il tuo account è già compromesso?". MAI tecnicismi, sempre linguaggio emotivo e urgente.
 - cover_kicker: uno tra BREAKING / URGENTE / ALERT / ESCLUSIVO
 - slides[0].text: fatti principali, linguaggio accessibile a tutti (chi, cosa, quando)
 - slides[1].text: sistemi, aziende o paesi coinvolti, leggermente più specifico
@@ -36,11 +36,13 @@ IMAGE QUERY (CRITICO — SII SPECIFICO):
 - SEMPRE in inglese, 4-7 parole per Unsplash. MAI ripetere parole tra query diverse.
 
 CAPTION INSTAGRAM:
-- Tono: social media manager professionista, coinvolgente, diretto
+- Tono: social media manager professionista, coinvolgente, diretto, leggermente allarmistico
 - Struttura: emoji hook + frase d'apertura forte (1-2 righe) + riga vuota + bullet points o domanda retorica + riga vuota + call to action + link + riga vuota + hashtag
 - Usa 10-12 hashtag mix italiano/inglese pertinenti al contenuto specifico
 - Emoji: usale con misura ma in modo strategico (max 4-5 totali)
 - La caption NON deve essere generica: deve rispecchiare il contenuto specifico dell'articolo
+- NON includere il consiglio di FoxScan nella caption (è già nelle slide), concentrati sui fatti
+- NON usare **grassetto** markdown nella caption (non funziona su Instagram), scrivi testo normale
 - NON includere "Scorri per approfondire" perché lo aggiungiamo noi separatamente
 
 Rispondi SOLO con JSON valido, niente testo extra, niente markdown.

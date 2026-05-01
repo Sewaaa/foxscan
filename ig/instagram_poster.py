@@ -4,11 +4,17 @@ instagram_poster.py — Pubblica il carosello su Instagram via instagrapi.
 """
 
 import os
+import re
 import random
 import time
 from pathlib import Path
 
 from instagrapi import Client
+
+
+def _strip_markdown(text: str) -> str:
+    """Rimuove **grassetto** markdown (non supportato nelle caption IG)."""
+    return re.sub(r'\*\*(.+?)\*\*', r'\1', text)
 
 _IG_DATA_DIR = Path(os.getenv("IG_DATA_DIR", Path(__file__).parent))
 _IG_DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -52,8 +58,7 @@ def _get_client() -> Client:
 
 def _build_caption(cover_title: str, groq_caption: str | None = None) -> str:
     if groq_caption and len(groq_caption.strip()) > 40:
-        # La caption Groq include già hashtag; aggiungiamo solo il CTA e il link se mancano
-        caption = groq_caption.strip()
+        caption = _strip_markdown(groq_caption.strip())
         if "foxscan.vercel.app" not in caption:
             caption += "\n\n🔗 www.foxscan.vercel.app"
         if "Scorri" not in caption:
