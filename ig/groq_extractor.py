@@ -8,8 +8,8 @@ import os
 
 from groq import Groq
 
-GROQ_MODEL_SLIDES = "openai/gpt-oss-20b"
-GROQ_MODEL_CAPTION = "openai/gpt-oss-20b"
+GROQ_MODEL_SLIDES  = "llama-3.1-8b-instant"
+GROQ_MODEL_CAPTION = "llama-3.1-8b-instant"  # passa a llama-3.3-70b-versatile in produzione
 
 SYSTEM_PROMPT = """Sei un social media manager italiano esperto di cybersecurity che scrive per Instagram.
 Ricevi un articolo tecnico e produci: i testi per un carosello di 6 slide + una caption professionale per il post.
