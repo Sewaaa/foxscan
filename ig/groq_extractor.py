@@ -16,7 +16,7 @@ Ricevi un articolo tecnico e produci: i testi per un carosello di 6 slide + una 
 REGOLE OBBLIGATORIE:
 - Scrivi SOLO in italiano corretto con accenti (è, à, ù, ecc.). MAI usare caratteri ASCII al posto degli accenti.
 - NON usare trattini em (—) nel testo delle slide
-- cover_title: titolo CLICKBAIT e allarmante, stile tabloid/giornale pop, max 10 parole. Usa formule come "Attacco globale:", "Allarme sicurezza:", "Scoperta shock:", "Milioni a rischio:", "Nessuno è al sicuro:" oppure domande retoriche come "Il tuo account è già compromesso?". MAI tecnicismi, sempre linguaggio emotivo e urgente.
+- cover_title: titolo BREAKING NEWS urgente, max 10 parole. REGOLA FONDAMENTALE: metti l'azione/scoperta ALL'INIZIO, non alla fine. Esempi di struttura vincente: "Sfruttati zero-day per bypassare Defender: 3 nuove falle", "Scoperta backdoor in milioni di router: attacco globale", "Rubati 13 milioni: exchange crypto violato in poche ore", "Allarme: nuova falla critica espone 200.000 server". Parole che aprono bene: Sfruttati / Scoperta / Rubati / Violato / Allarme / Attenzione / Bucato / Compromessi. MAI iniziare con il nome del prodotto/azienda. MAI finire con il verbo. Sempre linguaggio d'azione e urgenza.
 - cover_kicker: uno tra BREAKING / URGENTE / ALERT / ESCLUSIVO
 - slides[0].text: fatti principali, linguaggio accessibile a tutti (chi, cosa, quando)
 - slides[1].text: sistemi, aziende o paesi coinvolti, leggermente più specifico
