@@ -107,7 +107,7 @@ strong { color: var(--cyan); font-weight: 700; }
 
 .bg-photo {
   position: absolute; inset: 0; z-index: 0;
-  background-size: cover; background-position: center;
+  background-size: cover; background-position: center 35%;
 }
 .bg-grad-bottom {
   position: absolute; inset: 0; z-index: 1;
@@ -145,10 +145,10 @@ strong { color: var(--cyan); font-weight: 700; }
 }
 .swipe-arrows {
   position: absolute; top: 44px; right: 72px; z-index: 20;
-  display: flex; gap: 6px; align-items: center;
+  display: flex; gap: 8px; align-items: center;
 }
 .arrow {
-  font-size: 32px; font-weight: 300;
+  font-size: 48px; font-weight: 300;
   font-family: 'Space Grotesk', sans-serif;
   line-height: 1;
 }
@@ -201,7 +201,7 @@ strong { color: var(--cyan); font-weight: 700; }
 # ── Chrome condiviso ───────────────────────────────────────────────────────────
 def chrome(slide_n: int, total: int = 6, arrow_opacity: float = 0.50,
            show_arrows: bool = True,
-           show_slide_num: bool = True,
+           show_slide_num: bool = False,
            show_brand: bool = True) -> str:
     arrows_html = ""
     if show_arrows:
@@ -249,8 +249,8 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
       background:linear-gradient(90deg,var(--purple),var(--cyan));"></div>
   </div>
 
-  <!-- Volpe piccola come accento in basso a destra -->
-  <img src="{fox_cover}" class="fox-mascot" style="width:240px;right:0;left:auto;
+  <!-- Volpe piccola come accento in basso al centro -->
+  <img src="{fox_cover}" class="fox-mascot" style="width:240px;left:50%;transform:translateX(-50%);
     opacity:0.85;filter:drop-shadow(0 0 16px rgba(0,255,229,0.20));">
 </div>
 """)
@@ -329,30 +329,30 @@ def slide6_cta(img: str, logo: str) -> str:
       filter:drop-shadow(0 0 28px rgba(0,255,229,0.35)) drop-shadow(0 0 60px rgba(0,255,229,0.12));">
 
     <!-- Titolo -->
-    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:68px;font-weight:900;
-      text-align:center;line-height:1.08;color:#fff;letter-spacing:-0.02em;margin-bottom:24px;">
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:86px;font-weight:900;
+      text-align:center;line-height:1.06;color:#fff;letter-spacing:-0.02em;margin-bottom:28px;">
       Seguici su FoxScan
     </h2>
 
     <!-- Divider centrato -->
-    <div style="width:220px;height:2px;border-radius:1px;margin-bottom:40px;
+    <div style="width:260px;height:3px;border-radius:2px;margin-bottom:48px;
       background:linear-gradient(90deg,transparent,rgba(0,255,229,0.70),transparent);"></div>
 
     <!-- URL box -->
     <div style="
       display:inline-flex;align-items:center;gap:16px;
       background:linear-gradient(135deg,rgba(0,255,229,0.08),rgba(124,58,237,0.08));
-      border:2px solid rgba(0,255,229,0.38);border-radius:14px;
-      padding:20px 48px;margin-bottom:36px;
+      border:2px solid rgba(0,255,229,0.38);border-radius:16px;
+      padding:26px 60px;margin-bottom:44px;
       box-shadow:0 0 36px rgba(0,255,229,0.08);
     ">
-      <span style="font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;
+      <span style="font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:700;
         color:var(--cyan);">www.foxscan.vercel.app</span>
     </div>
 
     <!-- Tagline -->
-    <p style="font-size:21px;color:rgba(255,255,255,0.45);line-height:1.65;
-      font-family:'Inter',sans-serif;text-align:center;max-width:680px;">
+    <p style="font-size:28px;color:rgba(255,255,255,0.50);line-height:1.60;
+      font-family:'Inter',sans-serif;text-align:center;max-width:780px;">
       Seguici per restare sempre aggiornato<br>sulle ultime minacce alla sicurezza informatica.
     </p>
   </div>

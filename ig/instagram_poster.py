@@ -13,8 +13,15 @@ from instagrapi import Client
 
 
 def _strip_markdown(text: str) -> str:
-    """Rimuove **grassetto** markdown (non supportato nelle caption IG)."""
-    return re.sub(r'\*\*(.+?)\*\*', r'\1', text)
+    """Pulisce la caption per Instagram: no markdown, bullet con °, no trattini negli hashtag."""
+    # Rimuove **grassetto**
+    text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
+    # Bullet points markdown → °
+    text = re.sub(r'^[\-\*] ', '° ', text, flags=re.MULTILINE)
+    # Trattini negli hashtag → parola attaccata (es. #zero-day → #zeroday)
+    text = re.sub(r'(#[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)+)',
+                  lambda m: m.group(0).replace('-', ''), text)
+    return text
 
 _IG_DATA_DIR = Path(os.getenv("IG_DATA_DIR", Path(__file__).parent))
 _IG_DATA_DIR.mkdir(parents=True, exist_ok=True)

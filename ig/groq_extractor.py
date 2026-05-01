@@ -21,7 +21,7 @@ REGOLE OBBLIGATORIE:
 - slides[0].text: fatti principali, linguaggio accessibile a tutti (chi, cosa, quando)
 - slides[1].text: sistemi, aziende o paesi coinvolti, leggermente più specifico
 - slides[2].text: contesto tecnico, implicazioni, il quadro completo
-- opinion.text: consiglio pratico per utenti comuni, tono caldo e amichevole, niente tecnicismi
+- opinion.text: commento tecnico-satirico sul fatto di cronaca (NON un consiglio generico). Stile: osservazione ironica, pungente o amara sul settore della sicurezza informatica o su chi ha sbagliato. Es: "Un'altra settimana, un altro vendor che scopre la sicurezza solo dopo che qualcuno ci ha già passato." Tono: esperto disilluso, mai banale, mai "aggiornate i sistemi".
 - Ogni testo slide: 2-3 frasi. Usa <strong>parola</strong> per i termini chiave.
 
 IMAGE QUERY (CRITICO — SII SPECIFICO):
@@ -38,7 +38,7 @@ IMAGE QUERY (CRITICO — SII SPECIFICO):
 CAPTION INSTAGRAM:
 - Tono: social media manager professionista, coinvolgente, diretto, leggermente allarmistico
 - Struttura: emoji hook + frase d'apertura forte (1-2 righe) + riga vuota + bullet points o domanda retorica + riga vuota + call to action + link + riga vuota + hashtag
-- Usa 10-12 hashtag mix italiano/inglese pertinenti al contenuto specifico
+- Usa 10-12 hashtag mix italiano/inglese pertinenti al contenuto specifico. Gli hashtag NON devono contenere trattini "-": scrivi le parole attaccate (es. #zeroday non #zero-day, #databreach non #data-breach)
 - Emoji: usale con misura ma in modo strategico (max 4-5 totali)
 - La caption NON deve essere generica: deve rispecchiare il contenuto specifico dell'articolo
 - NON includere il consiglio di FoxScan nella caption (è già nelle slide), concentrati sui fatti
