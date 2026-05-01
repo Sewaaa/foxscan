@@ -8,7 +8,7 @@ import os
 
 from groq import Groq
 
-GROQ_MODEL = "llama-3.1-8b-instant"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 
 SYSTEM_PROMPT = """Sei un social media manager italiano esperto di cybersecurity che scrive per Instagram.
 Ricevi un articolo tecnico e produci: i testi per un carosello di 6 slide + una caption professionale per il post.
