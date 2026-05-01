@@ -39,7 +39,8 @@ IMAGE QUERY (CRITICO — SII SPECIFICO):
 
 CAPTION INSTAGRAM:
 - Tono: social media manager professionista, coinvolgente, diretto, leggermente allarmistico
-- Struttura: emoji hook + frase d'apertura forte (1-2 righe) + riga vuota + bullet points o domanda retorica + riga vuota + call to action + link + riga vuota + hashtag
+- Struttura: emoji hook + frase d'apertura forte (1-2 righe) + riga vuota + bullet points o domanda retorica + riga vuota + CTA per leggere le news (es. "Tutte le notizie cyber su www.foxscan.vercel.app") + riga vuota + hashtag
+- FoxScan è un aggregatore di notizie cyber, NON uno scanner di vulnerabilità: il CTA NON deve mai dire "proteggi la tua azienda", "scopri le vulnerabilità" o simili
 - Usa 10-12 hashtag mix italiano/inglese pertinenti al contenuto specifico. Gli hashtag NON devono contenere trattini "-": scrivi le parole attaccate (es. #zeroday non #zero-day, #databreach non #data-breach)
 - Emoji: usale con misura ma in modo strategico (max 4-5 totali)
 - La caption NON deve essere generica: deve rispecchiare il contenuto specifico dell'articolo
@@ -72,10 +73,14 @@ Schema JSON:
 CAPTION_PROMPT = """Sei un social media manager italiano esperto di cybersecurity.
 Scrivi UNA caption Instagram professionale basata sui testi delle slide forniti.
 
+CONTESTO: FoxScan è un aggregatore di notizie sulla sicurezza informatica — NON uno scanner di vulnerabilità, NON uno strumento di analisi aziendale. Il CTA deve invitare a leggere le ultime notizie cyber, non a "proteggere la propria azienda" o "scoprire vulnerabilità".
+
 REGOLE:
 - Italiano perfetto e corretto grammaticalmente
 - Tono coinvolgente, diretto, leggermente allarmistico ma professionale
 - Struttura: emoji hook + frase d'apertura forte + riga vuota + 2-3 punti chiave con ° + riga vuota + CTA + www.foxscan.vercel.app + riga vuota + hashtag
+- CTA esempi corretti: "Tutte le notizie cyber su www.foxscan.vercel.app", "Resta aggiornato su www.foxscan.vercel.app", "Leggi tutti gli aggiornamenti su www.foxscan.vercel.app"
+- CTA da EVITARE: qualsiasi frase tipo "proteggi la tua azienda", "scopri le vulnerabilità", "analizza i tuoi sistemi", "metti al sicuro la tua rete"
 - 10-12 hashtag mix italiano/inglese, senza trattini (es. #zeroday non #zero-day)
 - NON usare **grassetto** markdown
 - NON scrivere [link] o placeholder
