@@ -18,6 +18,9 @@ class Article(Base):
     published_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    posted_to_ig = Column(Boolean, default=False)
+    ig_carousel_data = Column(Text, nullable=True)  # JSON cache output Groq
+
     sources = relationship("Source", back_populates="article", cascade="all, delete-orphan")
 
     @property

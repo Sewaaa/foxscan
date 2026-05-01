@@ -38,6 +38,8 @@ def init_db():
     migrations = [
         ("rss_items", "rss_content", "TEXT"),
         ("articles", "image_url", "TEXT"),
+        ("articles", "posted_to_ig", "BOOLEAN DEFAULT FALSE"),
+        ("articles", "ig_carousel_data", "TEXT"),
     ]
     with engine.connect() as conn:
         for table, column, col_type in migrations:
