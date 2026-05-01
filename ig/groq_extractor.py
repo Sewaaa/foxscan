@@ -8,7 +8,8 @@ import os
 
 from groq import Groq
 
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL_SLIDES = "llama-3.1-8b-instant"      # testi slide (volume alto)
+GROQ_MODEL_CAPTION = "llama-3.3-70b-versatile"  # caption (italiano corretto, volume basso)
 
 SYSTEM_PROMPT = """Sei un social media manager italiano esperto di cybersecurity che scrive per Instagram.
 Ricevi un articolo tecnico e produci: i testi per un carosello di 6 slide + una caption professionale per il post.
@@ -67,6 +68,20 @@ Schema JSON:
 }"""
 
 
+CAPTION_PROMPT = """Sei un social media manager italiano esperto di cybersecurity.
+Scrivi UNA caption Instagram professionale basata sui testi delle slide forniti.
+
+REGOLE:
+- Italiano perfetto e corretto grammaticalmente
+- Tono coinvolgente, diretto, leggermente allarmistico ma professionale
+- Struttura: emoji hook + frase d'apertura forte + riga vuota + 2-3 punti chiave con ° + riga vuota + CTA + www.foxscan.vercel.app + riga vuota + hashtag
+- 10-12 hashtag mix italiano/inglese, senza trattini (es. #zeroday non #zero-day)
+- NON usare **grassetto** markdown
+- NON scrivere [link] o placeholder
+- NON ripetere il consiglio FoxScan (è già nelle slide)
+Rispondi SOLO con il testo della caption, niente altro."""
+
+
 def extract_carousel_data(article: dict) -> dict:
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
 
@@ -84,8 +99,9 @@ def extract_carousel_data(article: dict) -> dict:
         f"Testo completo:\n{article.get('body', '')[:4000]}"
     )
 
+    # Chiamata 1: testi slide con modello veloce (8b)
     response = client.chat.completions.create(
-        model=GROQ_MODEL,
+        model=GROQ_MODEL_SLIDES,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user",   "content": user_content},
@@ -103,6 +119,24 @@ def extract_carousel_data(article: dict) -> dict:
 
     data = json.loads(raw)
     _validate(data)
+
+    # Chiamata 2: caption con modello migliore (70b) — solo testo breve
+    slide_summary = "\n".join([
+        f"Titolo: {data['cover_title']}",
+        f"Slide 1: {data['slides'][0]['text']}",
+        f"Slide 2: {data['slides'][1]['text']}",
+        f"Slide 3: {data['slides'][2]['text']}",
+    ])
+    caption_resp = client.chat.completions.create(
+        model=GROQ_MODEL_CAPTION,
+        messages=[
+            {"role": "system", "content": CAPTION_PROMPT},
+            {"role": "user",   "content": slide_summary},
+        ],
+        temperature=0.6,
+    )
+    data["caption"] = caption_resp.choices[0].message.content.strip()
+
     return data
 
 
