@@ -148,7 +148,7 @@ strong { color: var(--cyan); font-weight: 700; }
   display: flex; gap: 8px; align-items: center;
 }
 .arrow {
-  font-size: 48px; font-weight: 300;
+  font-size: 62px; font-weight: 300;
   font-family: 'Space Grotesk', sans-serif;
   line-height: 1;
 }
@@ -262,7 +262,8 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
 def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
     return page(f"""
 <div class="slide">
-  <div class="bg-photo" style="background-image:url('{img}');"></div>
+  <div class="bg-photo" style="background-image:url('{img}');
+    filter:brightness(0.35) blur(3px) saturate(0.7);"></div>
   <div class="bg-grad-bottom"></div>
   <div class="bg-grid"></div>
   {chrome(slide_n)}
