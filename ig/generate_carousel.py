@@ -16,6 +16,16 @@ def _md_to_html(text: str) -> str:
     """Converte **grassetto** markdown in <strong> HTML."""
     return re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
 
+
+def _font_size(text: str, base: int, step: int = 6, thresholds: tuple = (180, 280)) -> int:
+    """Riduce il font di `step`px per ogni soglia di caratteri superata."""
+    n = len(text)
+    size = base
+    for t in thresholds:
+        if n > t:
+            size -= step
+    return max(size, base - len(thresholds) * step)
+
 # ── Articolo demo ─────────────────────────────────────────────────────────────
 # In produzione questi campi vengono popolati dalla pipeline:
 #   cover_image_url  → Unsplash query "hacker cyber network"
@@ -279,10 +289,10 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
   <div class="bg-grad-top"></div>
   <div class="bg-grid"></div>
   {chrome(slide_n)}
-  <div style="position:absolute;top:560px;left:100px;right:100px;z-index:10;">
+  <div style="position:absolute;top:560px;left:100px;right:100px;bottom:80px;z-index:10;overflow:hidden;">
     <h2 class="section-title">{section}</h2>
     <div class="divider"></div>
-    <p class="body-text">{_md_to_html(text)}</p>
+    <p class="body-text" style="font-size:{_font_size(text, 48)}px;">{_md_to_html(text)}</p>
   </div>
 </div>
 """)
@@ -310,12 +320,12 @@ def slide5_opinion(a: dict, img: str, fox_mascot: str) -> str:
   {chrome(5, show_brand=False)}
   <img src="{fox_mascot}" class="fox-mascot" style="width:360px;right:10px;left:auto;
     filter:drop-shadow(0 0 28px rgba(124,58,237,0.30));opacity:0.93;">
-  <div style="position:absolute;top:340px;left:100px;right:440px;z-index:10;">
+  <div style="position:absolute;top:340px;left:100px;right:440px;bottom:80px;z-index:10;overflow:hidden;">
     <h2 class="section-title" style="font-size:88px;color:#a78bfa;line-height:1.05;">
       {op['section']}
     </h2>
     <div class="divider" style="background:linear-gradient(90deg,rgba(167,139,250,0.7),transparent);"></div>
-    <p class="body-text" style="font-size:36px;">{_md_to_html(op['text'])}</p>
+    <p class="body-text" style="font-size:{_font_size(op['text'], 40, step=5, thresholds=(150, 240))}px;">{_md_to_html(op['text'])}</p>
   </div>
 </div>
 """, extra_css=css)
