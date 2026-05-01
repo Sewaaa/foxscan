@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-FoxScan Instagram Carousel Generator v7
-- Ogni slide ha la propria immagine di sfondo contestuale
-- Niente badge circolare
-- Testo grande e centrale
+FoxScan Instagram Carousel Generator v8
+- Formato 4:5 (1080x1350) per feed portrait
+- Padding laterale aumentato per visibilità in griglia profilo
+- Niente kicker badge, niente "scorri per la notizia"
 """
 
-import base64, os, urllib.request
+import base64, os, re, urllib.request
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from fox_catalog import select_cover_fox, select_opinion_fox, select_cta_fox
+
+
+def _md_to_html(text: str) -> str:
+    """Converte **grassetto** markdown in <strong> HTML."""
+    return re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
 
 # ── Articolo demo ─────────────────────────────────────────────────────────────
 # In produzione questi campi vengono popolati dalla pipeline:
@@ -90,7 +95,7 @@ BASE_CSS = """
   --bg:     #020817;
 }
 body {
-  width: 1080px; height: 1080px; overflow: hidden;
+  width: 1080px; height: 1350px; overflow: hidden;
   background: #000;
   font-family: 'Inter', system-ui, sans-serif;
   color: #fff;
@@ -98,7 +103,7 @@ body {
 h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
 strong { color: var(--cyan); font-weight: 700; }
 
-.slide { width: 1080px; height: 1080px; position: relative; overflow: hidden; }
+.slide { width: 1080px; height: 1350px; position: relative; overflow: hidden; }
 
 .bg-photo {
   position: absolute; inset: 0; z-index: 0;
@@ -139,7 +144,7 @@ strong { color: var(--cyan); font-weight: 700; }
   background: linear-gradient(90deg, var(--cyan), var(--purple), var(--cyan));
 }
 .swipe-arrows {
-  position: absolute; top: 44px; right: 44px; z-index: 20;
+  position: absolute; top: 44px; right: 72px; z-index: 20;
   display: flex; gap: 6px; align-items: center;
 }
 .arrow {
@@ -148,12 +153,12 @@ strong { color: var(--cyan); font-weight: 700; }
   line-height: 1;
 }
 .brand-url {
-  position: absolute; bottom: 26px; right: 44px; z-index: 20;
+  position: absolute; bottom: 26px; right: 72px; z-index: 20;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 16px; color: rgba(255,255,255,0.30); letter-spacing: 0.06em;
 }
 .slide-num {
-  position: absolute; bottom: 26px; left: 44px; z-index: 20;
+  position: absolute; bottom: 26px; left: 72px; z-index: 20;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 16px; color: rgba(255,255,255,0.25); letter-spacing: 0.08em;
 }
@@ -229,23 +234,12 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
   <div class="bg-grad-left"></div>
   <div class="bg-grid"></div>
   {chrome(1, show_slide_num=False)}
-  <img src="{fox_cover}" class="fox-mascot" style="width:380px;left:0px;">
-  <div style="position:absolute;top:200px;left:60px;right:420px;z-index:10;">
-    <div class="kicker-badge">
-      <span style="width:9px;height:9px;border-radius:50%;background:#ef4444;
-        box-shadow:0 0 8px rgba(239,68,68,0.9);display:inline-block;flex-shrink:0;"></span>
-      {a['cover_kicker']} &nbsp;·&nbsp; Cybersecurity
-    </div>
-    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:72px;font-weight:900;
-      line-height:1.08;color:#fff;margin-bottom:32px;letter-spacing:-0.01em;">
+  <img src="{fox_cover}" class="fox-mascot" style="width:420px;left:0px;">
+  <div style="position:absolute;top:220px;left:100px;right:460px;z-index:10;">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:86px;font-weight:900;
+      line-height:1.08;color:#fff;letter-spacing:-0.01em;">
       {a['cover_title']}
     </h1>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <span style="font-size:16px;font-weight:600;color:var(--cyan);
-        font-family:'Space Grotesk',sans-serif;letter-spacing:0.05em;">Scorri per la notizia</span>
-      <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--cyan),transparent);
-        border-radius:1px;max-width:120px;"></div>
-    </div>
   </div>
 </div>
 """)
@@ -261,10 +255,10 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
   <div class="bg-grad-bottom"></div>
   <div class="bg-grid"></div>
   {chrome(slide_n)}
-  <div style="position:absolute;top:440px;left:60px;right:60px;z-index:10;">
+  <div style="position:absolute;top:560px;left:100px;right:100px;z-index:10;">
     <h2 class="section-title">{section}</h2>
     <div class="divider"></div>
-    <p class="body-text">{text}</p>
+    <p class="body-text">{_md_to_html(text)}</p>
   </div>
 </div>
 """)
@@ -290,14 +284,14 @@ def slide5_opinion(a: dict, img: str, fox_mascot: str) -> str:
   <div class="opinion-tint"></div>
   <div class="bg-grid"></div>
   {chrome(5, show_brand=False)}
-  <img src="{fox_mascot}" class="fox-mascot" style="width:340px;right:10px;left:auto;
+  <img src="{fox_mascot}" class="fox-mascot" style="width:360px;right:10px;left:auto;
     filter:drop-shadow(0 0 28px rgba(124,58,237,0.30));opacity:0.93;">
-  <div style="position:absolute;top:280px;left:60px;right:420px;z-index:10;">
+  <div style="position:absolute;top:340px;left:100px;right:440px;z-index:10;">
     <h2 class="section-title" style="font-size:88px;color:#a78bfa;line-height:1.05;">
       {op['section']}
     </h2>
     <div class="divider" style="background:linear-gradient(90deg,rgba(167,139,250,0.7),transparent);"></div>
-    <p class="body-text" style="font-size:36px;">{op['text']}</p>
+    <p class="body-text" style="font-size:36px;">{_md_to_html(op['text'])}</p>
   </div>
 </div>
 """, extra_css=css)
@@ -317,7 +311,7 @@ def slide6_cta(img: str, logo: str) -> str:
   <!-- Tutto centrato verticalmente -->
   <div style="position:absolute;inset:0;z-index:10;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:80px 80px 60px;">
+    padding:80px 100px 60px;">
 
     <!-- Logo FoxScan -->
     <img src="{logo}" style="width:210px;margin-bottom:44px;
@@ -397,11 +391,11 @@ def generate(a: dict, image_paths: dict | None = None) -> list[Path]:
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        pw_page = browser.new_page(viewport={"width": 1080, "height": 1080})
+        pw_page = browser.new_page(viewport={"width": 1080, "height": 1350})
         for html, fname in slides:
             pw_page.set_content(html, wait_until="networkidle")
             pw_page.screenshot(path=str(OUT_DIR / fname),
-                               clip={"x": 0, "y": 0, "width": 1080, "height": 1080})
+                               clip={"x": 0, "y": 0, "width": 1080, "height": 1350})
             print(f"  OK {fname}")
         browser.close()
 
