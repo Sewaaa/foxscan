@@ -49,7 +49,7 @@ def _get_engine():
 def get_pending_articles(engine, max_posts: int = 1, hours: int = 24) -> list[dict]:
     cutoff = datetime.utcnow() - timedelta(hours=hours)
     query = text("""
-        SELECT id, title, summary, body, tags, relevance_score, ig_carousel_data
+        SELECT id, title, summary, body, tags, relevance_score, ig_carousel_data, image_url
         FROM articles
         WHERE relevance_score >= :score
           AND (posted_to_ig IS NULL OR posted_to_ig = FALSE)
@@ -133,9 +133,10 @@ def run_pipeline(max_posts: int = 1) -> dict:
             tags = article.get("tags") or "[]"
             carousel_data["tags"] = json.loads(tags) if isinstance(tags, str) else tags
 
-            # Step 2: Unsplash
+            # Step 2: Unsplash (+ immagine articolo dal sito come cover)
             logger.info("  → Unsplash: scarico immagini...")
-            image_paths = fetch_images(carousel_data, OUT_DIR)
+            image_paths = fetch_images(carousel_data, OUT_DIR,
+                                       article_image_url=article.get("image_url"))
 
             # Step 3: Genera PNG
             logger.info("  → Carousel: genero PNG...")

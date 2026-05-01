@@ -24,14 +24,16 @@ REGOLE OBBLIGATORIE:
 - opinion.text: consiglio pratico per utenti comuni, tono caldo e amichevole, niente tecnicismi
 - Ogni testo slide: 2-3 frasi. Usa <strong>parola</strong> per i termini chiave.
 
-IMAGE QUERY (CRITICO PER LA VARIETÀ):
+IMAGE QUERY (CRITICO — SII SPECIFICO):
 - OGNI image_query DEVE essere visivamente DIVERSA dalle altre: nessun sfondo ripetuto
-- cover: scena drammatica dell'ambito colpito (es. "government building night surveillance")
-- slides[0].image_query: elemento umano, reazione, notizia (es. "journalist newsroom breaking alert screen")
-- slides[1].image_query: infrastruttura tecnica specifica (es. "cisco router network rack data center")
-- slides[2].image_query: visione globale o strategica (es. "world map digital connections satellite")
+- Se l'articolo cita esplicitamente un'azienda (Google, Microsoft, Apple, Meta, Cisco, ecc.) includi SEMPRE il nome dell'azienda nella query: es. "Google Googleplex headquarters campus aerial", "Microsoft Azure logo office building", "Apple Park spaceship campus aerial"
+- Se cita un paese o governo, usa immagini specifiche: "US Capitol Washington cybersecurity", "Pentagon building aerial view"
+- cover: scena drammatica e specifica dell'ambito colpito (evita immagini generiche di hacker con felpa)
+- slides[0].image_query: reazione umana o notizia specifica (giornalista, sala riunioni, conferenza stampa)
+- slides[1].image_query: infrastruttura SPECIFICA citata nell'articolo (router Cisco, data center Azure, ecc.)
+- slides[2].image_query: visione globale o strategica (mappa, satellite, geopolitica)
 - opinion.image_query: immagine positiva/protettiva (es. "person laptop coffee home secure")
-- SEMPRE in inglese, 4-6 parole descrittive per Unsplash. MAI ripetere le stesse parole tra query diverse.
+- SEMPRE in inglese, 4-7 parole per Unsplash. MAI ripetere parole tra query diverse.
 
 CAPTION INSTAGRAM:
 - Tono: social media manager professionista, coinvolgente, diretto

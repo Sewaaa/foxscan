@@ -165,7 +165,7 @@ strong { color: var(--cyan); font-weight: 700; }
 
 .section-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 108px; font-weight: 900;
+  font-size: 92px; font-weight: 900;
   line-height: 1.02; color: #ffffff;
   margin-bottom: 20px;
   letter-spacing: -0.02em;
@@ -173,13 +173,13 @@ strong { color: var(--cyan); font-weight: 700; }
 .divider {
   width: 100%; height: 2px;
   background: linear-gradient(90deg, rgba(0,255,229,0.65), transparent);
-  margin-bottom: 26px;
+  margin-bottom: 28px;
   border-radius: 1px;
 }
 .body-text {
   font-family: 'Inter', sans-serif;
-  font-size: 38px; font-weight: 400;
-  line-height: 1.52; color: rgba(255,255,255,0.90);
+  font-size: 48px; font-weight: 400;
+  line-height: 1.48; color: rgba(255,255,255,0.92);
 }
 .kicker-badge {
   display: inline-flex; align-items: center; gap: 10px;
