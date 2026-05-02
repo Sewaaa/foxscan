@@ -33,7 +33,7 @@ def _font_size(text: str, base: int, step: int = 6, thresholds: tuple = (180, 28
 #   opinion.image_url   → Unsplash query "security advice shield"
 ARTICLE = {
     "id": 5,
-    "cover_title": "Hacker dentro le reti aziendali di tutto il mondo: scoperte 15 falle già sfruttate",
+    "cover_title": "Hacker dentro le reti aziendali di tutto il mondo: scoperte **15 falle** già sfruttate",
     "cover_kicker": "BREAKING",
     "cover_image_url": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1080&h=1080&fit=crop&q=85",
     "slides": [
@@ -64,7 +64,7 @@ ARTICLE = {
 
 _DEV_PATH = Path(r"C:\me\Progetti Personali\Foxscan\frontend\public")
 PUB       = _DEV_PATH if _DEV_PATH.exists() else Path(os.getenv("FOX_ASSETS_PATH", Path(__file__).parent / "assets"))
-OUT_DIR  = Path(r"C:\me\Progetti Personali\Foxscan-ig\carousel_output")
+OUT_DIR  = Path(r"C:\me\Progetti Personali\Foxscan\ig\carousel_output")
 OUT_DIR.mkdir(exist_ok=True)
 
 _cache: dict = {}
@@ -255,104 +255,216 @@ def page(inner: str, extra_css: str = "") -> str:
 # SLIDE 1 — Cover
 # ════════════════════════════════════════════════════════════════════════════
 def slide1(a: dict, img: str, fox_cover: str) -> str:
+    title_size = _font_size(a['cover_title'], 92, step=8, thresholds=(60, 90))
     return page(f"""
 <div class="slide">
-  <div class="bg-photo" style="background-image:url('{img}');"></div>
-  <div class="bg-grad-bottom"></div>
-  <div class="bg-grad-top"></div>
-  <div class="bg-grid" style="opacity:0.5;"></div>
-  {chrome(1, show_slide_num=False)}
+  <!-- Foto full-cover -->
+  <div class="bg-photo" style="background-image:url('{img}');
+    background-size:cover;background-position:center center;"></div>
 
-  <!-- Titolo centrato e prominente -->
-  <div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:10;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:0 90px 120px;">
-    <div class="text-panel" style="display:flex;flex-direction:column;align-items:center;">
-      <div style="width:80px;height:4px;border-radius:2px;margin-bottom:36px;
-        background:linear-gradient(90deg,var(--cyan),var(--purple));"></div>
-      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:96px;font-weight:900;
-        line-height:1.06;color:#fff;letter-spacing:-0.02em;text-align:center;
-        text-shadow:0 2px 16px rgba(0,0,0,0.5);">
-        {a['cover_title']}
-      </h1>
-      <div style="width:80px;height:4px;border-radius:2px;margin-top:36px;
-        background:linear-gradient(90deg,var(--purple),var(--cyan));"></div>
-    </div>
+  <!-- Gradiente scuro dal basso (testo leggibile) -->
+  <div style="position:absolute;inset:0;z-index:1;
+    background:linear-gradient(to top,
+      rgba(2,8,23,0.97) 0%,
+      rgba(2,8,23,0.90) 28%,
+      rgba(2,8,23,0.55) 50%,
+      rgba(2,8,23,0.12) 72%,
+      transparent 100%);"></div>
+
+  <!-- Gradiente scuro dall'alto (top bar leggibile) -->
+  <div style="position:absolute;inset:0;z-index:1;
+    background:linear-gradient(to bottom,
+      rgba(2,8,23,0.72) 0%,
+      transparent 20%);"></div>
+
+  <!-- Accent bar sottile in cima -->
+  <div class="accent-bar"></div>
+
+  <!-- FOXSCAN — brand top-left -->
+  <div style="position:absolute;top:42px;left:72px;z-index:20;
+    font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;
+    letter-spacing:-0.01em;text-shadow:0 2px 8px rgba(0,0,0,0.8);">
+    <span style="color:#fff;font-weight:800;">Fox</span><span style="color:var(--cyan);font-weight:800;">Scan</span></div>
+
+  <!-- Frecce swipe top-right -->
+  <div class="swipe-arrows" style="z-index:20;">
+    {''.join(f'<span class="arrow" style="opacity:{max(0.55 - i*0.15, 0.08):.2f};color:#fff;">&#x00AB;</span>' for i in range(3))}
   </div>
 
-  <!-- Volpe piccola come accento in basso al centro -->
-  <img src="{fox_cover}" class="fox-mascot" style="width:240px;left:50%;transform:translateX(-50%);
-    opacity:0.85;filter:drop-shadow(0 0 16px rgba(0,255,229,0.20));">
+  <!-- Titolo grande bold in basso a sinistra -->
+  <div style="position:absolute;bottom:88px;left:72px;right:280px;z-index:10;">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:{title_size}px;font-weight:900;
+      line-height:1.06;color:#fff;letter-spacing:-0.025em;text-align:left;
+      text-shadow:0 2px 20px rgba(0,0,0,0.6);">
+      {_md_to_html(a['cover_title'])}
+    </h1>
+  </div>
+
+  <!-- Linea accent orizzontale in fondo (termina prima della volpe) -->
+  <div style="position:absolute;bottom:52px;left:72px;right:290px;height:5px;z-index:12;
+    border-radius:3px;
+    background:linear-gradient(90deg,var(--cyan),var(--purple),transparent);"></div>
+
+  <!-- Volpe bottom-right (sopra la linea) -->
+  <img src="{fox_cover}" style="position:absolute;bottom:0;right:30px;z-index:20;width:260px;
+    filter:drop-shadow(0 0 20px rgba(0,255,229,0.25));opacity:0.92;">
 </div>
 """)
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# SLIDE 2-4 — News detail (immagine propria per ogni slide)
+# SLIDE 2-4 — News detail: split layout foto/testo come l'inspo
 # ════════════════════════════════════════════════════════════════════════════
 def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
+    SPLIT   = 700   # px: dove finisce la foto e inizia il dark panel
+    SEP1    = SPLIT + 18
+    TITLE_Y = SPLIT + 30
+    SEP2    = SPLIT + 136
+    BODY_Y  = SPLIT + 152
+    txt_size = _font_size(text, 44, step=3, thresholds=(160, 240))
+    arrows   = "".join(
+        f'<span class="arrow" style="opacity:{max(0.55 - i*0.15, 0.08):.2f};color:#fff;">&#x00AB;</span>'
+        for i in range(3)
+    )
     return page(f"""
 <div class="slide">
-  <div class="bg-photo" style="background-image:url('{img}');"></div>
-  <div class="bg-grad-bottom"></div>
-  <div class="bg-grad-top"></div>
-  <div class="bg-grid"></div>
-  {chrome(slide_n)}
-  <div style="position:absolute;top:540px;left:80px;right:80px;bottom:70px;z-index:10;overflow:hidden;">
-    <div class="text-panel" style="height:100%;overflow:hidden;">
-      <h2 class="section-title">{section}</h2>
-      <div class="divider"></div>
-      <p class="body-text" style="font-size:{_font_size(text, 48)}px;">{_md_to_html(text)}</p>
-    </div>
+  <!-- Accent bar -->
+  <div class="accent-bar"></div>
+
+  <!-- Foto (metà superiore) -->
+  <div style="position:absolute;top:0;left:0;right:0;height:{SPLIT}px;overflow:hidden;z-index:0;">
+    <div style="width:100%;height:100%;
+      background-image:url('{img}');background-size:cover;background-position:center center;"></div>
+    <!-- Fade bottom foto → dark -->
+    <div style="position:absolute;bottom:0;left:0;right:0;height:180px;
+      background:linear-gradient(to bottom,transparent,#020817);"></div>
   </div>
+
+  <!-- Area testo scura (metà inferiore) -->
+  <div style="position:absolute;top:{SPLIT}px;left:0;right:0;bottom:0;background:#020817;z-index:1;"></div>
+
+  <!-- Grid sottile su tutto -->
+  <div class="bg-grid" style="z-index:2;opacity:0.25;"></div>
+
+  <!-- FOXSCAN top-left -->
+  <div style="position:absolute;top:42px;left:72px;z-index:20;
+    font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;
+    letter-spacing:-0.01em;text-shadow:0 2px 8px rgba(0,0,0,0.8);">
+    <span style="color:#fff;font-weight:800;">Fox</span><span style="color:var(--cyan);font-weight:800;">Scan</span></div>
+
+  <!-- Frecce top-right -->
+  <div class="swipe-arrows" style="z-index:20;">{arrows}</div>
+
+  <!-- Separatore 1 -->
+  <div style="position:absolute;top:{SEP1}px;left:72px;right:72px;
+    height:1px;z-index:10;background:rgba(255,255,255,0.13);"></div>
+
+  <!-- Titolo sezione (grande bold) -->
+  <div style="position:absolute;top:{TITLE_Y}px;left:72px;right:72px;z-index:10;">
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:86px;font-weight:900;
+      color:#fff;letter-spacing:-0.025em;line-height:1.04;">
+      {section}
+    </h2>
+  </div>
+
+  <!-- Separatore 2 -->
+  <div style="position:absolute;top:{SEP2}px;left:72px;right:72px;
+    height:1px;z-index:10;background:rgba(255,255,255,0.13);"></div>
+
+  <!-- Testo corpo -->
+  <div style="position:absolute;top:{BODY_Y}px;left:72px;right:72px;
+    bottom:60px;z-index:10;overflow:hidden;">
+    <p style="font-family:'Inter',sans-serif;font-size:{txt_size}px;font-weight:400;
+      line-height:1.54;color:rgba(255,255,255,0.88);">
+      {_md_to_html(text)}
+    </p>
+  </div>
+
+  <!-- Brand URL bottom-right -->
+  <div class="brand-url" style="z-index:20;">www.foxscan.vercel.app</div>
 </div>
 """)
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# SLIDE 5 — Opinione Fox (immagine propria)
+# SLIDE 5 — Opinione Fox (sfondo gradiente statico, niente immagine)
 # ════════════════════════════════════════════════════════════════════════════
-def slide5_opinion(a: dict, img: str, fox_mascot: str) -> str:
+def slide5_opinion(a: dict, fox_mascot: str) -> str:
     op = a["opinion"]
-    css = """
-    .opinion-tint {
-      position: absolute; inset: 0; z-index: 1;
-      background: linear-gradient(135deg,rgba(124,58,237,0.22) 0%,rgba(2,8,23,0.0) 55%);
-    }
-    """
+    txt_size = _font_size(op["text"], 46, step=4, thresholds=(120, 180))
     return page(f"""
 <div class="slide">
-  <div class="bg-photo" style="background-image:url('{img}');"></div>
-  <div class="bg-grad-bottom" style="background:linear-gradient(to top,
-    rgba(2,8,23,0.99) 0%,rgba(2,8,23,0.92) 35%,rgba(2,8,23,0.60) 58%,transparent 100%);"></div>
-  <div class="bg-grad-top"></div>
-  <div class="opinion-tint"></div>
-  <div class="bg-grid"></div>
+  <!-- Sfondo gradiente statico -->
+  <div style="position:absolute;inset:0;z-index:0;
+    background:linear-gradient(160deg,#1a0c38 0%,#0d0523 35%,#020817 65%,#081525 100%);"></div>
+  <!-- Bagliori decorativi -->
+  <div style="position:absolute;top:-80px;left:-80px;width:620px;height:620px;z-index:1;pointer-events:none;
+    background:radial-gradient(circle,rgba(124,58,237,0.22) 0%,transparent 65%);"></div>
+  <div style="position:absolute;bottom:80px;right:-60px;width:520px;height:520px;z-index:1;pointer-events:none;
+    background:radial-gradient(circle,rgba(0,255,229,0.08) 0%,transparent 65%);"></div>
+  <div class="bg-grid" style="opacity:0.45;"></div>
   {chrome(5, show_brand=False)}
-  <img src="{fox_mascot}" class="fox-mascot" style="width:360px;right:10px;left:auto;
-    filter:drop-shadow(0 0 28px rgba(124,58,237,0.30));opacity:0.93;">
-  <div style="position:absolute;top:320px;left:80px;right:420px;bottom:70px;z-index:10;overflow:hidden;">
-    <div class="text-panel" style="height:100%;overflow:hidden;">
-      <h2 class="section-title" style="font-size:80px;color:#a78bfa;line-height:1.05;">
-        {op['section']}
-      </h2>
-      <div class="divider" style="background:linear-gradient(90deg,rgba(167,139,250,0.7),transparent);"></div>
-      <p class="body-text" style="font-size:40px;">{_md_to_html(op['text'])}</p>
+
+  <!-- Contenuto -->
+  <div style="position:absolute;top:110px;left:80px;right:80px;bottom:200px;z-index:10;
+    display:flex;flex-direction:column;justify-content:center;">
+
+    <!-- Badge sezione -->
+    <div style="display:inline-flex;align-items:center;gap:14px;margin-bottom:56px;align-self:flex-start;
+      background:rgba(124,58,237,0.18);border:1.5px solid rgba(167,139,250,0.40);
+      border-radius:50px;padding:12px 32px;">
+      <span style="width:10px;height:10px;border-radius:50%;background:#a78bfa;flex-shrink:0;
+        box-shadow:0 0 10px rgba(167,139,250,0.65);"></span>
+      <span style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;
+        color:#a78bfa;letter-spacing:0.10em;text-transform:uppercase;">{op['section']}</span>
     </div>
+
+    <!-- Virgolettone decorativo -->
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:180px;font-weight:900;
+      color:rgba(167,139,250,0.18);line-height:0.65;margin-bottom:16px;
+      text-shadow:0 0 40px rgba(124,58,237,0.25);">"</div>
+
+    <!-- Testo opinione con bordo viola a sinistra -->
+    <p style="font-family:'Inter',sans-serif;font-size:{txt_size}px;font-weight:400;
+      line-height:1.56;color:rgba(255,255,255,0.92);
+      padding-left:28px;border-left:3px solid rgba(167,139,250,0.55);">
+      {_md_to_html(op['text'])}
+    </p>
+  </div>
+
+  <!-- Volpe in basso a destra -->
+  <img src="{fox_mascot}" style="position:absolute;bottom:0;right:30px;z-index:15;width:320px;
+    filter:drop-shadow(0 0 32px rgba(124,58,237,0.45)) drop-shadow(0 0 64px rgba(0,255,229,0.10));
+    opacity:0.95;">
+
+  <!-- URL in basso a sinistra -->
+  <div style="position:absolute;bottom:30px;left:80px;z-index:20;
+    font-family:'Space Grotesk',sans-serif;font-size:17px;
+    color:rgba(255,255,255,0.28);letter-spacing:0.06em;">
+    www.foxscan.vercel.app
   </div>
 </div>
-""", extra_css=css)
+""")
 
 
 # ════════════════════════════════════════════════════════════════════════════
 # SLIDE 6 — CTA: logo centrato in alto, tutto centrato sotto
 # ════════════════════════════════════════════════════════════════════════════
-def slide6_cta(img: str, logo: str) -> str:
+def slide6_cta(logo: str) -> str:
     return page(f"""
 <div class="slide">
-  <div class="bg-photo" style="background-image:url('{img}');
-    filter:brightness(0.18) saturate(0.20);"></div>
-  <div class="bg-grid"></div>
+  <!-- Sfondo gradiente statico -->
+  <div style="position:absolute;inset:0;z-index:0;
+    background:linear-gradient(160deg,#020f1f 0%,#020817 45%,#0a0520 100%);"></div>
+  <!-- Bagliori decorativi -->
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:900px;height:900px;z-index:1;pointer-events:none;
+    background:radial-gradient(circle,rgba(0,255,229,0.07) 0%,transparent 65%);"></div>
+  <div style="position:absolute;bottom:-100px;right:-100px;width:700px;height:700px;z-index:1;pointer-events:none;
+    background:radial-gradient(circle,rgba(124,58,237,0.12) 0%,transparent 60%);"></div>
+  <div style="position:absolute;top:-80px;left:-80px;width:600px;height:600px;z-index:1;pointer-events:none;
+    background:radial-gradient(circle,rgba(124,58,237,0.10) 0%,transparent 60%);"></div>
+  <div class="bg-grid" style="opacity:0.35;"></div>
   {chrome(6, show_arrows=False, show_slide_num=False, show_brand=False)}
 
   <!-- Tutto centrato verticalmente -->
@@ -361,35 +473,33 @@ def slide6_cta(img: str, logo: str) -> str:
     padding:80px 100px 60px;">
 
     <!-- Logo FoxScan -->
-    <img src="{logo}" style="width:210px;margin-bottom:44px;
-      filter:drop-shadow(0 0 28px rgba(0,255,229,0.35)) drop-shadow(0 0 60px rgba(0,255,229,0.12));">
+    <img src="{logo}" style="width:220px;margin-bottom:52px;
+      filter:drop-shadow(0 0 32px rgba(0,255,229,0.40)) drop-shadow(0 0 70px rgba(0,255,229,0.15));">
 
     <!-- Titolo -->
-    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:86px;font-weight:900;
-      text-align:center;line-height:1.06;color:#fff;letter-spacing:-0.02em;margin-bottom:28px;">
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:88px;font-weight:900;
+      text-align:center;line-height:1.06;color:#fff;letter-spacing:-0.02em;margin-bottom:32px;">
       Seguici su FoxScan
     </h2>
 
     <!-- Divider centrato -->
-    <div style="width:260px;height:3px;border-radius:2px;margin-bottom:48px;
-      background:linear-gradient(90deg,transparent,rgba(0,255,229,0.70),transparent);"></div>
+    <div style="width:280px;height:3px;border-radius:2px;margin-bottom:52px;
+      background:linear-gradient(90deg,transparent,var(--cyan),transparent);"></div>
 
     <!-- URL box -->
-    <div style="
-      display:inline-flex;align-items:center;gap:16px;
+    <div style="display:inline-flex;align-items:center;
       background:linear-gradient(135deg,rgba(0,255,229,0.08),rgba(124,58,237,0.08));
-      border:2px solid rgba(0,255,229,0.38);border-radius:16px;
-      padding:26px 60px;margin-bottom:44px;
-      box-shadow:0 0 36px rgba(0,255,229,0.08);
-    ">
+      border:2px solid rgba(0,255,229,0.40);border-radius:16px;
+      padding:28px 64px;margin-bottom:48px;
+      box-shadow:0 0 48px rgba(0,255,229,0.10),inset 0 0 24px rgba(0,255,229,0.03);">
       <span style="font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:700;
-        color:var(--cyan);">www.foxscan.vercel.app</span>
+        color:var(--cyan);letter-spacing:0.01em;">www.foxscan.vercel.app</span>
     </div>
 
     <!-- Tagline -->
-    <p style="font-size:28px;color:rgba(255,255,255,0.50);line-height:1.60;
+    <p style="font-size:28px;color:rgba(255,255,255,0.45);line-height:1.65;
       font-family:'Inter',sans-serif;text-align:center;max-width:780px;">
-      Seguici per restare sempre aggiornato<br>sulle ultime minacce alla sicurezza informatica.
+      Notizie di cybersecurity ogni giorno,<br>sintetizzate dall'intelligenza artificiale.
     </p>
   </div>
 </div>
@@ -412,15 +522,11 @@ def generate(a: dict, image_paths: dict | None = None) -> list[Path]:
         img_slide0  = b64(Path(image_paths["slide_0"]), "image/jpeg")
         img_slide1  = b64(Path(image_paths["slide_1"]), "image/jpeg")
         img_slide2  = b64(Path(image_paths["slide_2"]), "image/jpeg")
-        img_opinion = b64(Path(image_paths["opinion"]), "image/jpeg")
     else:
         img_cover   = fetch_img(a["cover_image_url"],        "cover")
         img_slide0  = fetch_img(a["slides"][0]["image_url"], "slide_0")
         img_slide1  = fetch_img(a["slides"][1]["image_url"], "slide_1")
         img_slide2  = fetch_img(a["slides"][2]["image_url"], "slide_2")
-        img_opinion = fetch_img(a["opinion"]["image_url"],   "opinion")
-
-    img_cta = img_cover
 
     fox_cover   = b64(select_cover_fox(tags, article_id))
     fox_opinion = b64(PUB / "fox_cta_forward_nobg.png")
@@ -432,8 +538,8 @@ def generate(a: dict, image_paths: dict | None = None) -> list[Path]:
         (slide_news(sd[0]["section"], sd[0]["text"], 2, img_slide0), "slide_02_news.png"),
         (slide_news(sd[1]["section"], sd[1]["text"], 3, img_slide1), "slide_03_news.png"),
         (slide_news(sd[2]["section"], sd[2]["text"], 4, img_slide2), "slide_04_news.png"),
-        (slide5_opinion(a, img_opinion, fox_opinion),                "slide_05_opinion.png"),
-        (slide6_cta(img_cta, logo_cta),                             "slide_06_cta.png"),
+        (slide5_opinion(a, fox_opinion),                             "slide_05_opinion.png"),
+        (slide6_cta(logo_cta),                                       "slide_06_cta.png"),
     ]
 
     with sync_playwright() as p:

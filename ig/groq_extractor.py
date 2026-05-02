@@ -4,10 +4,14 @@ groq_extractor.py — Genera contenuti carosello + caption Instagram via Groq.
 """
 
 import json
+import logging
 import os
 import re
+import time
 
 from groq import Groq
+
+logger = logging.getLogger(__name__)
 
 GROQ_MODEL_SLIDES  = "openai/gpt-oss-20b"
 GROQ_MODEL_CAPTION = "openai/gpt-oss-20b"
@@ -18,7 +22,7 @@ Ricevi un articolo tecnico e produci: i testi per un carosello di 6 slide + una 
 REGOLE OBBLIGATORIE:
 - Scrivi SOLO in italiano corretto con accenti (è, à, ù, ecc.). MAI usare caratteri ASCII al posto degli accenti.
 - NON usare trattini em (—) nel testo delle slide
-- cover_title: titolo BREAKING NEWS urgente, max 10 parole. REGOLA FONDAMENTALE: metti l'azione/scoperta ALL'INIZIO, non alla fine. Esempi di struttura vincente: "Sfruttati zero-day per bypassare Defender: 3 nuove falle", "Scoperta backdoor in milioni di router: attacco globale", "Rubati 13 milioni: exchange crypto violato in poche ore", "Allarme: nuova falla critica espone 200.000 server". Parole che aprono bene: Sfruttati / Scoperta / Rubati / Violato / Allarme / Attenzione / Bucato / Compromessi. MAI iniziare con il nome del prodotto/azienda. MAI finire con il verbo. Sempre linguaggio d'azione e urgenza.
+- cover_title: titolo BREAKING NEWS urgente, max 10 parole. REGOLA FONDAMENTALE: metti l'azione/scoperta ALL'INIZIO, non alla fine. Esempi di struttura vincente: "Sfruttati zero-day per bypassare Defender: 3 nuove falle", "Scoperta backdoor in milioni di router: attacco globale", "Rubati 13 milioni: exchange crypto violato in poche ore", "Allarme: nuova falla critica espone 200.000 server". Parole che aprono bene: Sfruttati / Scoperta / Rubati / Violato / Allarme / Attenzione / Bucato / Compromessi. MAI iniziare con il nome del prodotto/azienda. MAI finire con il verbo. Sempre linguaggio d'azione e urgenza. Usa **grassetto** su 1-2 parole chiave del titolo (numeri, nomi aziende/malware, termini tecnici forti) per evidenziarle graficamente — es: "Violati **3 milioni** di account: falla critica in **LastPass**".
 - cover_kicker: uno tra BREAKING / URGENTE / ALERT / ESCLUSIVO
 - slides[0].text: fatti principali, linguaggio accessibile a tutti (chi, cosa, quando)
 - slides[1].text: sistemi, aziende o paesi coinvolti, leggermente più specifico
@@ -106,18 +110,39 @@ def extract_carousel_data(article: dict) -> dict:
     )
 
     # Chiamata 1: testi slide
-    response = client.chat.completions.create(
-        model=GROQ_MODEL_SLIDES,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user",   "content": user_content},
-        ],
-        temperature=0.5,
-    )
+    data = None
+    for attempt in range(1, 4):
+        response = client.chat.completions.create(
+            model=GROQ_MODEL_SLIDES,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user",   "content": user_content},
+            ],
+            temperature=0.5,
+        )
+        raw = response.choices[0].message.content.strip()
+        if not raw:
+            logger.warning("Tentativo %d: risposta vuota da %s", attempt, GROQ_MODEL_SLIDES)
+            if attempt < 3:
+                time.sleep(2)
+            continue
+        extracted = _extract_json(raw)
+        if not extracted:
+            logger.warning("Tentativo %d: JSON non trovato. Raw: %.200s", attempt, raw)
+            if attempt < 3:
+                time.sleep(2)
+            continue
+        try:
+            data = json.loads(extracted)
+            _validate(data)
+            break
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.warning("Tentativo %d: parsing fallito (%s). Raw: %.200s", attempt, e, raw)
+            if attempt < 3:
+                time.sleep(2)
 
-    raw = response.choices[0].message.content.strip()
-    data = json.loads(_extract_json(raw))
-    _validate(data)
+    if data is None:
+        raise ValueError(f"Groq non ha restituito JSON valido dopo 3 tentativi")
 
     # Chiamata 2: caption con modello migliore (70b) — solo testo breve
     slide_summary = "\n".join([
@@ -126,15 +151,25 @@ def extract_carousel_data(article: dict) -> dict:
         f"Slide 2: {data['slides'][1]['text']}",
         f"Slide 3: {data['slides'][2]['text']}",
     ])
-    caption_resp = client.chat.completions.create(
-        model=GROQ_MODEL_CAPTION,
-        messages=[
-            {"role": "system", "content": CAPTION_PROMPT},
-            {"role": "user",   "content": slide_summary},
-        ],
-        temperature=0.6,
-    )
-    data["caption"] = caption_resp.choices[0].message.content.strip()
+    caption_text = None
+    for attempt in range(1, 4):
+        caption_resp = client.chat.completions.create(
+            model=GROQ_MODEL_CAPTION,
+            messages=[
+                {"role": "system", "content": CAPTION_PROMPT},
+                {"role": "user",   "content": slide_summary},
+            ],
+            temperature=0.6,
+        )
+        caption_text = caption_resp.choices[0].message.content.strip()
+        if caption_text:
+            break
+        logger.warning("Caption tentativo %d: risposta vuota", attempt)
+        if attempt < 3:
+            time.sleep(2)
+    if not caption_text:
+        raise ValueError("Groq non ha restituito la caption dopo 3 tentativi")
+    data["caption"] = caption_text
 
     return data
 

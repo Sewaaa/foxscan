@@ -51,7 +51,7 @@ _SLOT_FALLBACKS = {
     "slide_0": ["journalist newsroom monitor screen alert", "breaking news anchor desk tv", "reporter laptop technology"],
     "slide_1": ["server rack data center hardware", "network infrastructure cables blue", "office technology computer"],
     "slide_2": ["world map digital globe connections", "satellite dish technology sky", "global network fiber optic"],
-    "opinion": ["person laptop coffee home secure", "hand smartphone security app", "family computer living room"],
+    # opinion rimossa: slide 5 usa sfondo gradiente statico
 }
 
 _KEY_TO_QUERY = {
@@ -59,7 +59,7 @@ _KEY_TO_QUERY = {
     "slide_0": lambda d: d["slides"][0]["image_query"],
     "slide_1": lambda d: d["slides"][1]["image_query"],
     "slide_2": lambda d: d["slides"][2]["image_query"],
-    "opinion": lambda d: d["opinion"]["image_query"],
+    # opinion rimossa: slide 5 usa sfondo gradiente statico
 }
 
 
@@ -77,7 +77,8 @@ def fetch_images(carousel_data: dict, out_dir: Path,
     """
     Scarica le 5 immagini per il carosello.
     - cover: usa article_image_url se disponibile (immagine dell'articolo dal sito)
-    - slide_0/1/2/opinion: Unsplash con company detection automatica
+    - slide_0/1/2: Unsplash con company detection automatica
+    - opinion: nessuna immagine (sfondo gradiente statico nella slide)
     """
     access_key = os.environ["UNSPLASH_ACCESS_KEY"]
     results: dict[str, Path] = {}
@@ -179,7 +180,7 @@ if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
 
-    OUT_DIR = Path(r"C:\me\Progetti Personali\Foxscan-ig\carousel_output")
+    OUT_DIR = Path(r"C:\me\Progetti Personali\Foxscan\ig\carousel_output")
     demo_data = {
         "cover_title": "Google esposta: vulnerabilità critica nei suoi server",
         "cover_image_query": "government building night cyber attack",
