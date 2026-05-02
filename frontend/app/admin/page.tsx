@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AdminStats, PipelineRun, getStats, getPipelineHistory } from "@/lib/api";
+import { AdminStats, PipelineRun, IgStats, IgArticle, getStats, getPipelineHistory, getIgStats } from "@/lib/api";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 const SESSION_KEY = "foxscan_admin_key";
@@ -78,6 +78,53 @@ function MultiSourceGauge({ label, pct, count, total }: { label: string; pct: nu
   );
 }
 
+function IgArticleList({
+  title, items, emptyMsg, accentClass, showPosted = false,
+}: {
+  title: string;
+  items: IgArticle[];
+  emptyMsg?: string;
+  accentClass: string;
+  showPosted?: boolean;
+}) {
+  return (
+    <div>
+      <p className="text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wide mb-2">{title}</p>
+      {items.length === 0 ? (
+        emptyMsg && <p className="text-sm text-gray-400 dark:text-zinc-600">{emptyMsg}</p>
+      ) : (
+        <div className="divide-y divide-blue-50 dark:divide-zinc-800">
+          {items.map((a) => (
+            <div key={a.id} className="flex items-center justify-between py-2 gap-3">
+              <a
+                href={`/article/${a.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-[#0B1F3A] dark:text-slate-200 hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors truncate min-w-0"
+              >
+                {a.title}
+              </a>
+              <div className="shrink-0 flex items-center gap-2">
+                <span className={`text-xs font-mono font-bold ${accentClass}`}>
+                  {a.relevance_score}/10
+                </span>
+                <span className="text-xs text-gray-400 dark:text-zinc-600 whitespace-nowrap">
+                  {new Date(a.published_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                </span>
+                {showPosted && (
+                  <span className="text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-full font-medium">
+                    ✓ postato
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [adminKey, setAdminKey] = useState("");
   const [keyInput, setKeyInput] = useState("");
@@ -87,6 +134,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [feedStats, setFeedStats] = useState<FeedStat[]>([]);
   const [pipelineHistory, setPipelineHistory] = useState<PipelineRun[]>([]);
+  const [igStats, setIgStats] = useState<IgStats | null>(null);
   const [, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -101,16 +149,18 @@ export default function AdminPage() {
 
   async function loadStats(key: string) {
     setLoading(true);
-    const [s, fs, ph] = await Promise.all([
+    const [s, fs, ph, ig] = await Promise.all([
       getStats(key).catch(() => null),
       fetch(`${API_BASE}/admin/feed-stats`, { headers: { "X-Admin-Key": key } })
         .then((r) => r.ok ? r.json() : [])
         .catch(() => []),
       getPipelineHistory(key).catch(() => []),
+      getIgStats(key).catch(() => null),
     ]);
     setStats(s);
     setFeedStats(fs);
     setPipelineHistory(ph);
+    setIgStats(ig);
     setPipelineRunning(s?.pipeline_running ?? false);
     setLoading(false);
   }
@@ -402,6 +452,55 @@ export default function AdminPage() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* Instagram */}
+      <div className="border border-blue-100 dark:border-zinc-800 rounded-xl p-5 bg-white dark:bg-zinc-900 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-[#0B1F3A] dark:text-white">Instagram</h2>
+          <span className="text-xs text-gray-400 dark:text-zinc-500">slot: 09:00 · 12:30 · 21:00</span>
+        </div>
+
+        {/* KPI */}
+        <div className="grid grid-cols-3 gap-3">
+          <StatCard label="Postati oggi" value={igStats?.posted_today ?? "·"} />
+          <StatCard
+            label="In attesa"
+            value={igStats?.pending.length ?? "·"}
+            sub="score ≥ 8, nelle ultime 24h"
+          />
+          <StatCard
+            label="Finestra scaduta"
+            value={igStats?.too_old.length ?? "·"}
+            sub="score ≥ 8, ma > 24h fa"
+          />
+        </div>
+
+        {/* In attesa */}
+        <IgArticleList
+          title="Verranno postati al prossimo slot"
+          items={igStats?.pending ?? []}
+          emptyMsg="Nessun articolo idoneo nelle ultime 24h."
+          accentClass="text-green-600 dark:text-green-400"
+        />
+
+        {/* Finestra scaduta */}
+        {(igStats?.too_old.length ?? 0) > 0 && (
+          <IgArticleList
+            title="Finestra scaduta (non verranno postati)"
+            items={igStats!.too_old}
+            accentClass="text-amber-500 dark:text-amber-400"
+          />
+        )}
+
+        {/* Postati recenti */}
+        <IgArticleList
+          title="Postati di recente"
+          items={igStats?.recent_posted ?? []}
+          emptyMsg="Nessun post pubblicato ancora."
+          accentClass="text-blue-500 dark:text-blue-400"
+          showPosted
+        />
       </div>
 
       {/* Zona pericolosa */}

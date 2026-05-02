@@ -323,6 +323,63 @@ def get_feed_stats(request: Request, db: Session = Depends(get_db), _: None = De
     ]
 
 
+@app.get("/admin/ig-stats")
+@limiter.limit("10/minute")
+def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
+    """Stato pipeline Instagram: articoli in attesa, postati, finestra scaduta."""
+    from datetime import timedelta
+    cutoff = datetime.utcnow() - timedelta(hours=24)
+
+    pending = (
+        db.query(Article)
+        .filter(Article.relevance_score >= 8)
+        .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
+        .filter(Article.published_at >= cutoff)
+        .order_by(Article.relevance_score.desc(), Article.published_at.desc())
+        .all()
+    )
+
+    too_old = (
+        db.query(Article)
+        .filter(Article.relevance_score >= 8)
+        .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
+        .filter(Article.published_at < cutoff)
+        .order_by(Article.published_at.desc())
+        .limit(10)
+        .all()
+    )
+
+    recent_posted = (
+        db.query(Article)
+        .filter(Article.posted_to_ig == True)  # noqa: E712
+        .order_by(Article.published_at.desc())
+        .limit(10)
+        .all()
+    )
+
+    posted_today = (
+        db.query(Article)
+        .filter(Article.posted_to_ig == True)  # noqa: E712
+        .filter(Article.published_at >= cutoff)
+        .count()
+    )
+
+    def _slim(a: Article) -> dict:
+        return {
+            "id": a.id,
+            "title": a.title,
+            "relevance_score": a.relevance_score,
+            "published_at": a.published_at.isoformat() if a.published_at else None,
+        }
+
+    return {
+        "posted_today": posted_today,
+        "pending": [_slim(a) for a in pending],
+        "too_old": [_slim(a) for a in too_old],
+        "recent_posted": [_slim(a) for a in recent_posted],
+    }
+
+
 @app.get("/health")
 @app.head("/health")
 def health():

@@ -106,3 +106,25 @@ export async function getPipelineHistory(adminKey: string): Promise<PipelineRun[
   if (!res.ok) throw new Error(`API error ${res.status}`);
   return res.json();
 }
+
+export interface IgArticle {
+  id: number;
+  title: string;
+  relevance_score: number;
+  published_at: string;
+}
+
+export interface IgStats {
+  posted_today: number;
+  pending: IgArticle[];
+  too_old: IgArticle[];
+  recent_posted: IgArticle[];
+}
+
+export async function getIgStats(adminKey: string): Promise<IgStats> {
+  const res = await fetch(`${API_BASE}/admin/ig-stats`, {
+    headers: { "X-Admin-Key": adminKey },
+  });
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  return res.json();
+}
