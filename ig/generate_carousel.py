@@ -317,10 +317,9 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
 # ════════════════════════════════════════════════════════════════════════════
 def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
     SPLIT   = 700   # px: dove finisce la foto e inizia il dark panel
-    SEP1    = SPLIT + 18
-    TITLE_Y = SPLIT + 30
-    SEP2    = SPLIT + 136
-    BODY_Y  = SPLIT + 152
+    TITLE_Y = SPLIT + 20
+    SEP2    = SPLIT + 126
+    BODY_Y  = SPLIT + 142
     txt_size = _font_size(text, 44, step=3, thresholds=(160, 240))
     arrows   = "".join(
         f'<span class="arrow" style="opacity:{max(0.55 - i*0.15, 0.08):.2f};color:#fff;">&#x00AB;</span>'
@@ -355,10 +354,6 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
   <!-- Frecce top-right -->
   <div class="swipe-arrows" style="z-index:20;">{arrows}</div>
 
-  <!-- Separatore 1 -->
-  <div style="position:absolute;top:{SEP1}px;left:72px;right:72px;
-    height:1px;z-index:10;background:rgba(255,255,255,0.13);"></div>
-
   <!-- Titolo sezione (grande bold) -->
   <div style="position:absolute;top:{TITLE_Y}px;left:72px;right:72px;z-index:10;">
     <h2 style="font-family:'Space Grotesk',sans-serif;font-size:86px;font-weight:900;
@@ -380,8 +375,6 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
     </p>
   </div>
 
-  <!-- Brand URL bottom-right -->
-  <div class="brand-url" style="z-index:20;">www.foxscan.vercel.app</div>
 </div>
 """)
 
@@ -415,8 +408,8 @@ def slide5_opinion(a: dict, fox_mascot: str) -> str:
       border-radius:50px;padding:12px 32px;">
       <span style="width:10px;height:10px;border-radius:50%;background:#a78bfa;flex-shrink:0;
         box-shadow:0 0 10px rgba(167,139,250,0.65);"></span>
-      <span style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;
-        color:#a78bfa;letter-spacing:0.10em;text-transform:uppercase;">{op['section']}</span>
+      <span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;
+        color:#a78bfa;letter-spacing:0.06em;text-transform:uppercase;">{op['section']}</span>
     </div>
 
     <!-- Virgolettone decorativo -->
@@ -437,12 +430,6 @@ def slide5_opinion(a: dict, fox_mascot: str) -> str:
     filter:drop-shadow(0 0 32px rgba(124,58,237,0.45)) drop-shadow(0 0 64px rgba(0,255,229,0.10));
     opacity:0.95;">
 
-  <!-- URL in basso a sinistra -->
-  <div style="position:absolute;bottom:30px;left:80px;z-index:20;
-    font-family:'Space Grotesk',sans-serif;font-size:17px;
-    color:rgba(255,255,255,0.28);letter-spacing:0.06em;">
-    www.foxscan.vercel.app
-  </div>
 </div>
 """)
 
@@ -499,7 +486,7 @@ def slide6_cta(logo: str) -> str:
     <!-- Tagline -->
     <p style="font-size:28px;color:rgba(255,255,255,0.45);line-height:1.65;
       font-family:'Inter',sans-serif;text-align:center;max-width:780px;">
-      Notizie di cybersecurity ogni giorno,<br>sintetizzate dall'intelligenza artificiale.
+      Le notizie di cybersecurity che contano,<br>ogni giorno.
     </p>
   </div>
 </div>
