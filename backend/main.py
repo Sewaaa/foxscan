@@ -366,21 +366,23 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
         .all()
     )
 
+    cutoff_48h = datetime.utcnow() - timedelta(hours=48)
+
     too_old = (
         db.query(Article)
         .filter(Article.relevance_score >= 8)
         .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
         .filter(Article.published_at < cutoff)
+        .filter(Article.published_at >= cutoff_48h)
         .order_by(Article.published_at.desc())
-        .limit(10)
         .all()
     )
 
     recent_posted = (
         db.query(Article)
         .filter(Article.posted_to_ig == True)  # noqa: E712
+        .filter(Article.published_at >= cutoff_48h)
         .order_by(Article.published_at.desc())
-        .limit(10)
         .all()
     )
 
