@@ -23,7 +23,7 @@ REGOLE OBBLIGATORIE:
 - slides[0].text: fatti principali, linguaggio accessibile a tutti (chi, cosa, quando)
 - slides[1].text: sistemi, aziende o paesi coinvolti, leggermente più specifico
 - slides[2].text: contesto tecnico, implicazioni, il quadro completo
-- opinion.text: commento serio e informato sull'episodio, stile analista esperto. Fornisce contesto extra o implicazioni che non compaiono nelle slide precedenti (geopolitica, precedenti storici, impatto reale, cosa significa per il settore). Tono: sobrio, autorevole, mai ironico. GRAMMATICA ITALIANA OBBLIGATORIA: usa forme corrette — "ci è già passato" (non "ci ha già passato"), concordanza corretta dei verbi ausiliari. MAI generalizzare con "aggiornate i sistemi".
+- opinion.text: commento serio e informato sull'episodio, stile analista esperto. Fornisce contesto extra o implicazioni che non compaiono nelle slide precedenti (geopolitica, precedenti storici, impatto reale, cosa significa per il settore). Tono: sobrio, autorevole, mai ironico. GRAMMATICA ITALIANA OBBLIGATORIA: usa forme corrette — "ci è già passato" (non "ci ha già passato"), concordanza corretta dei verbi ausiliari. MAI generalizzare con "aggiornate i sistemi". LIMITE TASSATIVO: massimo 200 caratteri, non superare mai questo limite.
 - Ogni testo slide: 2-3 frasi. Usa <strong>parola</strong> per i termini chiave.
 
 IMAGE QUERY (CRITICO — SII SPECIFICO):

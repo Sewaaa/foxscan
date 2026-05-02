@@ -217,6 +217,13 @@ strong { color: var(--cyan); font-weight: 700; }
   object-fit: contain; object-position: bottom center;
   filter: drop-shadow(0 0 20px rgba(0,255,229,0.15));
 }
+.text-panel {
+  background: rgba(2,8,23,0.72);
+  border-radius: 20px;
+  padding: 44px 52px 40px;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
 """
 
 # ── Chrome condiviso ───────────────────────────────────────────────────────────
@@ -260,15 +267,17 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
   <div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:10;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     padding:0 90px 120px;">
-    <div style="width:80px;height:4px;border-radius:2px;margin-bottom:36px;
-      background:linear-gradient(90deg,var(--cyan),var(--purple));"></div>
-    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:96px;font-weight:900;
-      line-height:1.06;color:#fff;letter-spacing:-0.02em;text-align:center;
-      text-shadow:0 4px 32px rgba(0,0,0,0.7);">
-      {a['cover_title']}
-    </h1>
-    <div style="width:80px;height:4px;border-radius:2px;margin-top:36px;
-      background:linear-gradient(90deg,var(--purple),var(--cyan));"></div>
+    <div class="text-panel" style="display:flex;flex-direction:column;align-items:center;">
+      <div style="width:80px;height:4px;border-radius:2px;margin-bottom:36px;
+        background:linear-gradient(90deg,var(--cyan),var(--purple));"></div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:96px;font-weight:900;
+        line-height:1.06;color:#fff;letter-spacing:-0.02em;text-align:center;
+        text-shadow:0 2px 16px rgba(0,0,0,0.5);">
+        {a['cover_title']}
+      </h1>
+      <div style="width:80px;height:4px;border-radius:2px;margin-top:36px;
+        background:linear-gradient(90deg,var(--purple),var(--cyan));"></div>
+    </div>
   </div>
 
   <!-- Volpe piccola come accento in basso al centro -->
@@ -289,10 +298,12 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
   <div class="bg-grad-top"></div>
   <div class="bg-grid"></div>
   {chrome(slide_n)}
-  <div style="position:absolute;top:560px;left:100px;right:100px;bottom:80px;z-index:10;overflow:hidden;">
-    <h2 class="section-title">{section}</h2>
-    <div class="divider"></div>
-    <p class="body-text" style="font-size:{_font_size(text, 48)}px;">{_md_to_html(text)}</p>
+  <div style="position:absolute;top:540px;left:80px;right:80px;bottom:70px;z-index:10;overflow:hidden;">
+    <div class="text-panel" style="height:100%;overflow:hidden;">
+      <h2 class="section-title">{section}</h2>
+      <div class="divider"></div>
+      <p class="body-text" style="font-size:{_font_size(text, 48)}px;">{_md_to_html(text)}</p>
+    </div>
   </div>
 </div>
 """)
@@ -320,12 +331,14 @@ def slide5_opinion(a: dict, img: str, fox_mascot: str) -> str:
   {chrome(5, show_brand=False)}
   <img src="{fox_mascot}" class="fox-mascot" style="width:360px;right:10px;left:auto;
     filter:drop-shadow(0 0 28px rgba(124,58,237,0.30));opacity:0.93;">
-  <div style="position:absolute;top:340px;left:100px;right:440px;bottom:80px;z-index:10;overflow:hidden;">
-    <h2 class="section-title" style="font-size:88px;color:#a78bfa;line-height:1.05;">
-      {op['section']}
-    </h2>
-    <div class="divider" style="background:linear-gradient(90deg,rgba(167,139,250,0.7),transparent);"></div>
-    <p class="body-text" style="font-size:{_font_size(op['text'], 40, step=5, thresholds=(150, 240))}px;">{_md_to_html(op['text'])}</p>
+  <div style="position:absolute;top:320px;left:80px;right:420px;bottom:70px;z-index:10;overflow:hidden;">
+    <div class="text-panel" style="height:100%;overflow:hidden;">
+      <h2 class="section-title" style="font-size:80px;color:#a78bfa;line-height:1.05;">
+        {op['section']}
+      </h2>
+      <div class="divider" style="background:linear-gradient(90deg,rgba(167,139,250,0.7),transparent);"></div>
+      <p class="body-text" style="font-size:40px;">{_md_to_html(op['text'])}</p>
+    </div>
   </div>
 </div>
 """, extra_css=css)
