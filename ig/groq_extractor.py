@@ -70,7 +70,7 @@ Schema JSON:
     "text": "...",
     "image_query": "person laptop home office coffee secure"
   },
-  "caption": "🔴 [hook forte] ...\\n\\n[2-3 righe di contesto o bullet points]\\n\\n[CTA + link]\\n\\n#hashtag1 #hashtag2 ..."
+  "caption": "🔴 [hook forte] ...\\n\\n• [punto chiave 1]\\n• [punto chiave 2]\\n• [punto chiave 3]\\n\\n[CTA + link]\\n\\n#hashtag1 #hashtag2 ..."
 }"""
 
 
@@ -82,7 +82,7 @@ CONTESTO: FoxScan è un aggregatore di notizie sulla sicurezza informatica — N
 REGOLE:
 - Italiano perfetto e corretto grammaticalmente
 - Tono coinvolgente, diretto, leggermente allarmistico ma professionale
-- Struttura: emoji hook + frase d'apertura forte + riga vuota + 2-3 punti chiave con ° + riga vuota + CTA + www.foxscan.vercel.app + riga vuota + hashtag
+- Struttura: emoji hook + frase d'apertura forte + riga vuota + 2-3 punti chiave con "• " (bullet + spazio) + riga vuota + CTA + www.foxscan.vercel.app + riga vuota + hashtag
 - CTA esempi corretti: "Tutte le notizie cyber su www.foxscan.vercel.app", "Resta aggiornato su www.foxscan.vercel.app", "Leggi tutti gli aggiornamenti su www.foxscan.vercel.app"
 - CTA da EVITARE: qualsiasi frase tipo "proteggi la tua azienda", "scopri le vulnerabilità", "analizza i tuoi sistemi", "metti al sicuro la tua rete"
 - 10-12 hashtag mix italiano/inglese, senza trattini (es. #zeroday non #zero-day)
