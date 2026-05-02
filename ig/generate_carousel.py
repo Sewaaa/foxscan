@@ -282,7 +282,7 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
 
   <!-- FOXSCAN — brand top-left -->
   <div style="position:absolute;top:42px;left:72px;z-index:20;
-    font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;
+    font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:800;
     letter-spacing:-0.01em;text-shadow:0 2px 8px rgba(0,0,0,0.8);">
     <span style="color:#fff;font-weight:800;">Fox</span><span style="color:var(--cyan);font-weight:800;">Scan</span></div>
 
@@ -347,7 +347,7 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
 
   <!-- FOXSCAN top-left -->
   <div style="position:absolute;top:42px;left:72px;z-index:20;
-    font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;
+    font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:800;
     letter-spacing:-0.01em;text-shadow:0 2px 8px rgba(0,0,0,0.8);">
     <span style="color:#fff;font-weight:800;">Fox</span><span style="color:var(--cyan);font-weight:800;">Scan</span></div>
 
