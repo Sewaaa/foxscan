@@ -323,6 +323,33 @@ def get_feed_stats(request: Request, db: Session = Depends(get_db), _: None = De
     ]
 
 
+@app.post("/admin/run-ig-pipeline")
+@limiter.limit("5/minute")
+def trigger_ig_pipeline(request: Request, _: None = Depends(verify_admin)):
+    """Avvia manualmente un post Instagram tramite il container ig-pipeline."""
+    import httpx
+    logger.warning(f"ADMIN run-ig-pipeline — IP: {request.client.host if request.client else 'unknown'}")
+    try:
+        resp = httpx.post("http://ig-pipeline:8081/run", timeout=5.0)
+        return resp.json()
+    except httpx.ConnectError:
+        raise HTTPException(status_code=503, detail="ig-pipeline non raggiungibile")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/admin/ig-pipeline-status")
+@limiter.limit("10/minute")
+def ig_pipeline_status(request: Request, _: None = Depends(verify_admin)):
+    """Stato corrente della pipeline IG."""
+    import httpx
+    try:
+        resp = httpx.get("http://ig-pipeline:8081/status", timeout=3.0)
+        return resp.json()
+    except Exception:
+        return {"running": False, "last_result": {}, "reachable": False}
+
+
 @app.get("/admin/ig-stats")
 @limiter.limit("10/minute")
 def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):

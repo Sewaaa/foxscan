@@ -140,6 +140,8 @@ export default function AdminPage() {
   const [feedStats, setFeedStats] = useState<FeedStat[]>([]);
   const [pipelineHistory, setPipelineHistory] = useState<PipelineRun[]>([]);
   const [igStats, setIgStats] = useState<IgStats | null>(null);
+  const [igRunning, setIgRunning] = useState(false);
+  const [igMessage, setIgMessage] = useState<string | null>(null);
   const [, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -166,6 +168,9 @@ export default function AdminPage() {
     setFeedStats(fs);
     setPipelineHistory(ph);
     setIgStats(ig);
+    const igStatus = await fetch(`${API_BASE}/admin/ig-pipeline-status`, { headers: { "X-Admin-Key": key } })
+      .then(r => r.ok ? r.json() : null).catch(() => null);
+    setIgRunning(igStatus?.running ?? false);
     setPipelineRunning(s?.pipeline_running ?? false);
     setLoading(false);
   }
@@ -199,6 +204,22 @@ export default function AdminPage() {
       ...options,
       headers: { ...(options.headers ?? {}), "X-Admin-Key": adminKey },
     });
+  }
+
+  async function triggerIgPipeline() {
+    setIgRunning(true); setIgMessage(null);
+    try {
+      const res = await adminFetch("/admin/run-ig-pipeline", { method: "POST" });
+      const data = await res.json();
+      if (data.status === "already_running") {
+        setIgMessage("Pipeline IG già in esecuzione.");
+      } else if (data.status === "started") {
+        setIgMessage("Post avviato · la pagina si aggiorna ogni 15s.");
+      } else {
+        setIgMessage(`Errore: ${JSON.stringify(data)}`);
+        setIgRunning(false);
+      }
+    } catch { setIgMessage("Errore nell'avvio della pipeline IG."); setIgRunning(false); }
   }
 
   async function resetItems() {
@@ -479,6 +500,22 @@ export default function AdminPage() {
             value={igStats?.too_old.length ?? "·"}
             sub="score ≥ 8, ma > 24h fa"
           />
+        </div>
+
+        {/* Trigger manuale */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            onClick={triggerIgPipeline}
+            disabled={igRunning}
+            className="px-4 py-2 bg-pink-600 hover:bg-pink-500 disabled:bg-gray-200 dark:disabled:bg-zinc-700 disabled:text-gray-400 dark:disabled:text-zinc-500 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            {igRunning ? "⏳ Post in corso…" : "📸 Posta ora"}
+          </button>
+          {igMessage && (
+            <p className="text-sm text-gray-700 dark:text-zinc-300 border border-blue-100 dark:border-zinc-700 rounded-lg px-3 py-2 bg-blue-50 dark:bg-zinc-800">
+              {igMessage}
+            </p>
+          )}
         </div>
 
         {/* In attesa */}
