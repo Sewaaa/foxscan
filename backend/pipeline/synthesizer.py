@@ -132,6 +132,13 @@ def _fix_control_chars(raw: str) -> str:
     return "".join(result)
 
 
+def _strip_md(text: str) -> str:
+    """Rimuove markdown bold/italic da campi di testo puro (titolo, sommario)."""
+    text = re.sub(r'\*{1,3}(.+?)\*{1,3}', r'\1', text)
+    text = re.sub(r'_{1,2}(.+?)_{1,2}', r'\1', text)
+    return text.strip()
+
+
 def _extract_json(raw: str) -> dict | None:
     match = re.search(r"```json\s*([\s\S]+?)\s*```", raw)
     if match:
@@ -199,6 +206,8 @@ def synthesize(scraped_items: list[dict]) -> dict | None:
                 logger.error(f"Risposta JSON incompleta: {result.keys()}")
                 return None
 
+            result["titolo"] = _strip_md(result["titolo"])
+            result["sommario"] = _strip_md(result.get("sommario", ""))
             return result
 
         except httpx.HTTPStatusError as e:
@@ -262,6 +271,8 @@ def synthesize_update(existing_body: str, new_sources: list[dict]) -> dict | Non
                 logger.error(f"Risposta JSON incompleta (update): {result.keys()}")
                 return None
 
+            result["titolo"] = _strip_md(result["titolo"])
+            result["sommario"] = _strip_md(result.get("sommario", ""))
             return result
 
         except httpx.HTTPStatusError as e:
