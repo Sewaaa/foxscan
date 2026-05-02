@@ -369,6 +369,7 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
             "id": a.id,
             "title": a.title,
             "relevance_score": a.relevance_score,
+            "ig_score": a.ig_score,
             "published_at": a.published_at.isoformat() if a.published_at else None,
         }
 

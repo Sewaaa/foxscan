@@ -20,6 +20,7 @@ class Article(Base):
 
     posted_to_ig = Column(Boolean, default=False)
     ig_carousel_data = Column(Text, nullable=True)  # JSON cache output Groq
+    ig_score = Column(Integer, nullable=True)  # instagrammabilità 1-10
 
     sources = relationship("Source", back_populates="article", cascade="all, delete-orphan")
 

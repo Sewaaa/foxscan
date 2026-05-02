@@ -54,7 +54,7 @@ def get_pending_articles(engine, max_posts: int = 1, hours: int = 24) -> list[di
         WHERE relevance_score >= :score
           AND (posted_to_ig IS NULL OR posted_to_ig = FALSE)
           AND published_at >= :cutoff
-        ORDER BY relevance_score DESC, published_at DESC
+        ORDER BY relevance_score DESC, COALESCE(ig_score, 0) DESC, published_at DESC
         LIMIT :limit
     """)
     with engine.connect() as conn:

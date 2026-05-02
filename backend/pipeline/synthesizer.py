@@ -38,8 +38,16 @@ Rispondi SOLO con un oggetto JSON valido con questa struttura:
   "corpo": "... (markdown ben formattato, 600-900 parole. OBBLIGATORIO: paragrafi separati da riga vuota, **grassetto** per termini tecnici chiave, ## per sottotitoli di sezione, elenchi - o 1. quando appropriato. NON scrivere un blocco unico di testo.)",
   "tag": ["...", "..."],
   "score_rilevanza": <intero 1-10>,
+  "ig_score": <intero 1-10>,
   "image_query": "2-4 parole in inglese per cercare una foto stock rilevante su Unsplash (es: 'hacker dark screen', 'data breach server', 'ransomware lock computer', 'phishing email attack')"
 }
+
+Per ig_score (instagrammabilità) usa questa scala — misura quanto la notizia può diventare virale e interessare il grande pubblico:
+- 1-2: tecnica pura, interessa solo addetti ai lavori (es. patch CVE minore, advisory CERT)
+- 3-4: notizia di settore, poco appeal fuori dalla community cyber
+- 5-6: notizia che può interessare utenti tech e appassionati (breach noto, malware diffuso)
+- 7-8: notizia che tocca persone comuni (app popolari, banche, dati personali, governi)
+- 9-10: evento che fa notizia sui TG generalisti (mega-breach, attacco stato-nazione su infrastrutture pubbliche, scandalo tecnologico di massa)
 
 Per score_rilevanza usa questa scala RIGOROSA — la maggior parte delle notizie deve cadere tra 3 e 7:
 - 1-2: notizia di routine, aggiornamenti minori, patch ordinarie, advisory generici senza impatto concreto
@@ -70,8 +78,12 @@ Rispondi SOLO con un oggetto JSON valido con questa struttura:
   "corpo": "... (markdown ben formattato, 600-900 parole. OBBLIGATORIO: paragrafi separati da riga vuota, **grassetto** per termini tecnici chiave, ## per sottotitoli di sezione, elenchi - o 1. quando appropriato. NON scrivere un blocco unico di testo.)",
   "tag": ["...", "..."],
   "score_rilevanza": <intero 1-10>,
+  "ig_score": <intero 1-10>,
   "image_query": "2-4 parole in inglese per cercare una foto stock rilevante su Unsplash (es: 'hacker dark screen', 'data breach server', 'ransomware lock computer')"
 }
+
+Per ig_score (instagrammabilità): quanto la notizia può diventare virale per il grande pubblico.
+- 1-2: solo addetti ai lavori  3-4: community cyber  5-6: utenti tech  7-8: persone comuni  9-10: TG generalisti
 
 Per score_rilevanza usa questa scala RIGOROSA — la maggior parte deve cadere tra 3 e 7:
 - 1-2: routine, aggiornamenti minori, patch ordinarie, advisory generici

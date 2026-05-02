@@ -111,6 +111,7 @@ export interface IgArticle {
   id: number;
   title: string;
   relevance_score: number;
+  ig_score: number | null;
   published_at: string;
 }
 

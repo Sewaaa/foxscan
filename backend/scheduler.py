@@ -157,6 +157,7 @@ def _process_cluster(db: Session, cluster: list[dict]) -> bool:
         tags=json.dumps(result.get("tag", []), ensure_ascii=False),
         image_url=image_url,
         relevance_score=int(result.get("score_rilevanza", 5)),
+        ig_score=int(result["ig_score"]) if result.get("ig_score") else None,
         published_at=datetime.utcnow(),
     )
     db.add(article)

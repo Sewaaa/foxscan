@@ -106,8 +106,13 @@ function IgArticleList({
               </a>
               <div className="shrink-0 flex items-center gap-2">
                 <span className={`text-xs font-mono font-bold ${accentClass}`}>
-                  {a.relevance_score}/10
+                  ⚠️ {a.relevance_score}
                 </span>
+                {a.ig_score != null && (
+                  <span className="text-xs font-mono text-pink-500 dark:text-pink-400 font-bold">
+                    📸 {a.ig_score}
+                  </span>
+                )}
                 <span className="text-xs text-gray-400 dark:text-zinc-600 whitespace-nowrap">
                   {new Date(a.published_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                 </span>

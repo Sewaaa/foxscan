@@ -86,6 +86,8 @@ def try_merge_with_existing(db: Session, item: dict) -> bool:
     best_article.body = result["corpo"]
     best_article.tags = json.dumps(result.get("tag", []), ensure_ascii=False)
     best_article.relevance_score = int(result.get("score_rilevanza", best_article.relevance_score))
+    if result.get("ig_score"):
+        best_article.ig_score = int(result["ig_score"])
     best_article.published_at = datetime.utcnow()  # rimette in cima al feed
 
     # Aggiungi immagine se l'articolo non ne aveva una:
