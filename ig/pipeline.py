@@ -46,7 +46,7 @@ def _get_engine():
     return create_engine(db_url, pool_pre_ping=True, pool_recycle=300)
 
 
-def get_pending_articles(engine, max_posts: int = 1, hours: int = 24) -> list[dict]:
+def get_pending_articles(engine, max_posts: int = 1, hours: int = 36) -> list[dict]:
     cutoff = datetime.utcnow() - timedelta(hours=hours)
     query = text("""
         SELECT id, title, summary, body, tags, relevance_score, ig_carousel_data, image_url
