@@ -355,7 +355,8 @@ def ig_pipeline_status(request: Request, _: None = Depends(verify_admin)):
 def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
     """Stato pipeline Instagram: articoli in attesa, postati, finestra scaduta."""
     from datetime import timedelta
-    cutoff = datetime.utcnow() - timedelta(hours=24)
+    IG_WINDOW_HOURS = 36  # deve corrispondere a pipeline.py get_pending_articles(hours=36)
+    cutoff = datetime.utcnow() - timedelta(hours=IG_WINDOW_HOURS)
 
     pending = (
         db.query(Article)
