@@ -7,6 +7,7 @@ unsplash_fetcher.py — Scarica immagini per il carosello.
 
 import json
 import os
+import random
 import re
 import shutil
 import time
@@ -153,6 +154,7 @@ def _download_unsplash(query: str, dest: Path, access_key: str) -> Path | None:
     params = (
         f"?query={urllib.parse.quote(query)}"
         f"&orientation=portrait"
+        f"&count=5"
         f"&client_id={access_key}"
     )
     url = UNSPLASH_API + params
@@ -161,7 +163,8 @@ def _download_unsplash(query: str, dest: Path, access_key: str) -> Path | None:
         with urllib.request.urlopen(req, timeout=10) as r:
             data = json.loads(r.read())
 
-        raw_url = data["urls"]["raw"]
+        photo = random.choice(data) if isinstance(data, list) else data
+        raw_url = photo["urls"]["raw"]
         img_url = raw_url + "&w=1080&h=1350&fit=crop&q=85"
 
         img_req = urllib.request.Request(img_url, headers={"User-Agent": "FoxScan/1.0"})
