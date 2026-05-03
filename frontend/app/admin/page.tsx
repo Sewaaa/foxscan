@@ -97,6 +97,7 @@ export default function AdminPage() {
   const [, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [closingRuns, setClosingRuns] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [pipelineRunning, setPipelineRunning] = useState(false);
@@ -172,6 +173,17 @@ export default function AdminPage() {
         setIgRunning(false);
       }
     } catch { setIgMessage("Errore nell'avvio della pipeline IG."); setIgRunning(false); }
+  }
+
+  async function closeStaleRuns() {
+    setClosingRuns(true); setMessage(null);
+    try {
+      const res = await adminFetch("/admin/close-stale-runs", { method: "POST" });
+      const data = await res.json();
+      setMessage(`Chiuse ${data.closed} run bloccate.`);
+      await loadStats(adminKey);
+    } catch { setMessage("Errore nella chiusura delle run."); }
+    finally { setClosingRuns(false); }
   }
 
   async function resetItems() {
@@ -324,10 +336,17 @@ export default function AdminPage() {
           </button>
           <button
             onClick={resetItems}
-            disabled={running || resetting || deleting}
+            disabled={running || resetting || deleting || closingRuns}
             className="px-4 py-2 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 disabled:opacity-50 text-gray-700 dark:text-zinc-300 text-sm font-medium rounded-lg transition-colors"
           >
             {resetting ? "Reset…" : "Reset item processati"}
+          </button>
+          <button
+            onClick={closeStaleRuns}
+            disabled={running || resetting || deleting || closingRuns}
+            className="px-4 py-2 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 disabled:opacity-50 text-gray-700 dark:text-zinc-300 text-sm font-medium rounded-lg transition-colors"
+          >
+            {closingRuns ? "Chiusura…" : "Chiudi run bloccate"}
           </button>
         </div>
         {message && (

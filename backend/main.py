@@ -204,6 +204,20 @@ def delete_all_articles(request: Request, db: Session = Depends(get_db), _: None
 _pipeline_status: dict = {"running": False, "last_stats": None}
 
 
+@app.post("/admin/close-stale-runs")
+@limiter.limit("10/minute")
+def close_stale_runs(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
+    """Chiude le pipeline run rimaste aperte (completed_at IS NULL)."""
+    from models import PipelineRun
+    logger.warning(f"ADMIN close-stale-runs — IP: {request.client.host if request.client else 'unknown'}")
+    updated = db.query(PipelineRun).filter(PipelineRun.completed_at == None).update(  # noqa: E711
+        {"completed_at": datetime.utcnow(), "duration_s": 0},
+        synchronize_session=False,
+    )
+    db.commit()
+    return {"status": "ok", "closed": updated}
+
+
 @app.post("/admin/run-pipeline")
 @limiter.limit("10/minute")
 def trigger_pipeline(request: Request, _: None = Depends(verify_admin)):
