@@ -213,6 +213,12 @@ def synthesize(scraped_items: list[dict]) -> dict | None:
             if not result:
                 return None
 
+            # Fallback per sinonimi di 'sommario' usati a volte dal LLM
+            for alias in ("sottotitolo", "abstract", "descrizione", "sintesi", "riassunto"):
+                if "sommario" not in result and alias in result:
+                    result["sommario"] = result.pop(alias)
+                    break
+
             required = {"titolo", "sommario", "corpo", "tag", "score_rilevanza"}
             if not required.issubset(result.keys()):
                 logger.error(f"Risposta JSON incompleta: {result.keys()}")
@@ -277,6 +283,12 @@ def synthesize_update(existing_body: str, new_sources: list[dict]) -> dict | Non
 
             if not result:
                 return None
+
+            # Fallback per sinonimi di 'sommario' usati a volte dal LLM
+            for alias in ("sottotitolo", "abstract", "descrizione", "sintesi", "riassunto"):
+                if "sommario" not in result and alias in result:
+                    result["sommario"] = result.pop(alias)
+                    break
 
             required = {"titolo", "sommario", "corpo", "tag", "score_rilevanza"}
             if not required.issubset(result.keys()):
