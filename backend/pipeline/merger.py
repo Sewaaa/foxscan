@@ -18,6 +18,7 @@ from pipeline.synthesizer import synthesize_update
 logger = logging.getLogger(__name__)
 
 MERGE_WINDOW_HOURS = 48  # finestra temporale entro cui cercare articoli da aggiornare
+MERGE_THRESHOLD = 45    # soglia più bassa del clustering (55) per gestire titoli cross-lingua EN→IT
 
 
 def _normalize_domain(domain: str) -> str:
@@ -52,8 +53,12 @@ def try_merge_with_existing(db: Session, item: dict) -> bool:
         if item_domain_norm and item_domain_norm in existing_domains:
             continue
 
-        score = fuzz.token_set_ratio(item_title, article.title.lower().strip())
-        if score >= SIMILARITY_THRESHOLD and score > best_score:
+        # Confronta titolo RSS (EN) con titolo sintetizzato (IT) e con il sommario (IT)
+        # Il max cattura i casi cross-lingua dove la soglia del titolo è troppo bassa
+        score_title = fuzz.token_set_ratio(item_title, article.title.lower().strip())
+        score_summary = fuzz.token_set_ratio(item_title, (article.summary or "").lower().strip())
+        score = max(score_title, score_summary)
+        if score >= MERGE_THRESHOLD and score > best_score:
             best_article = article
             best_score = score
 
