@@ -176,12 +176,39 @@ def _process_cluster(db: Session, cluster: list[dict]) -> bool:
     return True
 
 
+def cleanup_old_rss_items() -> None:
+    """Elimina item RSS processati più vecchi di 30 giorni per liberare spazio su Neon."""
+    from datetime import timedelta
+    from models import RssItem
+    db = SessionLocal()
+    try:
+        cutoff = datetime.utcnow() - timedelta(days=30)
+        deleted = db.query(RssItem).filter(
+            RssItem.processed == True,  # noqa: E712
+            RssItem.discovered_at < cutoff,
+        ).delete(synchronize_session=False)
+        db.commit()
+        logger.info("Cleanup RSS: eliminati %d item più vecchi di 30 giorni", deleted)
+    except Exception as e:
+        logger.error("Errore nel cleanup RSS: %s", e)
+        db.rollback()
+    finally:
+        db.close()
+
+
 def start_scheduler():
     scheduler.add_job(
         run_pipeline,
         trigger="interval",
         minutes=FETCH_INTERVAL_MINUTES,
         id="pipeline_job",
+        replace_existing=True,
+    )
+    scheduler.add_job(
+        cleanup_old_rss_items,
+        trigger="interval",
+        weeks=1,
+        id="cleanup_rss_job",
         replace_existing=True,
     )
     scheduler.start()
