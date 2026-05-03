@@ -24,6 +24,12 @@ RSS_FEEDS = [
     "https://www.microsoft.com/en-us/security/blog/feed/",
     "https://news.sophos.com/en-us/feed/",
     "https://www.schneier.com/feed/atom/",
+    # Fonti italiane
+    "https://www.redhotcyber.com/feed/",
+    "https://www.cybersecurity360.it/feed/",
+    "https://cert-agid.gov.it/feed/",
+    "https://www.agendadigitale.eu/feed/",
+    "https://www.punto-informatico.it/feed/",
 ]
 
 # LLM

@@ -30,6 +30,12 @@ const FEED_META: Record<string, { name: string; url: string }> = {
   "www.microsoft.com":               { name: "Microsoft Security Blog",   url: "https://www.microsoft.com/en-us/security/blog/" },
   "news.sophos.com":                 { name: "Sophos News",               url: "https://news.sophos.com/en-us/" },
   "www.schneier.com":                { name: "Schneier on Security",      url: "https://www.schneier.com" },
+  // Fonti italiane
+  "www.redhotcyber.com":             { name: "Red Hot Cyber",              url: "https://www.redhotcyber.com" },
+  "www.cybersecurity360.it":         { name: "Cybersecurity360",           url: "https://www.cybersecurity360.it" },
+  "cert-agid.gov.it":                { name: "CERT-AgID",                  url: "https://cert-agid.gov.it" },
+  "www.agendadigitale.eu":           { name: "Agenda Digitale",            url: "https://www.agendadigitale.eu" },
+  "www.punto-informatico.it":        { name: "Punto Informatico",          url: "https://www.punto-informatico.it" },
 };
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
