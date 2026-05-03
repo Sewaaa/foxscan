@@ -493,12 +493,12 @@ export default function AdminPage() {
           <StatCard
             label="In attesa"
             value={igStats?.pending.length ?? "·"}
-            sub="score ≥ 8, nelle ultime 24h"
+            sub="score ≥ 8, nelle ultime 36h"
           />
           <StatCard
             label="Finestra scaduta"
             value={igStats?.too_old.length ?? "·"}
-            sub="score ≥ 8, ma > 24h fa"
+            sub="score ≥ 8, ma > 36h fa"
           />
         </div>
 
