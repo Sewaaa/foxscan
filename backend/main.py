@@ -382,8 +382,8 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
     recent_posted = (
         db.query(Article)
         .filter(Article.posted_to_ig == True)  # noqa: E712
-        .filter(Article.published_at >= cutoff_48h)
         .order_by(Article.published_at.desc())
+        .limit(6)
         .all()
     )
 

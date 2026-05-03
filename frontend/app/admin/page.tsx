@@ -563,7 +563,7 @@ export default function AdminPage() {
         {/* Postati recenti */}
         {(igStats?.recent_posted.length ?? 0) > 0 && (
           <div>
-            <p className="text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wide mb-2">Postati di recente</p>
+            <p className="text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wide mb-2">Ultimi 6 post pubblicati</p>
             <div className="divide-y divide-blue-50 dark:divide-zinc-800">
               {igStats!.recent_posted.map((a) => (
                 <div key={a.id} className="flex items-center justify-between py-2 gap-3">
