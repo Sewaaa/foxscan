@@ -14,15 +14,12 @@ RSS_FEEDS = [
     "https://www.wired.com/feed/category/security/latest/rss",
     "https://cyberscoop.com/feed/",
     "https://www.theregister.com/security/headlines.atom",
-    "https://www.scmagazine.com/feed/",
     "https://techcrunch.com/tag/security/feed/",
     # Threat research — contenuti unici, alta qualità
     "https://www.malwarebytes.com/blog/feed/",
     "https://www.recordedfuture.com/feed",
     "https://unit42.paloaltonetworks.com/feed/",
-    "https://blog.talosintelligence.com/feeds/posts/default",
     "https://www.microsoft.com/en-us/security/blog/feed/",
-    "https://news.sophos.com/en-us/feed/",
     "https://www.schneier.com/feed/atom/",
     # Fonti italiane
     "https://www.redhotcyber.com/feed/",
