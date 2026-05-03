@@ -239,15 +239,17 @@ export default function AdminPage() {
     );
   }
 
+  const utc = (s: string) => new Date(s.endsWith("Z") ? s : s + "Z");
+
   const lastAt = stats?.last_article_at
-    ? new Date(stats.last_article_at).toLocaleString("it-IT")
+    ? utc(stats.last_article_at).toLocaleString("it-IT")
     : "·";
 
   const sortedPending = [...(igStats?.pending ?? [])].sort((a, b) => {
     const igDiff = (b.ig_score ?? 0) - (a.ig_score ?? 0);
     if (igDiff !== 0) return igDiff;
     if (b.relevance_score !== a.relevance_score) return b.relevance_score - a.relevance_score;
-    return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+    return utc(b.published_at).getTime() - utc(a.published_at).getTime();
   });
   const nextArticle = sortedPending[0] ?? null;
   const queueRest = sortedPending.slice(1);
@@ -261,7 +263,7 @@ export default function AdminPage() {
           <h1 className="text-2xl font-bold text-[#0B1F3A] dark:text-slate-100">Dashboard</h1>
           {stats && (
             <p className="text-xs text-gray-400 dark:text-zinc-600 mt-0.5">
-              Aggiornamento automatico ogni 15s · Server: {new Date(stats.server_time).toLocaleTimeString("it-IT")}
+              Aggiornamento automatico ogni 15s · Server: {utc(stats.server_time).toLocaleTimeString("it-IT")}
             </p>
           )}
         </div>
@@ -418,7 +420,7 @@ export default function AdminPage() {
                 {pipelineHistory.map((run) => (
                   <tr key={run.id} className="text-gray-600 dark:text-zinc-400">
                     <td className="py-2 pr-4 font-mono whitespace-nowrap">
-                      {new Date(run.started_at).toLocaleString("it-IT")}
+                      {utc(run.started_at).toLocaleString("it-IT")}
                     </td>
                     <td className="py-2 pr-4 font-mono">
                       {run.duration_s != null ? `${run.duration_s}s` : run.completed_at ? "·" : <span className="text-amber-500">in corso</span>}
@@ -482,7 +484,7 @@ export default function AdminPage() {
               )}
               <span className="text-xs text-gray-400 dark:text-zinc-500">#{nextArticle.id}</span>
               <span className="text-xs text-gray-400 dark:text-zinc-500">
-                {new Date(nextArticle.published_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                {utc(nextArticle.published_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
               </span>
             </div>
           </div>
@@ -579,7 +581,7 @@ export default function AdminPage() {
                   </a>
                   <div className="shrink-0 flex items-center gap-2">
                     <span className="text-xs text-gray-400 dark:text-zinc-500 whitespace-nowrap">
-                      {new Date(a.published_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                      {utc(a.published_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                     </span>
                     <span className="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">
                       ✓ postato
