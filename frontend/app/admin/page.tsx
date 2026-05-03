@@ -78,57 +78,6 @@ function MultiSourceGauge({ label, pct, count, total }: { label: string; pct: nu
   );
 }
 
-function IgArticleList({
-  title, items, emptyMsg, accentClass, showPosted = false,
-}: {
-  title: string;
-  items: IgArticle[];
-  emptyMsg?: string;
-  accentClass: string;
-  showPosted?: boolean;
-}) {
-  return (
-    <div>
-      <p className="text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wide mb-2">{title}</p>
-      {items.length === 0 ? (
-        emptyMsg && <p className="text-sm text-gray-400 dark:text-zinc-600">{emptyMsg}</p>
-      ) : (
-        <div className="divide-y divide-blue-50 dark:divide-zinc-800">
-          {items.map((a) => (
-            <div key={a.id} className="flex items-center justify-between py-2 gap-3">
-              <a
-                href={`/article/${a.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-[#0B1F3A] dark:text-slate-200 hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors truncate min-w-0"
-              >
-                {a.title}
-              </a>
-              <div className="shrink-0 flex items-center gap-2">
-                <span className={`text-xs font-mono font-bold ${accentClass}`}>
-                  ⚠️ {a.relevance_score}
-                </span>
-                {a.ig_score != null && (
-                  <span className="text-xs font-mono text-pink-500 dark:text-pink-400 font-bold">
-                    📸 {a.ig_score}
-                  </span>
-                )}
-                <span className="text-xs text-gray-400 dark:text-zinc-600 whitespace-nowrap">
-                  {new Date(a.published_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
-                </span>
-                {showPosted && (
-                  <span className="text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-full font-medium">
-                    ✓ postato
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function AdminPage() {
   const [adminKey, setAdminKey] = useState("");
@@ -293,6 +242,15 @@ export default function AdminPage() {
   const lastAt = stats?.last_article_at
     ? new Date(stats.last_article_at).toLocaleString("it-IT")
     : "·";
+
+  const sortedPending = [...(igStats?.pending ?? [])].sort((a, b) => {
+    const igDiff = (b.ig_score ?? 0) - (a.ig_score ?? 0);
+    if (igDiff !== 0) return igDiff;
+    if (b.relevance_score !== a.relevance_score) return b.relevance_score - a.relevance_score;
+    return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+  });
+  const nextArticle = sortedPending[0] ?? null;
+  const queueRest = sortedPending.slice(1);
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -481,26 +439,56 @@ export default function AdminPage() {
       </div>
 
       {/* Instagram */}
-      <div className="border border-blue-100 dark:border-zinc-800 rounded-xl p-5 bg-white dark:bg-zinc-900 space-y-4">
+      <div className="border border-blue-100 dark:border-zinc-800 rounded-xl p-5 bg-white dark:bg-zinc-900 space-y-5">
+
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-[#0B1F3A] dark:text-white">Instagram</h2>
-          <span className="text-xs text-gray-400 dark:text-zinc-500">slot: 09:00 · 12:30 · 21:00</span>
+          <div>
+            <h2 className="text-base font-semibold text-[#0B1F3A] dark:text-white">Instagram</h2>
+            <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">Slot automatici: 09:00 · 12:30 · 21:00</p>
+          </div>
+          <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
+            igRunning
+              ? "bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400"
+              : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+          }`}>
+            {igRunning ? "In esecuzione" : "Idle"}
+          </span>
         </div>
 
         {/* KPI */}
         <div className="grid grid-cols-3 gap-3">
           <StatCard label="Postati oggi" value={igStats?.posted_today ?? "·"} />
-          <StatCard
-            label="In attesa"
-            value={igStats?.pending.length ?? "·"}
-            sub="score ≥ 8, nelle ultime 36h"
-          />
-          <StatCard
-            label="Finestra scaduta"
-            value={igStats?.too_old.length ?? "·"}
-            sub="score ≥ 8, ma > 36h fa"
-          />
+          <StatCard label="In coda" value={sortedPending.length} sub="score ≥ 8, entro 36h" />
+          <StatCard label="Scaduti" value={igStats?.too_old.length ?? "·"} sub="fuori finestra 36h" />
         </div>
+
+        {/* Prossimo post */}
+        {nextArticle ? (
+          <div className="rounded-lg border border-pink-200 dark:border-pink-900/40 bg-pink-50/40 dark:bg-pink-950/20 p-4">
+            <p className="text-[10px] font-semibold text-pink-500 dark:text-pink-400 uppercase tracking-widest mb-2">Prossimo post</p>
+            <a
+              href={`/article/${nextArticle.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-[#0B1F3A] dark:text-white hover:text-pink-600 dark:hover:text-pink-400 transition-colors line-clamp-2 block"
+            >
+              {nextArticle.title}
+            </a>
+            <div className="flex items-center gap-3 mt-2.5 flex-wrap">
+              <span className="text-xs font-mono text-amber-600 dark:text-amber-400 font-bold">▲ {nextArticle.relevance_score}</span>
+              {nextArticle.ig_score != null && (
+                <span className="text-xs font-mono text-pink-600 dark:text-pink-400 font-bold">📸 {nextArticle.ig_score}</span>
+              )}
+              <span className="text-xs text-gray-400 dark:text-zinc-500">#{nextArticle.id}</span>
+              <span className="text-xs text-gray-400 dark:text-zinc-500">
+                {new Date(nextArticle.published_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+              </span>
+            </div>
+          </div>
+        ) : igStats && (
+          <p className="text-sm text-gray-400 dark:text-zinc-500 italic">Nessun articolo idoneo nelle ultime 36h.</p>
+        )}
 
         {/* Trigger manuale */}
         <div className="flex items-center gap-3 flex-wrap">
@@ -518,31 +506,88 @@ export default function AdminPage() {
           )}
         </div>
 
-        {/* In attesa */}
-        <IgArticleList
-          title="Verranno postati al prossimo slot"
-          items={igStats?.pending ?? []}
-          emptyMsg="Nessun articolo idoneo nelle ultime 24h."
-          accentClass="text-green-600 dark:text-green-400"
-        />
+        {/* Coda rimanente */}
+        {queueRest.length > 0 && (
+          <div>
+            <p className="text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wide mb-2">
+              Coda — {queueRest.length} {queueRest.length === 1 ? "articolo" : "articoli"} successivi
+            </p>
+            <div className="divide-y divide-blue-50 dark:divide-zinc-800">
+              {queueRest.map((a, i) => (
+                <div key={a.id} className="flex items-center gap-3 py-2">
+                  <span className="text-xs font-mono text-gray-300 dark:text-zinc-600 w-4 shrink-0 text-right">{i + 2}</span>
+                  <a
+                    href={`/article/${a.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-[#0B1F3A] dark:text-slate-200 hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors truncate min-w-0"
+                  >
+                    {a.title}
+                  </a>
+                  <div className="shrink-0 flex items-center gap-2 ml-auto">
+                    <span className="text-xs font-mono text-amber-500 dark:text-amber-400">▲ {a.relevance_score}</span>
+                    {a.ig_score != null && (
+                      <span className="text-xs font-mono text-pink-500 dark:text-pink-400">📸 {a.ig_score}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-        {/* Finestra scaduta */}
+        {/* Scaduti */}
         {(igStats?.too_old.length ?? 0) > 0 && (
-          <IgArticleList
-            title="Finestra scaduta (non verranno postati)"
-            items={igStats!.too_old}
-            accentClass="text-amber-500 dark:text-amber-400"
-          />
+          <div>
+            <p className="text-xs font-medium text-amber-500 dark:text-amber-400 uppercase tracking-wide mb-2">
+              Scaduti — finestra 36h superata
+            </p>
+            <div className="divide-y divide-blue-50 dark:divide-zinc-800">
+              {igStats!.too_old.map((a) => (
+                <div key={a.id} className="flex items-center justify-between py-2 gap-3">
+                  <a
+                    href={`/article/${a.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-400 dark:text-zinc-500 hover:text-amber-500 transition-colors truncate min-w-0 line-through"
+                  >
+                    {a.title}
+                  </a>
+                  <span className="text-xs font-mono text-gray-300 dark:text-zinc-600 shrink-0">▲ {a.relevance_score}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* Postati recenti */}
-        <IgArticleList
-          title="Postati di recente"
-          items={igStats?.recent_posted ?? []}
-          emptyMsg="Nessun post pubblicato ancora."
-          accentClass="text-blue-500 dark:text-blue-400"
-          showPosted
-        />
+        {(igStats?.recent_posted.length ?? 0) > 0 && (
+          <div>
+            <p className="text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wide mb-2">Postati di recente</p>
+            <div className="divide-y divide-blue-50 dark:divide-zinc-800">
+              {igStats!.recent_posted.map((a) => (
+                <div key={a.id} className="flex items-center justify-between py-2 gap-3">
+                  <a
+                    href={`/article/${a.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-[#0B1F3A] dark:text-slate-300 hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors truncate min-w-0"
+                  >
+                    {a.title}
+                  </a>
+                  <div className="shrink-0 flex items-center gap-2">
+                    <span className="text-xs text-gray-400 dark:text-zinc-500 whitespace-nowrap">
+                      {new Date(a.published_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                    <span className="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">
+                      ✓ postato
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Zona pericolosa */}
