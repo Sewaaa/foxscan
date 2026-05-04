@@ -260,12 +260,17 @@ export default function AdminPage() {
     ? utc(stats.last_article_at).toLocaleString("it-IT")
     : "·";
 
-  const sortedPending = [...(igStats?.pending ?? [])].sort((a, b) => {
-    const igDiff = (b.ig_score ?? 0) - (a.ig_score ?? 0);
-    if (igDiff !== 0) return igDiff;
-    if (b.relevance_score !== a.relevance_score) return b.relevance_score - a.relevance_score;
-    return utc(b.published_at).getTime() - utc(a.published_at).getTime();
-  });
+  const sortBy = (list: typeof igStats.pending) =>
+    [...list].sort((a, b) => {
+      const igDiff = (b.ig_score ?? 0) - (a.ig_score ?? 0);
+      if (igDiff !== 0) return igDiff;
+      if (b.relevance_score !== a.relevance_score) return b.relevance_score - a.relevance_score;
+      return utc(b.published_at).getTime() - utc(a.published_at).getTime();
+    });
+
+  const hasCritical = (igStats?.pending.length ?? 0) > 0;
+  const sortedPending = sortBy(hasCritical ? (igStats?.pending ?? []) : (igStats?.pending_fallback ?? []));
+  const isFallback = !hasCritical && sortedPending.length > 0;
   const nextArticle = sortedPending[0] ?? null;
   const queueRest = sortedPending.slice(1);
 
@@ -483,14 +488,27 @@ export default function AdminPage() {
         {/* KPI */}
         <div className="grid grid-cols-3 gap-3">
           <StatCard label="Postati oggi" value={igStats?.posted_today ?? "·"} />
-          <StatCard label="In coda" value={sortedPending.length} sub="score ≥ 8, entro 36h" />
+          <StatCard
+            label="In coda"
+            value={sortedPending.length}
+            sub={isFallback ? "fallback medi (5–7)" : "score ≥ 8, entro 36h"}
+          />
           <StatCard label="Scaduti" value={igStats?.too_old.length ?? "·"} sub="fuori finestra 36h" />
         </div>
 
         {/* Prossimo post */}
         {nextArticle ? (
-          <div className="rounded-lg border border-pink-200 dark:border-pink-900/40 bg-pink-50/40 dark:bg-pink-950/20 p-4">
-            <p className="text-[10px] font-semibold text-pink-500 dark:text-pink-400 uppercase tracking-widest mb-2">Prossimo post</p>
+          <div className={`rounded-lg border p-4 ${isFallback ? "border-amber-200 dark:border-amber-900/40 bg-amber-50/40 dark:bg-amber-950/20" : "border-pink-200 dark:border-pink-900/40 bg-pink-50/40 dark:bg-pink-950/20"}`}>
+            <div className="flex items-center gap-2 mb-2">
+              <p className={`text-[10px] font-semibold uppercase tracking-widest ${isFallback ? "text-amber-500 dark:text-amber-400" : "text-pink-500 dark:text-pink-400"}`}>
+                Prossimo post
+              </p>
+              {isFallback && (
+                <span className="text-[9px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-full">
+                  fallback medio
+                </span>
+              )}
+            </div>
             <a
               href={`/article/${nextArticle.id}`}
               target="_blank"
@@ -511,7 +529,7 @@ export default function AdminPage() {
             </div>
           </div>
         ) : igStats && (
-          <p className="text-sm text-gray-400 dark:text-zinc-500 italic">Nessun articolo idoneo nelle ultime 36h.</p>
+          <p className="text-sm text-gray-400 dark:text-zinc-500 italic">Nessun articolo idoneo (score ≥ 5) nelle ultime 36h.</p>
         )}
 
         {/* Trigger manuale */}

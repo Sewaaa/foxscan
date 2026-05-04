@@ -381,6 +381,15 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
         .all()
     )
 
+    pending_fallback = (
+        db.query(Article)
+        .filter(Article.relevance_score >= 5, Article.relevance_score < 8)
+        .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
+        .filter(Article.published_at >= cutoff)
+        .order_by(Article.relevance_score.desc(), Article.published_at.desc())
+        .all()
+    ) if not pending else []
+
     cutoff_48h = datetime.utcnow() - timedelta(hours=48)
 
     too_old = (
@@ -420,6 +429,7 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
     return {
         "posted_today": posted_today,
         "pending": [_slim(a) for a in pending],
+        "pending_fallback": [_slim(a) for a in pending_fallback],
         "too_old": [_slim(a) for a in too_old],
         "recent_posted": [_slim(a) for a in recent_posted],
     }

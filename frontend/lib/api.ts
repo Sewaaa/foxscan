@@ -118,6 +118,7 @@ export interface IgArticle {
 export interface IgStats {
   posted_today: number;
   pending: IgArticle[];
+  pending_fallback: IgArticle[];
   too_old: IgArticle[];
   recent_posted: IgArticle[];
 }
