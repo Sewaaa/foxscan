@@ -260,7 +260,7 @@ export default function AdminPage() {
     ? utc(stats.last_article_at).toLocaleString("it-IT")
     : "·";
 
-  const sortBy = (list: typeof igStats.pending) =>
+  const sortBy = (list: IgArticle[]) =>
     [...list].sort((a, b) => {
       const igDiff = (b.ig_score ?? 0) - (a.ig_score ?? 0);
       if (igDiff !== 0) return igDiff;
