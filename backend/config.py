@@ -8,25 +8,30 @@ RSS_FEEDS = [
     "https://www.darkreading.com/rss.xml",
     "https://securityaffairs.com/feed",
     "https://grahamcluley.com/feed/",
-    "https://www.securityweek.com/feed/",
     "https://www.helpnetsecurity.com/feed/",
     "https://www.infosecurity-magazine.com/rss/news/",
     "https://www.wired.com/feed/category/security/latest/rss",
     "https://cyberscoop.com/feed/",
     "https://www.theregister.com/security/headlines.atom",
     "https://techcrunch.com/tag/security/feed/",
+    "https://arstechnica.com/security/feed/",         # Ars Technica Security
     # Threat research — contenuti unici, alta qualità
     "https://www.malwarebytes.com/blog/feed/",
     "https://www.recordedfuture.com/feed",
     "https://unit42.paloaltonetworks.com/feed/",
     "https://www.microsoft.com/en-us/security/blog/feed/",
     "https://www.schneier.com/feed/atom/",
-    # Fonti italiane
+    "https://securelist.com/feed/",                   # Kaspersky Securelist
+    "https://research.checkpoint.com/feed/",          # Check Point Research
+    # Fonti italiane — cybersecurity
     "https://www.redhotcyber.com/feed/",
     "https://www.cybersecurity360.it/feed/",
     "https://cert-agid.gov.it/feed/",
+    # Fonti italiane — tech generaliste
     "https://www.agendadigitale.eu/feed/",
     "https://www.punto-informatico.it/feed/",
+    "https://www.corrierecomunicazioni.it/feed/",     # Corriere Comunicazioni (ICT)
+    "https://www.hwupgrade.it/rss/news.xml",          # HWUpgrade (tech generalista)
 ]
 
 # LLM

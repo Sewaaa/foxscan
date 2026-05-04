@@ -15,7 +15,6 @@ const FEED_META: Record<string, { name: string; url: string }> = {
   "www.darkreading.com":             { name: "Dark Reading",              url: "https://www.darkreading.com" },
   "securityaffairs.com":             { name: "Security Affairs",          url: "https://securityaffairs.com" },
   "grahamcluley.com":                { name: "Graham Cluley",             url: "https://grahamcluley.com" },
-  "www.securityweek.com":            { name: "SecurityWeek",              url: "https://www.securityweek.com" },
   "www.helpnetsecurity.com":         { name: "Help Net Security",         url: "https://www.helpnetsecurity.com" },
   "www.infosecurity-magazine.com":   { name: "Infosecurity Magazine",     url: "https://www.infosecurity-magazine.com" },
   "www.wired.com":                   { name: "Wired Security",            url: "https://www.wired.com/category/security/" },
@@ -27,12 +26,18 @@ const FEED_META: Record<string, { name: string; url: string }> = {
   "unit42.paloaltonetworks.com":     { name: "Unit 42 (Palo Alto)",       url: "https://unit42.paloaltonetworks.com" },
   "www.microsoft.com":               { name: "Microsoft Security Blog",   url: "https://www.microsoft.com/en-us/security/blog/" },
   "www.schneier.com":                { name: "Schneier on Security",      url: "https://www.schneier.com" },
-  // Fonti italiane
+  "arstechnica.com":                 { name: "Ars Technica Security",     url: "https://arstechnica.com/security/" },
+  "securelist.com":                  { name: "Kaspersky Securelist",       url: "https://securelist.com" },
+  "research.checkpoint.com":         { name: "Check Point Research",       url: "https://research.checkpoint.com" },
+  // Fonti italiane — cybersecurity
   "www.redhotcyber.com":             { name: "Red Hot Cyber",              url: "https://www.redhotcyber.com" },
   "www.cybersecurity360.it":         { name: "Cybersecurity360",           url: "https://www.cybersecurity360.it" },
   "cert-agid.gov.it":                { name: "CERT-AgID",                  url: "https://cert-agid.gov.it" },
+  // Fonti italiane — tech generaliste
   "www.agendadigitale.eu":           { name: "Agenda Digitale",            url: "https://www.agendadigitale.eu" },
   "www.punto-informatico.it":        { name: "Punto Informatico",          url: "https://www.punto-informatico.it" },
+  "www.corrierecomunicazioni.it":    { name: "Corriere Comunicazioni",     url: "https://www.corrierecomunicazioni.it" },
+  "www.hwupgrade.it":                { name: "HWUpgrade",                  url: "https://www.hwupgrade.it" },
 };
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
