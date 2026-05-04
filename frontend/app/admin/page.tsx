@@ -27,17 +27,16 @@ const FEED_META: Record<string, { name: string; url: string }> = {
   "www.microsoft.com":               { name: "Microsoft Security Blog",   url: "https://www.microsoft.com/en-us/security/blog/" },
   "www.schneier.com":                { name: "Schneier on Security",      url: "https://www.schneier.com" },
   "arstechnica.com":                 { name: "Ars Technica Security",     url: "https://arstechnica.com/security/" },
-  "securelist.com":                  { name: "Kaspersky Securelist",       url: "https://securelist.com" },
-  "research.checkpoint.com":         { name: "Check Point Research",       url: "https://research.checkpoint.com" },
+  "hackread.com":                    { name: "Hackread",                   url: "https://hackread.com" },
+  "gbhackers.com":                   { name: "GBHackers",                  url: "https://gbhackers.com" },
+  "thecyberexpress.com":             { name: "The Cyber Express",          url: "https://thecyberexpress.com" },
+  "cybernews.com":                   { name: "Cybernews",                  url: "https://cybernews.com" },
   // Fonti italiane — cybersecurity
   "www.redhotcyber.com":             { name: "Red Hot Cyber",              url: "https://www.redhotcyber.com" },
   "www.cybersecurity360.it":         { name: "Cybersecurity360",           url: "https://www.cybersecurity360.it" },
   "cert-agid.gov.it":                { name: "CERT-AgID",                  url: "https://cert-agid.gov.it" },
-  // Fonti italiane — tech generaliste
   "www.agendadigitale.eu":           { name: "Agenda Digitale",            url: "https://www.agendadigitale.eu" },
   "www.punto-informatico.it":        { name: "Punto Informatico",          url: "https://www.punto-informatico.it" },
-  "www.corrierecomunicazioni.it":    { name: "Corriere Comunicazioni",     url: "https://www.corrierecomunicazioni.it" },
-  "www.hwupgrade.it":                { name: "HWUpgrade",                  url: "https://www.hwupgrade.it" },
 };
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
