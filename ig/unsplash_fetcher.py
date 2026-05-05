@@ -16,7 +16,7 @@ import urllib.request
 from pathlib import Path
 
 UNSPLASH_API = "https://api.unsplash.com/photos/random"
-GOOGLE_API   = "https://www.googleapis.com/customsearch/v1"
+BING_API     = "https://api.bing.microsoft.com/v7.0/images/search"
 
 # Aziende tech riconoscibili → query ottimizzate
 _COMPANY_QUERIES = {
@@ -82,10 +82,9 @@ def fetch_images(carousel_data: dict, out_dir: Path,
       4. Fallback slot via Google → Unsplash
       5. Copia cover come ultimo resort
     """
-    unsplash_key  = os.environ.get("UNSPLASH_ACCESS_KEY", "")
-    google_key    = os.environ.get("GOOGLE_API_KEY", "")
-    google_cse_id = os.environ.get("GOOGLE_CSE_ID", "")
-    use_google    = bool(google_key and google_cse_id)
+    unsplash_key = os.environ.get("UNSPLASH_ACCESS_KEY", "")
+    bing_key     = os.environ.get("BING_API_KEY", "")
+    use_bing     = bool(bing_key)
 
     results: dict[str, Path] = {}
     cover_path: Path | None = None
@@ -109,16 +108,16 @@ def fetch_images(carousel_data: dict, out_dir: Path,
         if path is None:
             company_query = _detect_company(article_text)
             if company_query and key in ("cover", "slide_0"):
-                if use_google:
-                    path = _download_google(company_query, dest, google_key, google_cse_id)
+                if use_bing:
+                    path = _download_bing(company_query, dest, bing_key)
                 if path is None and unsplash_key:
                     path = _download_unsplash(company_query, dest, unsplash_key)
 
         # 3. Query generata da Groq
         if path is None:
             primary_query = query_fn(carousel_data)
-            if use_google:
-                path = _download_google(primary_query, dest, google_key, google_cse_id)
+            if use_bing:
+                path = _download_bing(primary_query, dest, bing_key)
             if path is None and unsplash_key:
                 path = _download_unsplash(primary_query, dest, unsplash_key)
 
@@ -126,8 +125,8 @@ def fetch_images(carousel_data: dict, out_dir: Path,
         if path is None:
             for fallback_query in _SLOT_FALLBACKS[key]:
                 time.sleep(0.5)
-                if use_google:
-                    path = _download_google(fallback_query, dest, google_key, google_cse_id)
+                if use_bing:
+                    path = _download_bing(fallback_query, dest, bing_key)
                 if path is None and unsplash_key:
                     path = _download_unsplash(fallback_query, dest, unsplash_key)
                 if path:
@@ -151,42 +150,43 @@ def fetch_images(carousel_data: dict, out_dir: Path,
     return results
 
 
-def _download_google(query: str, dest: Path, api_key: str, cse_id: str) -> Path | None:
+def _download_bing(query: str, dest: Path, api_key: str) -> Path | None:
     params = urllib.parse.urlencode({
-        "key":        api_key,
-        "cx":         cse_id,
         "q":          query,
-        "searchType": "image",
-        "num":        10,
-        "imgSize":    "large",
-        "safe":       "active",
+        "count":      10,
+        "imageType":  "Photo",
+        "size":       "Large",
+        "safeSearch": "Moderate",
     })
-    url = GOOGLE_API + "?" + params
+    url = BING_API + "?" + params
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "FoxScan/1.0"})
+        req = urllib.request.Request(
+            url,
+            headers={"Ocp-Apim-Subscription-Key": api_key, "User-Agent": "FoxScan/1.0"},
+        )
         with urllib.request.urlopen(req, timeout=10) as r:
             data = json.loads(r.read())
 
-        items = data.get("items", [])
+        items = data.get("value", [])
         if not items:
-            print(f"  [google] WARN '{query}': nessun risultato")
+            print(f"  [bing] WARN '{query}': nessun risultato")
             return None
 
         random.shuffle(items)
         for item in items:
-            img_url = item.get("link", "")
+            img_url = item.get("contentUrl", "")
             if not img_url:
                 continue
             path = _download_direct(img_url, dest)
             if path:
-                print(f"  [google] {dest.name}: '{query}' -> OK")
+                print(f"  [bing] {dest.name}: '{query}' -> OK")
                 return path
 
-        print(f"  [google] WARN '{query}': tutti i download falliti")
+        print(f"  [bing] WARN '{query}': tutti i download falliti")
         return None
 
     except Exception as e:
-        print(f"  [google] WARN '{query}': {e}")
+        print(f"  [bing] WARN '{query}': {e}")
         return None
 
 
