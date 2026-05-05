@@ -28,6 +28,8 @@ services:
       - INSTAGRAM_USERNAME=${INSTAGRAM_USERNAME}
       - INSTAGRAM_PASSWORD=${INSTAGRAM_PASSWORD}
       - INSTAGRAM_ENABLED=${INSTAGRAM_ENABLED:-false}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GOOGLE_CSE_ID=${GOOGLE_CSE_ID}
       - IG_DATA_DIR=/app/ig_data
     volumes:
       - ig_data:/app/ig_data

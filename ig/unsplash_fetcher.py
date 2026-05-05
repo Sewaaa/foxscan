@@ -2,7 +2,7 @@
 """
 unsplash_fetcher.py — Scarica immagini per il carosello.
 - Cover: usa image_url dell'articolo dal sito (più contestuale)
-- Slides: Unsplash con query arricchite dal nome azienda se rilevabile
+- Slides: Google Custom Search (primario) → Unsplash (fallback)
 """
 
 import json
@@ -16,8 +16,9 @@ import urllib.request
 from pathlib import Path
 
 UNSPLASH_API = "https://api.unsplash.com/photos/random"
+GOOGLE_API   = "https://www.googleapis.com/customsearch/v1"
 
-# Aziende tech riconoscibili → query Unsplash ottimizzate
+# Aziende tech riconoscibili → query ottimizzate
 _COMPANY_QUERIES = {
     "google":     "Google Googleplex headquarters campus building",
     "microsoft":  "Microsoft campus Redmond headquarters office",
@@ -52,7 +53,6 @@ _SLOT_FALLBACKS = {
     "slide_0": ["journalist newsroom monitor screen alert", "breaking news anchor desk tv", "reporter laptop technology"],
     "slide_1": ["server rack data center hardware", "network infrastructure cables blue", "office technology computer"],
     "slide_2": ["world map digital globe connections", "satellite dish technology sky", "global network fiber optic"],
-    # opinion rimossa: slide 5 usa sfondo gradiente statico
 }
 
 _KEY_TO_QUERY = {
@@ -60,12 +60,10 @@ _KEY_TO_QUERY = {
     "slide_0": lambda d: d["slides"][0]["image_query"],
     "slide_1": lambda d: d["slides"][1]["image_query"],
     "slide_2": lambda d: d["slides"][2]["image_query"],
-    # opinion rimossa: slide 5 usa sfondo gradiente statico
 }
 
 
 def _detect_company(text: str) -> str | None:
-    """Restituisce la query Unsplash ottimizzata se rileva un'azienda nota nel testo."""
     lower = text.lower()
     for company, query in _COMPANY_QUERIES.items():
         if re.search(r'\b' + re.escape(company) + r'\b', lower):
@@ -76,16 +74,22 @@ def _detect_company(text: str) -> str | None:
 def fetch_images(carousel_data: dict, out_dir: Path,
                  article_image_url: str | None = None) -> dict[str, Path]:
     """
-    Scarica le 5 immagini per il carosello.
-    - cover: usa article_image_url se disponibile (immagine dell'articolo dal sito)
-    - slide_0/1/2: Unsplash con company detection automatica
-    - opinion: nessuna immagine (sfondo gradiente statico nella slide)
+    Scarica le immagini per il carosello.
+    Ordine tentativi per ogni slot:
+      1. article_image_url (solo cover)
+      2. Google Custom Search con query Groq/company
+      3. Unsplash con query Groq/company
+      4. Fallback slot via Google → Unsplash
+      5. Copia cover come ultimo resort
     """
-    access_key = os.environ["UNSPLASH_ACCESS_KEY"]
+    unsplash_key  = os.environ.get("UNSPLASH_ACCESS_KEY", "")
+    google_key    = os.environ.get("GOOGLE_API_KEY", "")
+    google_cse_id = os.environ.get("GOOGLE_CSE_ID", "")
+    use_google    = bool(google_key and google_cse_id)
+
     results: dict[str, Path] = {}
     cover_path: Path | None = None
 
-    # Testo articolo per company detection
     article_text = " ".join([
         carousel_data.get("cover_title", ""),
         " ".join(s.get("text", "") for s in carousel_data.get("slides", [])),
@@ -95,32 +99,41 @@ def fetch_images(carousel_data: dict, out_dir: Path,
         dest = out_dir / f"_img_{key}.jpg"
         path: Path | None = None
 
-        # Cover: usa immagine articolo dal sito se disponibile
+        # 1. Cover: immagine articolo dal sito
         if key == "cover" and article_image_url:
             path = _download_direct(article_image_url, dest)
             if path:
                 print(f"  [img] cover: articolo dal sito -> OK")
 
+        # 2. Company detection per cover e slide_0
         if path is None:
-            # Prova company detection prima della query Groq
             company_query = _detect_company(article_text)
             if company_query and key in ("cover", "slide_0"):
-                path = _download_unsplash(company_query, dest, access_key)
+                if use_google:
+                    path = _download_google(company_query, dest, google_key, google_cse_id)
+                if path is None and unsplash_key:
+                    path = _download_unsplash(company_query, dest, unsplash_key)
 
+        # 3. Query generata da Groq
         if path is None:
-            # Query generata da Groq
             primary_query = query_fn(carousel_data)
-            path = _download_unsplash(primary_query, dest, access_key)
+            if use_google:
+                path = _download_google(primary_query, dest, google_key, google_cse_id)
+            if path is None and unsplash_key:
+                path = _download_unsplash(primary_query, dest, unsplash_key)
 
-        # Fallback progressivi per slot
+        # 4. Fallback per slot
         if path is None:
             for fallback_query in _SLOT_FALLBACKS[key]:
-                time.sleep(0.8)
-                path = _download_unsplash(fallback_query, dest, access_key)
+                time.sleep(0.5)
+                if use_google:
+                    path = _download_google(fallback_query, dest, google_key, google_cse_id)
+                if path is None and unsplash_key:
+                    path = _download_unsplash(fallback_query, dest, unsplash_key)
                 if path:
                     break
 
-        # Ultimo resort: copia cover
+        # 5. Ultimo resort: copia cover
         if path is None and cover_path is not None and key != "cover":
             shutil.copy2(cover_path, dest)
             path = dest
@@ -138,15 +151,42 @@ def fetch_images(carousel_data: dict, out_dir: Path,
     return results
 
 
-def _download_direct(url: str, dest: Path) -> Path | None:
-    """Scarica un'immagine direttamente da URL."""
+def _download_google(query: str, dest: Path, api_key: str, cse_id: str) -> Path | None:
+    params = urllib.parse.urlencode({
+        "key":        api_key,
+        "cx":         cse_id,
+        "q":          query,
+        "searchType": "image",
+        "num":        10,
+        "imgSize":    "large",
+        "safe":       "active",
+    })
+    url = GOOGLE_API + "?" + params
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "FoxScan/1.0"})
-        with urllib.request.urlopen(req, timeout=15) as r, open(dest, "wb") as f:
-            f.write(r.read())
-        return dest
+        with urllib.request.urlopen(req, timeout=10) as r:
+            data = json.loads(r.read())
+
+        items = data.get("items", [])
+        if not items:
+            print(f"  [google] WARN '{query}': nessun risultato")
+            return None
+
+        random.shuffle(items)
+        for item in items:
+            img_url = item.get("link", "")
+            if not img_url:
+                continue
+            path = _download_direct(img_url, dest)
+            if path:
+                print(f"  [google] {dest.name}: '{query}' -> OK")
+                return path
+
+        print(f"  [google] WARN '{query}': tutti i download falliti")
+        return None
+
     except Exception as e:
-        print(f"  [img] WARN download diretto fallito: {e}")
+        print(f"  [google] WARN '{query}': {e}")
         return None
 
 
@@ -179,6 +219,17 @@ def _download_unsplash(query: str, dest: Path, access_key: str) -> Path | None:
         return None
 
 
+def _download_direct(url: str, dest: Path) -> Path | None:
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "FoxScan/1.0"})
+        with urllib.request.urlopen(req, timeout=15) as r, open(dest, "wb") as f:
+            f.write(r.read())
+        return dest
+    except Exception as e:
+        print(f"  [img] WARN download diretto fallito: {e}")
+        return None
+
+
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
@@ -192,7 +243,6 @@ if __name__ == "__main__":
             {"text": "I sistemi colpiti.", "image_query": "cisco router network rack data center"},
             {"text": "Il quadro completo.", "image_query": "world map digital connections satellite"},
         ],
-        "opinion": {"text": "Consiglio.", "image_query": "person laptop home office coffee secure"},
     }
     paths = fetch_images(demo_data, OUT_DIR)
     for k, p in paths.items():
