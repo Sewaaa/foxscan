@@ -291,8 +291,6 @@ export default function AdminPage() {
   const nextArticle   = sortedPending[0] ?? null;
   const queueRest     = sortedPending.slice(1);
 
-  const maxDiscovered = Math.max(...pipelineHistory.map(r => r.discovered || 0), 1);
-
   const sortedFeeds = Object.entries(FEED_META)
     .map(([domain, meta]) => {
       const stat = feedStats.find(f => f.feed_source === domain);
@@ -401,240 +399,38 @@ export default function AdminPage() {
         })}
       </div>
 
-      {/* ── Pipeline + Instagram side by side ───────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-
-        {/* Pipeline */}
-        <div className="rounded-xl border border-white/5 bg-white/[0.03] p-5 flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-semibold text-slate-200">Pipeline</h2>
-              <p className="text-[11px] text-slate-600 mt-0.5">Automatica ogni 30 min</p>
-            </div>
-            <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full border ${
-              pipelineRunning
-                ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-            }`}>
-              {pipelineRunning ? "In esecuzione" : "Idle"}
-            </span>
+      {/* ── Pipeline ────────────────────────────────────────────────────── */}
+      <div className="rounded-xl border border-white/5 bg-white/[0.03] p-5 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-200">Pipeline</h2>
+            <p className="text-[11px] text-slate-600 mt-0.5">Automatica ogni 30 min</p>
           </div>
-
-          <div className="flex flex-col gap-2">
-            <Btn onClick={triggerPipeline} disabled={running || pipelineRunning} loading={running || pipelineRunning} variant="primary" icon={<IconPlay />} className="w-full justify-center">
-              {pipelineRunning ? "In esecuzione…" : "Avvia pipeline"}
-            </Btn>
-            <div className="grid grid-cols-2 gap-2">
-              <Btn onClick={resetItems} disabled={running || resetting || deleting || closingRuns} loading={resetting} icon={<IconRefresh />} className="justify-center">
-                {resetting ? "Reset…" : "Reset item"}
-              </Btn>
-              <Btn onClick={closeStaleRuns} disabled={running || resetting || deleting || closingRuns} loading={closingRuns} icon={<IconClock />} className="justify-center">
-                {closingRuns ? "Chiusura…" : "Chiudi bloccate"}
-              </Btn>
-            </div>
-          </div>
-
-          {message && (
-            <div className="flex items-start gap-2 rounded-lg bg-white/5 border border-white/8 px-3 py-2.5 text-xs text-slate-400">
-              <span className="flex-1">{message}</span>
-              <button onClick={() => setMessage(null)} className="text-slate-600 hover:text-slate-300 cursor-pointer shrink-0"><IconX /></button>
-            </div>
-          )}
+          <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full border ${
+            pipelineRunning
+              ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+              : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+          }`}>
+            {pipelineRunning ? "In esecuzione" : "Idle"}
+          </span>
         </div>
-
-        {/* Instagram */}
-        <div className="rounded-xl border border-white/5 bg-white/[0.03] p-5 flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-semibold text-slate-200">Instagram</h2>
-              <p className="text-[11px] text-slate-600 mt-0.5">09:00 · 12:30 · 21:00</p>
-            </div>
-            <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full border ${
-              igRunning
-                ? "bg-pink-500/10 border-pink-500/20 text-pink-400"
-                : "bg-white/5 border-white/8 text-slate-500"
-            }`}>
-              {igRunning ? "In esecuzione" : "Idle"}
-            </span>
-          </div>
-
-          {/* Mini KPI row */}
-          <div className="grid grid-cols-3 gap-2 text-center">
-            {[
-              { v: igStats?.posted_today ?? "·", l: "Postati", c: "text-emerald-400" },
-              { v: sortedPending.length,          l: isFallback ? "Coda (fallback)" : "In coda", c: "text-slate-200" },
-              { v: igStats?.too_old.length ?? "·", l: "Scaduti", c: "text-amber-500" },
-            ].map(({ v, l, c }) => (
-              <div key={l} className="rounded-lg bg-white/[0.03] border border-white/5 py-3">
-                <p className={`text-2xl font-bold tabular-nums ${c}`}>{v}</p>
-                <p className="text-[10px] text-slate-600 mt-0.5">{l}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Prossimo post */}
-          {nextArticle ? (
-            <div className={`rounded-lg border p-3 ${isFallback ? "border-amber-500/20 bg-amber-500/5" : "border-pink-500/20 bg-pink-500/5"}`}>
-              <div className="flex items-center gap-2 mb-1.5">
-                <p className={`text-[10px] font-semibold uppercase tracking-widest ${isFallback ? "text-amber-500" : "text-pink-500"}`}>
-                  Prossimo
-                </p>
-                {isFallback && <span className="text-[9px] font-medium bg-amber-500/15 border border-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full">fallback</span>}
-                <span className="ml-auto text-[11px] font-mono text-amber-400">▲{nextArticle.relevance_score}</span>
-                {nextArticle.ig_score != null && <span className="text-[11px] font-mono text-pink-400">ig·{nextArticle.ig_score}</span>}
-              </div>
-              <a href={`/article/${nextArticle.id}`} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-slate-300 hover:text-orange-400 transition-colors line-clamp-2 cursor-pointer leading-relaxed">
-                {nextArticle.title}
-              </a>
-            </div>
-          ) : igStats && (
-            <p className="text-xs text-slate-600 italic">Nessun articolo idoneo nelle ultime 36h.</p>
-          )}
-
-          <Btn onClick={triggerIgPipeline} disabled={igRunning} loading={igRunning} variant="pink" icon={<IconCamera />} className="w-full justify-center">
-            {igRunning ? "Post in corso…" : "Posta ora"}
+        <div className="flex flex-wrap gap-2">
+          <Btn onClick={triggerPipeline} disabled={running || pipelineRunning} loading={running || pipelineRunning} variant="primary" icon={<IconPlay />}>
+            {pipelineRunning ? "In esecuzione…" : "Avvia pipeline"}
           </Btn>
-
-          {igMessage && (
-            <div className="flex items-center gap-2 rounded-lg bg-white/5 border border-white/8 px-3 py-2 text-xs text-slate-400">
-              <span className="flex-1">{igMessage}</span>
-              <button onClick={() => setIgMessage(null)} className="text-slate-600 hover:text-slate-300 cursor-pointer"><IconX /></button>
-            </div>
-          )}
+          <Btn onClick={resetItems} disabled={running || resetting || deleting || closingRuns} loading={resetting} icon={<IconRefresh />}>
+            {resetting ? "Reset…" : "Reset item"}
+          </Btn>
+          <Btn onClick={closeStaleRuns} disabled={running || resetting || deleting || closingRuns} loading={closingRuns} icon={<IconClock />}>
+            {closingRuns ? "Chiusura…" : "Chiudi bloccate"}
+          </Btn>
         </div>
-      </div>
-
-      {/* ── Storico pipeline ─────────────────────────────────────────────── */}
-      <div className="rounded-xl border border-white/5 bg-white/[0.03] p-5">
-        <h2 className="text-sm font-semibold text-slate-200 mb-4">
-          Storico pipeline <span className="text-slate-600 font-normal">(ultime {pipelineHistory.length})</span>
-        </h2>
-
-        {pipelineHistory.length === 0 ? (
-          <p className="text-sm text-slate-700 italic">Nessuna esecuzione registrata.</p>
-        ) : (
-          <div className="space-y-1">
-            {pipelineHistory.map((run) => {
-              const barW = Math.round(((run.discovered || 0) / maxDiscovered) * 100);
-              const isRunning = !run.completed_at;
-              return (
-                <div key={run.id} className="group flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-white/[0.03] transition-colors">
-                  {/* timestamp */}
-                  <span className="w-32 shrink-0 text-[11px] font-mono text-slate-600 group-hover:text-slate-500">
-                    {fmt(run.started_at, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                  {/* barra visuale */}
-                  <div className="flex-1 min-w-0">
-                    <div className="h-1 w-full rounded-full bg-white/5 overflow-hidden">
-                      <div className={`h-full rounded-full transition-all ${isRunning ? "animate-pulse bg-amber-400" : run.errors > 0 ? "bg-red-500/60" : "bg-orange-500/50"}`}
-                        style={{ width: `${barW}%` }} />
-                    </div>
-                  </div>
-                  {/* metriche */}
-                  <div className="flex items-center gap-3 shrink-0 text-[11px] font-mono">
-                    {isRunning ? (
-                      <span className="flex items-center gap-1 text-amber-400"><IconSpinner className="w-3 h-3" />in corso</span>
-                    ) : (
-                      <span className="text-slate-600">{run.duration_s}s</span>
-                    )}
-                    <span className="text-emerald-500 w-8 text-right">+{run.created}</span>
-                    <span className="text-sky-500 w-8 text-right">~{run.updated}</span>
-                    {run.errors > 0 && <span className="text-red-400">✗{run.errors}</span>}
-                  </div>
-                </div>
-              );
-            })}
-            {/* legenda */}
-            <div className="flex items-center gap-4 mt-2 pt-2 border-t border-white/[0.04] text-[10px] text-slate-700">
-              <span className="flex items-center gap-1"><span className="w-2 h-1 rounded bg-emerald-500 inline-block" />creati</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-1 rounded bg-sky-500 inline-block" />aggiornati</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-1 rounded bg-red-500 inline-block" />errori</span>
-            </div>
+        {message && (
+          <div className="flex items-start gap-2 rounded-lg bg-white/5 border border-white/8 px-3 py-2.5 text-xs text-slate-400">
+            <span className="flex-1">{message}</span>
+            <button onClick={() => setMessage(null)} className="text-slate-600 hover:text-slate-300 cursor-pointer shrink-0"><IconX /></button>
           </div>
         )}
-      </div>
-
-      {/* ── Coda IG + Scaduti + Ultimi post ─────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-
-        {/* Coda + scaduti */}
-        <div className="rounded-xl border border-white/5 bg-white/[0.03] p-5 space-y-4">
-          {/* Coda */}
-          {queueRest.length > 0 && (
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-widest text-slate-600 mb-2">
-                Coda IG — {queueRest.length + 1} articoli
-              </p>
-              <div className="divide-y divide-white/[0.04]">
-                {sortedPending.map((a, i) => (
-                  <div key={a.id} className="flex items-center gap-2 py-2">
-                    <span className="text-[10px] font-mono text-slate-700 w-4 shrink-0">{i + 1}</span>
-                    <a href={`/article/${a.id}`} target="_blank" rel="noopener noreferrer"
-                      className="text-xs text-slate-400 hover:text-orange-400 transition-colors truncate flex-1 cursor-pointer">
-                      {a.title}
-                    </a>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="text-[10px] font-mono text-amber-500">▲{a.relevance_score}</span>
-                      {a.ig_score != null && <span className="text-[10px] font-mono text-pink-500">ig·{a.ig_score}</span>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Scaduti */}
-          {(igStats?.too_old.length ?? 0) > 0 && (
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-widest text-amber-600/60 mb-2">
-                Scaduti — fuori finestra 36h
-              </p>
-              <div className="divide-y divide-white/[0.04]">
-                {igStats!.too_old.map(a => (
-                  <div key={a.id} className="flex items-center justify-between py-2 gap-2">
-                    <a href={`/article/${a.id}`} target="_blank" rel="noopener noreferrer"
-                      className="text-xs text-slate-700 line-through truncate flex-1 hover:text-amber-500/60 transition-colors cursor-pointer">
-                      {a.title}
-                    </a>
-                    <span className="text-[10px] font-mono text-slate-700 shrink-0">▲{a.relevance_score}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {queueRest.length === 0 && (igStats?.too_old.length ?? 0) === 0 && (
-            <p className="text-xs text-slate-700 italic">Nessun articolo in coda o scaduto.</p>
-          )}
-        </div>
-
-        {/* Ultimi post */}
-        <div className="rounded-xl border border-white/5 bg-white/[0.03] p-5">
-          <p className="text-[11px] font-medium uppercase tracking-widest text-slate-600 mb-3">
-            Ultimi post su Instagram
-          </p>
-          {(igStats?.recent_posted.length ?? 0) === 0 ? (
-            <p className="text-xs text-slate-700 italic">Nessun post ancora pubblicato.</p>
-          ) : (
-            <div className="divide-y divide-white/[0.04]">
-              {igStats!.recent_posted.map(a => (
-                <div key={a.id} className="flex items-center gap-3 py-2.5">
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-emerald-500/15 border border-emerald-500/25 shrink-0">
-                    <IconCheck className="w-2.5 h-2.5 text-emerald-400" />
-                  </span>
-                  <a href={`/article/${a.id}`} target="_blank" rel="noopener noreferrer"
-                    className="text-xs text-slate-400 hover:text-orange-400 transition-colors truncate flex-1 cursor-pointer">
-                    {a.title}
-                  </a>
-                  <span className="text-[11px] text-slate-700 shrink-0 whitespace-nowrap">
-                    {fmt(a.published_at, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
 
       {/* ── Fonti RSS ────────────────────────────────────────────────────── */}
@@ -648,23 +444,19 @@ export default function AdminPage() {
             <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />multi-fonte</span>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-0 divide-y-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
           {sortedFeeds.map(({ domain, meta, count, multi }) => (
             <div key={domain} className="flex items-center gap-3 py-2 border-b border-white/[0.04] last:border-0">
-              {/* barra proporzionale */}
-              <div className="w-16 shrink-0">
+              <div className="w-14 shrink-0">
                 <div className="h-1 w-full rounded-full bg-white/5 overflow-hidden">
                   <div className="h-full rounded-full bg-orange-500/40 transition-all duration-500"
                     style={{ width: `${Math.round((count / maxFeedCount) * 100)}%` }} />
                 </div>
               </div>
-              {/* nome */}
               <a href={meta.url} target="_blank" rel="noopener noreferrer"
                 className="text-xs text-slate-400 hover:text-orange-400 transition-colors truncate flex-1 cursor-pointer">
                 {meta.name}
               </a>
-              {/* badge */}
               <div className="flex items-center gap-1.5 shrink-0">
                 <span className="text-[10px] font-mono text-slate-600">{count || "·"}</span>
                 {multi > 0 && (
@@ -676,6 +468,191 @@ export default function AdminPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* ── Instagram (controlli + coda + ultimi post) ───────────────────── */}
+      <div className="rounded-xl border border-white/5 bg-white/[0.03] p-5 space-y-5">
+
+        {/* Header + KPI + prossimo + bottone */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-200">Instagram</h2>
+            <p className="text-[11px] text-slate-600 mt-0.5">09:00 · 12:30 · 21:00</p>
+          </div>
+          <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full border ${
+            igRunning
+              ? "bg-pink-500/10 border-pink-500/20 text-pink-400"
+              : "bg-white/5 border-white/8 text-slate-500"
+          }`}>
+            {igRunning ? "In esecuzione" : "Idle"}
+          </span>
+        </div>
+
+        {/* Mini KPI */}
+        <div className="grid grid-cols-3 gap-2 text-center">
+          {[
+            { v: igStats?.posted_today ?? "·", l: "Postati (36h)", c: "text-emerald-400" },
+            { v: sortedPending.length, l: isFallback ? "Coda (fallback)" : "In coda", c: "text-slate-200" },
+            { v: igStats?.too_old.length ?? "·", l: "Scaduti", c: "text-amber-500" },
+          ].map(({ v, l, c }) => (
+            <div key={l} className="rounded-lg bg-white/[0.03] border border-white/5 py-3">
+              <p className={`text-2xl font-bold tabular-nums ${c}`}>{v}</p>
+              <p className="text-[10px] text-slate-600 mt-0.5">{l}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Prossimo post */}
+        {nextArticle ? (
+          <div className={`rounded-lg border p-3 ${isFallback ? "border-amber-500/20 bg-amber-500/5" : "border-pink-500/20 bg-pink-500/5"}`}>
+            <div className="flex items-center gap-2 mb-1.5">
+              <p className={`text-[10px] font-semibold uppercase tracking-widest ${isFallback ? "text-amber-500" : "text-pink-500"}`}>Prossimo</p>
+              {isFallback && <span className="text-[9px] font-medium bg-amber-500/15 border border-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full">fallback</span>}
+              <span className="ml-auto text-[11px] font-mono text-amber-400">▲{nextArticle.relevance_score}</span>
+              {nextArticle.ig_score != null && <span className="text-[11px] font-mono text-pink-400">ig·{nextArticle.ig_score}</span>}
+            </div>
+            <a href={`/article/${nextArticle.id}`} target="_blank" rel="noopener noreferrer"
+              className="text-xs text-slate-300 hover:text-orange-400 transition-colors line-clamp-2 cursor-pointer leading-relaxed">
+              {nextArticle.title}
+            </a>
+          </div>
+        ) : igStats && (
+          <p className="text-xs text-slate-600 italic">Nessun articolo idoneo nelle ultime 36h.</p>
+        )}
+
+        {/* Bottone posta */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <Btn onClick={triggerIgPipeline} disabled={igRunning} loading={igRunning} variant="pink" icon={<IconCamera />}>
+            {igRunning ? "Post in corso…" : "Posta ora"}
+          </Btn>
+          {igMessage && (
+            <div className="flex items-center gap-2 rounded-lg bg-white/5 border border-white/8 px-3 py-2 text-xs text-slate-400">
+              <span>{igMessage}</span>
+              <button onClick={() => setIgMessage(null)} className="text-slate-600 hover:text-slate-300 cursor-pointer"><IconX /></button>
+            </div>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-white/[0.06]" />
+
+        {/* Coda IG + Ultimi post — side by side */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* Coda + scaduti */}
+          <div className="space-y-4">
+            {sortedPending.length > 0 && (
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-widest text-slate-600 mb-2">
+                  Coda — {sortedPending.length} {sortedPending.length === 1 ? "articolo" : "articoli"}
+                </p>
+                <div className="divide-y divide-white/[0.04]">
+                  {sortedPending.map((a, i) => (
+                    <div key={a.id} className="flex items-center gap-2 py-2">
+                      <span className="text-[10px] font-mono text-slate-700 w-4 shrink-0">{i + 1}</span>
+                      <a href={`/article/${a.id}`} target="_blank" rel="noopener noreferrer"
+                        className="text-xs text-slate-400 hover:text-orange-400 transition-colors truncate flex-1 cursor-pointer">
+                        {a.title}
+                      </a>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[10px] font-mono text-amber-500">▲{a.relevance_score}</span>
+                        {a.ig_score != null && <span className="text-[10px] font-mono text-pink-500">ig·{a.ig_score}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {(igStats?.too_old.length ?? 0) > 0 && (
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-widest text-amber-600/60 mb-2">
+                  Scaduti — fuori finestra 36h
+                </p>
+                <div className="divide-y divide-white/[0.04]">
+                  {igStats!.too_old.map(a => (
+                    <div key={a.id} className="flex items-center justify-between py-2 gap-2">
+                      <a href={`/article/${a.id}`} target="_blank" rel="noopener noreferrer"
+                        className="text-xs text-slate-700 line-through truncate flex-1 hover:text-amber-500/60 transition-colors cursor-pointer">
+                        {a.title}
+                      </a>
+                      <span className="text-[10px] font-mono text-slate-700 shrink-0">▲{a.relevance_score}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {sortedPending.length === 0 && (igStats?.too_old.length ?? 0) === 0 && (
+              <p className="text-xs text-slate-700 italic">Nessun articolo in coda o scaduto.</p>
+            )}
+          </div>
+
+          {/* Ultimi post pubblicati */}
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-widest text-slate-600 mb-2">
+              Ultimi post pubblicati
+            </p>
+            {(igStats?.recent_posted.length ?? 0) === 0 ? (
+              <p className="text-xs text-slate-700 italic">Nessun post ancora pubblicato.</p>
+            ) : (
+              <div className="divide-y divide-white/[0.04]">
+                {igStats!.recent_posted.map(a => (
+                  <div key={a.id} className="flex items-center gap-3 py-2.5">
+                    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-emerald-500/15 border border-emerald-500/25 shrink-0">
+                      <IconCheck className="w-2.5 h-2.5 text-emerald-400" />
+                    </span>
+                    <a href={`/article/${a.id}`} target="_blank" rel="noopener noreferrer"
+                      className="text-xs text-slate-400 hover:text-orange-400 transition-colors truncate flex-1 cursor-pointer">
+                      {a.title}
+                    </a>
+                    <span className="text-[11px] text-slate-700 shrink-0 whitespace-nowrap">
+                      {fmt(a.published_at, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Storico pipeline ─────────────────────────────────────────────── */}
+      <div className="rounded-xl border border-white/5 bg-white/[0.03] p-5">
+        <h2 className="text-sm font-semibold text-slate-200 mb-3">
+          Storico pipeline <span className="text-slate-600 font-normal">({pipelineHistory.length})</span>
+        </h2>
+        {pipelineHistory.length === 0 ? (
+          <p className="text-xs text-slate-700 italic">Nessuna esecuzione registrata.</p>
+        ) : (
+          <>
+            <div className="divide-y divide-white/[0.04]">
+              {pipelineHistory.map((run) => {
+                const isRunning = !run.completed_at;
+                return (
+                  <div key={run.id} className="flex items-center gap-4 py-1.5 text-[11px] font-mono">
+                    <span className="w-28 shrink-0 text-slate-600">
+                      {fmt(run.started_at, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                    {isRunning ? (
+                      <span className="flex items-center gap-1 text-amber-400"><IconSpinner className="w-3 h-3" />in corso</span>
+                    ) : (
+                      <span className="text-slate-700 w-10 shrink-0">{run.duration_s}s</span>
+                    )}
+                    <span className="text-emerald-500">+{run.created}</span>
+                    <span className="text-sky-500">~{run.updated}</span>
+                    <span className="text-slate-700">/{run.skipped}</span>
+                    {run.errors > 0 && <span className="text-red-400">✗{run.errors}</span>}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-4 mt-2 pt-2 border-t border-white/[0.04] text-[10px] text-slate-700">
+              <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />creati</span>
+              <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-sky-500 inline-block" />aggiornati</span>
+              <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-slate-600 inline-block" />saltati</span>
+              <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />errori</span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* ── Zona pericolosa ──────────────────────────────────────────────── */}
