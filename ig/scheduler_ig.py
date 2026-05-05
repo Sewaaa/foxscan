@@ -17,6 +17,7 @@ import logging
 import sys
 import threading
 import time
+from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytz
@@ -24,14 +25,20 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from pipeline import run_pipeline
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+ROME = pytz.timezone("Europe/Rome")
+
+
+class _RomeFormatter(logging.Formatter):
+    def formatTime(self, record, datefmt=None):
+        dt = datetime.fromtimestamp(record.created, tz=ROME)
+        return dt.strftime(datefmt or "%Y-%m-%d %H:%M:%S")
+
+
+_handler = logging.StreamHandler()
+_handler.setFormatter(_RomeFormatter("%(asctime)s [%(levelname)s] %(message)s", "%Y-%m-%d %H:%M:%S"))
+logging.basicConfig(level=logging.INFO, handlers=[_handler])
 logger = logging.getLogger(__name__)
 
-ROME = pytz.timezone("Europe/Rome")
 TRIGGER_PORT = 8081
 HEARTBEAT_INTERVAL = 300  # log heartbeat ogni 5 minuti
 
