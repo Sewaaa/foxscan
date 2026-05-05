@@ -16,7 +16,7 @@ import urllib.request
 from pathlib import Path
 
 UNSPLASH_API = "https://api.unsplash.com/photos/random"
-BING_API     = "https://api.bing.microsoft.com/v7.0/images/search"
+PEXELS_API   = "https://api.pexels.com/v1/search"
 
 # Aziende tech riconoscibili → query ottimizzate
 _COMPANY_QUERIES = {
@@ -83,8 +83,8 @@ def fetch_images(carousel_data: dict, out_dir: Path,
       5. Copia cover come ultimo resort
     """
     unsplash_key = os.environ.get("UNSPLASH_ACCESS_KEY", "")
-    bing_key     = os.environ.get("BING_API_KEY", "")
-    use_bing     = bool(bing_key)
+    pexels_key   = os.environ.get("PEXELS_API_KEY", "")
+    use_pexels   = bool(pexels_key)
 
     results: dict[str, Path] = {}
     cover_path: Path | None = None
@@ -108,16 +108,16 @@ def fetch_images(carousel_data: dict, out_dir: Path,
         if path is None:
             company_query = _detect_company(article_text)
             if company_query and key in ("cover", "slide_0"):
-                if use_bing:
-                    path = _download_bing(company_query, dest, bing_key)
+                if use_pexels:
+                    path = _download_pexels(company_query, dest, pexels_key)
                 if path is None and unsplash_key:
                     path = _download_unsplash(company_query, dest, unsplash_key)
 
         # 3. Query generata da Groq
         if path is None:
             primary_query = query_fn(carousel_data)
-            if use_bing:
-                path = _download_bing(primary_query, dest, bing_key)
+            if use_pexels:
+                path = _download_pexels(primary_query, dest, pexels_key)
             if path is None and unsplash_key:
                 path = _download_unsplash(primary_query, dest, unsplash_key)
 
@@ -125,8 +125,8 @@ def fetch_images(carousel_data: dict, out_dir: Path,
         if path is None:
             for fallback_query in _SLOT_FALLBACKS[key]:
                 time.sleep(0.5)
-                if use_bing:
-                    path = _download_bing(fallback_query, dest, bing_key)
+                if use_pexels:
+                    path = _download_pexels(fallback_query, dest, pexels_key)
                 if path is None and unsplash_key:
                     path = _download_unsplash(fallback_query, dest, unsplash_key)
                 if path:
@@ -150,43 +150,41 @@ def fetch_images(carousel_data: dict, out_dir: Path,
     return results
 
 
-def _download_bing(query: str, dest: Path, api_key: str) -> Path | None:
+def _download_pexels(query: str, dest: Path, api_key: str) -> Path | None:
     params = urllib.parse.urlencode({
-        "q":          query,
-        "count":      10,
-        "imageType":  "Photo",
-        "size":       "Large",
-        "safeSearch": "Moderate",
+        "query":       query,
+        "per_page":    10,
+        "orientation": "portrait",
     })
-    url = BING_API + "?" + params
+    url = PEXELS_API + "?" + params
     try:
         req = urllib.request.Request(
             url,
-            headers={"Ocp-Apim-Subscription-Key": api_key, "User-Agent": "FoxScan/1.0"},
+            headers={"Authorization": api_key, "User-Agent": "FoxScan/1.0"},
         )
         with urllib.request.urlopen(req, timeout=10) as r:
             data = json.loads(r.read())
 
-        items = data.get("value", [])
-        if not items:
-            print(f"  [bing] WARN '{query}': nessun risultato")
+        photos = data.get("photos", [])
+        if not photos:
+            print(f"  [pexels] WARN '{query}': nessun risultato")
             return None
 
-        random.shuffle(items)
-        for item in items:
-            img_url = item.get("contentUrl", "")
+        random.shuffle(photos)
+        for photo in photos:
+            img_url = photo.get("src", {}).get("large2x", "")
             if not img_url:
                 continue
             path = _download_direct(img_url, dest)
             if path:
-                print(f"  [bing] {dest.name}: '{query}' -> OK")
+                print(f"  [pexels] {dest.name}: '{query}' -> OK")
                 return path
 
-        print(f"  [bing] WARN '{query}': tutti i download falliti")
+        print(f"  [pexels] WARN '{query}': tutti i download falliti")
         return None
 
     except Exception as e:
-        print(f"  [bing] WARN '{query}': {e}")
+        print(f"  [pexels] WARN '{query}': {e}")
         return None
 
 

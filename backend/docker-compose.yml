@@ -28,7 +28,7 @@ services:
       - INSTAGRAM_USERNAME=${INSTAGRAM_USERNAME}
       - INSTAGRAM_PASSWORD=${INSTAGRAM_PASSWORD}
       - INSTAGRAM_ENABLED=${INSTAGRAM_ENABLED:-false}
-      - BING_API_KEY=${BING_API_KEY}
+      - PEXELS_API_KEY=${PEXELS_API_KEY}
       - IG_DATA_DIR=/app/ig_data
     volumes:
       - ig_data:/app/ig_data
