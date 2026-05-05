@@ -16,10 +16,11 @@ import json
 import logging
 import sys
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytz
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from pipeline import run_pipeline
 
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 ROME = pytz.timezone("Europe/Rome")
 TRIGGER_PORT = 8081
+HEARTBEAT_INTERVAL = 300  # log heartbeat ogni 5 minuti
 
 POST_SLOTS = [
     {"hour": 9,  "minute": 0,  "id": "morning"},
@@ -39,33 +41,38 @@ POST_SLOTS = [
     {"hour": 21, "minute": 0,  "id": "evening"},
 ]
 
-_running = False
+_lock = threading.Lock()
 _last_result: dict = {}
 
 
 def _post_slot(slot_id: str) -> None:
-    global _running, _last_result
+    global _last_result
+    if not _lock.acquire(blocking=False):
+        logger.info("Slot %s: pipeline già in esecuzione, salto.", slot_id)
+        return
     logger.info("=== Slot %s: cerco articolo da postare ===", slot_id)
-    _running = True
     try:
         result = run_pipeline(max_posts=1)
         _last_result = result
         if result.get("skipped"):
             logger.info("Pipeline saltata (INSTAGRAM_ENABLED=false)")
         elif result.get("posted", 0) == 0:
-            logger.info("Nessun articolo idoneo nelle ultime 24h per lo slot %s", slot_id)
+            logger.info("Nessun articolo idoneo nelle ultime 36h per lo slot %s", slot_id)
         else:
             logger.info("Slot %s completato: %s", slot_id, result)
+    except Exception:
+        logger.exception("Errore non gestito nello slot %s", slot_id)
     finally:
-        _running = False
+        _lock.release()
 
 
 class _TriggerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path == "/run":
-            if _running:
+            if not _lock.acquire(blocking=False):
                 self._respond(409, {"status": "already_running"})
                 return
+            _lock.release()
             threading.Thread(target=_post_slot, args=["manual"], daemon=True).start()
             self._respond(200, {"status": "started"})
         else:
@@ -73,7 +80,8 @@ class _TriggerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/status":
-            self._respond(200, {"running": _running, "last_result": _last_result})
+            self._respond(200, {"running": not _lock.acquire(blocking=False) or (_lock.release() or False),
+                                 "last_result": _last_result})
         else:
             self._respond(404, {"error": "not found"})
 
@@ -86,7 +94,7 @@ class _TriggerHandler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def log_message(self, format, *args):
-        pass  # sopprime i log HTTP di default
+        pass
 
 
 def _start_trigger_server() -> None:
@@ -99,7 +107,7 @@ def _start_trigger_server() -> None:
 def start_scheduler() -> None:
     _start_trigger_server()
 
-    scheduler = BlockingScheduler(timezone=ROME)
+    scheduler = BackgroundScheduler(timezone=ROME)
 
     for slot in POST_SLOTS:
         scheduler.add_job(
@@ -111,17 +119,34 @@ def start_scheduler() -> None:
             args=[slot["id"]],
             replace_existing=True,
             misfire_grace_time=600,
+            coalesce=True,
+            max_instances=1,
         )
         logger.info(
             "Slot registrato: %s alle %02d:%02d (Europe/Rome)",
             slot["id"], slot["hour"], slot["minute"],
         )
 
-    logger.info("Scheduler avviato. In attesa degli slot...")
+    scheduler.start()
+    logger.info("Scheduler avviato (BackgroundScheduler). In attesa degli slot...")
+
+    # Main thread: heartbeat + watchdog
+    heartbeat_count = 0
     try:
-        scheduler.start()
+        while True:
+            time.sleep(HEARTBEAT_INTERVAL)
+            heartbeat_count += 1
+            if scheduler.running:
+                jobs = scheduler.get_jobs()
+                next_times = {j.id: str(j.next_run_time) for j in jobs}
+                logger.info("[heartbeat #%d] Scheduler attivo. Prossimi slot: %s",
+                            heartbeat_count, next_times)
+            else:
+                logger.error("[heartbeat #%d] Scheduler NON attivo — riavvio...", heartbeat_count)
+                scheduler.start()
     except (KeyboardInterrupt, SystemExit):
-        logger.info("Scheduler fermato.")
+        logger.info("Shutdown ricevuto, fermo lo scheduler.")
+        scheduler.shutdown(wait=False)
 
 
 if __name__ == "__main__":
