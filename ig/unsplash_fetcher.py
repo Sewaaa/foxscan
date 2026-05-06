@@ -6,6 +6,7 @@ unsplash_fetcher.py — Scarica immagini per il carosello.
 """
 
 import json
+import hashlib
 import os
 import random
 import re
@@ -17,6 +18,7 @@ from pathlib import Path
 
 UNSPLASH_API = "https://api.unsplash.com/photos/random"
 PEXELS_API   = "https://api.pexels.com/v1/search"
+RECENT_HASH_LIMIT = 300
 
 # Aziende tech riconoscibili → query ottimizzate
 _COMPANY_QUERIES = {
@@ -91,6 +93,8 @@ def fetch_images(carousel_data: dict, out_dir: Path,
 
     results: dict[str, Path] = {}
     cover_path: Path | None = None
+    used_hashes: set[str] = set()
+    recent_hashes = _load_recent_hashes()
 
     article_text = " ".join([
         carousel_data.get("cover_title", ""),
@@ -103,7 +107,7 @@ def fetch_images(carousel_data: dict, out_dir: Path,
 
         # 1. Cover: immagine articolo dal sito
         if key == "cover" and article_image_url:
-            path = _download_direct(article_image_url, dest)
+            path = _download_direct(article_image_url, dest, used_hashes, recent_hashes, reject_recent=False)
             if path:
                 print(f"  [img] cover: articolo dal sito -> OK")
 
@@ -111,27 +115,29 @@ def fetch_images(carousel_data: dict, out_dir: Path,
         if path is None:
             company_query = _detect_company(article_text)
             if company_query and key in ("cover", "slide_0"):
+                reject_recent = key != "cover"
                 if use_pexels:
-                    path = _download_pexels(company_query, dest, pexels_key)
+                    path = _download_pexels(company_query, dest, pexels_key, used_hashes, recent_hashes, reject_recent)
                 if path is None and unsplash_key:
-                    path = _download_unsplash(company_query, dest, unsplash_key)
+                    path = _download_unsplash(company_query, dest, unsplash_key, used_hashes, recent_hashes, reject_recent)
 
         # 3. Query generata da Groq
         if path is None:
             primary_query = query_fn(carousel_data)
+            reject_recent = key != "cover"
             if use_pexels:
-                path = _download_pexels(primary_query, dest, pexels_key)
+                path = _download_pexels(primary_query, dest, pexels_key, used_hashes, recent_hashes, reject_recent)
             if path is None and unsplash_key:
-                path = _download_unsplash(primary_query, dest, unsplash_key)
+                path = _download_unsplash(primary_query, dest, unsplash_key, used_hashes, recent_hashes, reject_recent)
 
         # 4. Fallback per slot
         if path is None:
             for fallback_query in _SLOT_FALLBACKS[key]:
                 time.sleep(0.5)
                 if use_pexels:
-                    path = _download_pexels(fallback_query, dest, pexels_key)
+                    path = _download_pexels(fallback_query, dest, pexels_key, used_hashes, recent_hashes, reject_recent=True)
                 if path is None and unsplash_key:
-                    path = _download_unsplash(fallback_query, dest, unsplash_key)
+                    path = _download_unsplash(fallback_query, dest, unsplash_key, used_hashes, recent_hashes, reject_recent=True)
                 if path:
                     break
 
@@ -149,10 +155,18 @@ def fetch_images(carousel_data: dict, out_dir: Path,
 
         time.sleep(0.4)
 
+    _save_recent_hashes(recent_hashes)
     return results
 
 
-def _download_pexels(query: str, dest: Path, api_key: str) -> Path | None:
+def _download_pexels(
+    query: str,
+    dest: Path,
+    api_key: str,
+    used_hashes: set[str],
+    recent_hashes: list[str],
+    reject_recent: bool,
+) -> Path | None:
     params = urllib.parse.urlencode({
         "query":       query,
         "per_page":    10,
@@ -177,7 +191,7 @@ def _download_pexels(query: str, dest: Path, api_key: str) -> Path | None:
             img_url = photo.get("src", {}).get("large2x", "")
             if not img_url:
                 continue
-            path = _download_direct(img_url, dest)
+            path = _download_direct(img_url, dest, used_hashes, recent_hashes, reject_recent)
             if path:
                 print(f"  [pexels] {dest.name}: '{query}' -> OK")
                 return path
@@ -190,7 +204,14 @@ def _download_pexels(query: str, dest: Path, api_key: str) -> Path | None:
         return None
 
 
-def _download_unsplash(query: str, dest: Path, access_key: str) -> Path | None:
+def _download_unsplash(
+    query: str,
+    dest: Path,
+    access_key: str,
+    used_hashes: set[str],
+    recent_hashes: list[str],
+    reject_recent: bool,
+) -> Path | None:
     params = (
         f"?query={urllib.parse.quote(query)}"
         f"&orientation=portrait"
@@ -203,31 +224,87 @@ def _download_unsplash(query: str, dest: Path, access_key: str) -> Path | None:
         with urllib.request.urlopen(req, timeout=10) as r:
             data = json.loads(r.read())
 
-        photo = random.choice(data) if isinstance(data, list) else data
-        raw_url = photo["urls"]["raw"]
-        img_url = raw_url + "&w=1080&h=1350&fit=crop&q=85"
+        photos = data if isinstance(data, list) else [data]
+        random.shuffle(photos)
+        for photo in photos:
+            raw_url = photo["urls"]["raw"]
+            img_url = raw_url + "&w=1080&h=1350&fit=crop&q=85"
+            path = _download_direct(img_url, dest, used_hashes, recent_hashes, reject_recent)
+            if path:
+                print(f"  [unsplash] {dest.name}: '{query}' -> OK")
+                return path
 
-        img_req = urllib.request.Request(img_url, headers={"User-Agent": "FoxScan/1.0"})
-        with urllib.request.urlopen(img_req, timeout=15) as r, open(dest, "wb") as f:
-            f.write(r.read())
-
-        print(f"  [unsplash] {dest.name}: '{query}' -> OK")
-        return dest
+        print(f"  [unsplash] WARN '{query}': risultati duplicati o download falliti")
+        return None
 
     except Exception as e:
         print(f"  [unsplash] WARN '{query}': {e}")
         return None
 
 
-def _download_direct(url: str, dest: Path) -> Path | None:
+def _download_direct(
+    url: str,
+    dest: Path,
+    used_hashes: set[str] | None = None,
+    recent_hashes: list[str] | None = None,
+    reject_recent: bool = True,
+) -> Path | None:
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "FoxScan/1.0"})
         with urllib.request.urlopen(req, timeout=15) as r, open(dest, "wb") as f:
             f.write(r.read())
+        if used_hashes is not None and recent_hashes is not None:
+            if not _register_unique_image(dest, used_hashes, recent_hashes, reject_recent):
+                return None
+        elif used_hashes is not None and not _register_unique_image(dest, used_hashes, [], False):
+            return None
         return dest
     except Exception as e:
         print(f"  [img] WARN download diretto fallito: {e}")
         return None
+
+
+def _register_unique_image(
+    path: Path,
+    used_hashes: set[str],
+    recent_hashes: list[str],
+    reject_recent: bool,
+) -> bool:
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if digest in used_hashes or (reject_recent and digest in recent_hashes):
+        try:
+            path.unlink()
+        except OSError:
+            pass
+        print(f"  [img] WARN {path.name}: immagine duplicata scartata")
+        return False
+    used_hashes.add(digest)
+    recent_hashes.append(digest)
+    del recent_hashes[:-RECENT_HASH_LIMIT]
+    return True
+
+
+def _recent_hashes_path() -> Path:
+    data_dir = Path(os.environ.get("IG_DATA_DIR", Path(__file__).parent / "ig_data"))
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir / "recent_image_hashes.json"
+
+
+def _load_recent_hashes() -> list[str]:
+    path = _recent_hashes_path()
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(data, list):
+            return [str(x) for x in data][-RECENT_HASH_LIMIT:]
+    except Exception:
+        pass
+    return []
+
+
+def _save_recent_hashes(hashes: list[str]) -> None:
+    path = _recent_hashes_path()
+    unique_recent = list(dict.fromkeys(hashes))[-RECENT_HASH_LIMIT:]
+    path.write_text(json.dumps(unique_recent), encoding="utf-8")
 
 
 if __name__ == "__main__":
