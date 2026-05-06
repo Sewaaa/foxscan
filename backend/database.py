@@ -41,6 +41,9 @@ def init_db():
         ("articles", "posted_to_ig", "BOOLEAN DEFAULT FALSE"),
         ("articles", "ig_carousel_data", "TEXT"),
         ("articles", "ig_score", "INTEGER"),
+        ("articles", "ig_last_error", "TEXT"),
+        ("articles", "ig_last_error_at", "TIMESTAMP"),
+        ("articles", "ig_attempts", "INTEGER DEFAULT 0"),
     ]
     with engine.connect() as conn:
         for table, column, col_type in migrations:

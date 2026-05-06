@@ -70,10 +70,12 @@ OUT_DIR.mkdir(exist_ok=True)
 _cache: dict = {}
 
 def b64(path: Path, mime: str = "image/png") -> str:
-    if path not in _cache:
+    stat = path.stat()
+    cache_key = (path, stat.st_mtime_ns, stat.st_size)
+    if cache_key not in _cache:
         with open(path, "rb") as f:
-            _cache[path] = f"data:{mime};base64," + base64.b64encode(f.read()).decode()
-    return _cache[path]
+            _cache[cache_key] = f"data:{mime};base64," + base64.b64encode(f.read()).decode()
+    return _cache[cache_key]
 
 def fetch_img(url: str, cache_key: str) -> str:
     """Scarica (e memorizza) un'immagine da URL, restituisce data URI base64."""

@@ -471,7 +471,7 @@ export default function AdminPage() {
           {[
             { v: igStats?.posted_today ?? "·", l: "Postati (36h)", c: "text-emerald-600 dark:text-emerald-400" },
             { v: sortedPending.length,          l: isFallback ? "Coda (fallback)" : "In coda", c: txtPri },
-            { v: igStats?.too_old.length ?? "·", l: "Scaduti", c: "text-amber-600 dark:text-amber-500" },
+            { v: igStats?.failed?.length ?? "·", l: "Errori", c: "text-red-600 dark:text-red-400" },
           ].map(({ v, l, c }) => (
             <div key={l} className={`rounded-lg ${bgSub} border border-slate-200 dark:border-white/5 py-3`}>
               <p className={`text-2xl font-bold tabular-nums ${c}`}>{v}</p>
@@ -564,8 +564,33 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
-            {sortedPending.length === 0 && (igStats?.too_old.length ?? 0) === 0 && (
-              <p className={`text-xs ${txtDim} italic`}>Nessun articolo in coda o scaduto.</p>
+            {(igStats?.failed?.length ?? 0) > 0 && (
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-widest text-red-600/80 dark:text-red-500/70 mb-2">
+                  Errori IG - provati e saltati
+                </p>
+                <div className={`divide-y ${divider}`}>
+                  {(igStats?.failed ?? []).map(a => (
+                    <div key={a.id} className="py-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <a href={`/article/${a.id}`} target="_blank" rel="noopener noreferrer"
+                          className="text-xs text-red-700 dark:text-red-300 hover:text-red-500 transition-colors truncate flex-1 cursor-pointer">
+                          {a.title}
+                        </a>
+                        <span className="text-[10px] font-mono text-red-500 shrink-0">
+                          tentativi {a.ig_attempts ?? 0}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11px] leading-relaxed text-red-600/80 dark:text-red-400/80 break-words">
+                        {a.ig_last_error}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {sortedPending.length === 0 && (igStats?.too_old.length ?? 0) === 0 && (igStats?.failed?.length ?? 0) === 0 && (
+              <p className={`text-xs ${txtDim} italic`}>Nessun articolo in coda, scaduto o in errore.</p>
             )}
           </div>
 

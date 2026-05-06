@@ -376,6 +376,7 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
         db.query(Article)
         .filter(Article.relevance_score >= 8)
         .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
+        .filter(Article.ig_last_error == None)  # noqa: E711
         .filter(Article.published_at >= cutoff)
         .order_by(Article.relevance_score.desc(), Article.published_at.desc())
         .all()
@@ -385,6 +386,7 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
         db.query(Article)
         .filter(Article.relevance_score >= 5, Article.relevance_score < 8)
         .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
+        .filter(Article.ig_last_error == None)  # noqa: E711
         .filter(Article.published_at >= cutoff)
         .order_by(Article.relevance_score.desc(), Article.published_at.desc())
         .all()
@@ -396,6 +398,7 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
         db.query(Article)
         .filter(Article.relevance_score >= 8)
         .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
+        .filter(Article.ig_last_error == None)  # noqa: E711
         .filter(Article.published_at < cutoff)
         .filter(Article.published_at >= cutoff_48h)
         .order_by(Article.published_at.desc())
@@ -417,6 +420,15 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
         .count()
     )
 
+    failed = (
+        db.query(Article)
+        .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
+        .filter(Article.ig_last_error != None)  # noqa: E711
+        .order_by(Article.ig_last_error_at.desc(), Article.published_at.desc())
+        .limit(10)
+        .all()
+    )
+
     def _slim(a: Article) -> dict:
         return {
             "id": a.id,
@@ -424,6 +436,9 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
             "relevance_score": a.relevance_score,
             "ig_score": a.ig_score,
             "published_at": a.published_at.isoformat() if a.published_at else None,
+            "ig_last_error": a.ig_last_error,
+            "ig_last_error_at": a.ig_last_error_at.isoformat() if a.ig_last_error_at else None,
+            "ig_attempts": a.ig_attempts or 0,
         }
 
     return {
@@ -432,6 +447,7 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
         "pending_fallback": [_slim(a) for a in pending_fallback],
         "too_old": [_slim(a) for a in too_old],
         "recent_posted": [_slim(a) for a in recent_posted],
+        "failed": [_slim(a) for a in failed],
     }
 
 

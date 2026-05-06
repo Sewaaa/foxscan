@@ -113,6 +113,9 @@ export interface IgArticle {
   relevance_score: number;
   ig_score: number | null;
   published_at: string;
+  ig_last_error?: string | null;
+  ig_last_error_at?: string | null;
+  ig_attempts?: number;
 }
 
 export interface IgStats {
@@ -121,6 +124,7 @@ export interface IgStats {
   pending_fallback: IgArticle[];
   too_old: IgArticle[];
   recent_posted: IgArticle[];
+  failed: IgArticle[];
 }
 
 export async function getIgStats(adminKey: string): Promise<IgStats> {

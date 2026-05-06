@@ -2,17 +2,17 @@
 """
 unsplash_fetcher.py — Scarica immagini per il carosello.
 - Cover: usa image_url dell'articolo dal sito (più contestuale)
-- Slides: Google Custom Search (primario) → Unsplash (fallback)
+- Slides: Pexels (primario, se configurato) → Unsplash (fallback)
 """
 
 import json
 import os
 import random
 import re
-import shutil
 import time
 import urllib.parse
 import urllib.request
+from datetime import datetime
 from pathlib import Path
 
 UNSPLASH_API = "https://api.unsplash.com/photos/random"
@@ -77,14 +77,17 @@ def fetch_images(carousel_data: dict, out_dir: Path,
     Scarica le immagini per il carosello.
     Ordine tentativi per ogni slot:
       1. article_image_url (solo cover)
-      2. Google Custom Search con query Groq/company
+      2. Pexels con query Groq/company, se configurato
       3. Unsplash con query Groq/company
-      4. Fallback slot via Google → Unsplash
-      5. Copia cover come ultimo resort
+      4. Fallback slot via Pexels → Unsplash
+      5. Errore se non esiste nessuna immagine distinta per lo slot
     """
     unsplash_key = os.environ.get("UNSPLASH_ACCESS_KEY", "")
     pexels_key   = os.environ.get("PEXELS_API_KEY", "")
     use_pexels   = bool(pexels_key)
+
+    article_id = str(carousel_data.get("id") or "manual")
+    run_id = datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
 
     results: dict[str, Path] = {}
     cover_path: Path | None = None
@@ -95,7 +98,7 @@ def fetch_images(carousel_data: dict, out_dir: Path,
     ])
 
     for key, query_fn in _KEY_TO_QUERY.items():
-        dest = out_dir / f"_img_{key}.jpg"
+        dest = out_dir / f"_img_{article_id}_{run_id}_{key}.jpg"
         path: Path | None = None
 
         # 1. Cover: immagine articolo dal sito
@@ -132,11 +135,10 @@ def fetch_images(carousel_data: dict, out_dir: Path,
                 if path:
                     break
 
-        # 5. Ultimo resort: copia cover
+        # 5. Niente copia della cover sulle slide: se Pexels/Unsplash falliscono,
+        # meglio far fallire il post che pubblicare slide con sfondi duplicati.
         if path is None and cover_path is not None and key != "cover":
-            shutil.copy2(cover_path, dest)
-            path = dest
-            print(f"  [img] {key}: fallback finale -> copia cover")
+            print(f"  [img] WARN {key}: nessuna immagine distinta trovata")
 
         if path is None:
             raise RuntimeError(f"Impossibile scaricare immagine per '{key}'")

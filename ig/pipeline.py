@@ -34,6 +34,7 @@ OUT_DIR.mkdir(exist_ok=True)
 
 MIN_SCORE_CRITICAL = 8
 MIN_SCORE_FALLBACK = 5
+MAX_CANDIDATES_PER_RUN = 5
 
 
 # ── Database ──────────────────────────────────────────────────────────────────
@@ -47,8 +48,28 @@ def _get_engine():
     return create_engine(db_url, pool_pre_ping=True, pool_recycle=300)
 
 
+def _ensure_ig_columns(engine) -> None:
+    """Crea le colonne di stato IG se il backend non ha ancora eseguito la migrazione."""
+    db_url = os.environ.get("DATABASE_URL", "")
+    migrations = [
+        ("ig_last_error", "TEXT"),
+        ("ig_last_error_at", "TIMESTAMP"),
+        ("ig_attempts", "INTEGER DEFAULT 0"),
+    ]
+    with engine.begin() as conn:
+        for column, col_type in migrations:
+            try:
+                if db_url.startswith("sqlite"):
+                    conn.execute(text(f"ALTER TABLE articles ADD COLUMN {column} {col_type}"))
+                else:
+                    conn.execute(text(f"ALTER TABLE articles ADD COLUMN IF NOT EXISTS {column} {col_type}"))
+            except Exception:
+                pass
+
+
 def get_pending_articles(engine, max_posts: int = 1, hours: int = 36) -> list[dict]:
     cutoff = datetime.utcnow() - timedelta(hours=hours)
+    limit = max(max_posts, MAX_CANDIDATES_PER_RUN)
 
     def _query(min_score: int) -> list[dict]:
         q = text("""
@@ -56,12 +77,13 @@ def get_pending_articles(engine, max_posts: int = 1, hours: int = 36) -> list[di
             FROM articles
             WHERE relevance_score >= :score
               AND (posted_to_ig IS NULL OR posted_to_ig = FALSE)
+              AND ig_last_error IS NULL
               AND published_at >= :cutoff
             ORDER BY relevance_score DESC, COALESCE(ig_score, 0) DESC, published_at DESC
             LIMIT :limit
         """)
         with engine.connect() as conn:
-            rows = conn.execute(q, {"score": min_score, "cutoff": cutoff, "limit": max_posts}).fetchall()
+            rows = conn.execute(q, {"score": min_score, "cutoff": cutoff, "limit": limit}).fetchall()
         return [dict(r._mapping) for r in rows]
 
     articles = _query(MIN_SCORE_CRITICAL)
@@ -77,7 +99,13 @@ def get_pending_articles(engine, max_posts: int = 1, hours: int = 36) -> list[di
 def save_carousel_data(engine, article_id: int, data: dict) -> None:
     with engine.begin() as conn:
         conn.execute(
-            text("UPDATE articles SET ig_carousel_data = :data WHERE id = :id"),
+            text("""
+                UPDATE articles
+                SET ig_carousel_data = :data,
+                    ig_last_error = NULL,
+                    ig_last_error_at = NULL
+                WHERE id = :id
+            """),
             {"data": json.dumps(data, ensure_ascii=False), "id": article_id},
         )
 
@@ -85,8 +113,31 @@ def save_carousel_data(engine, article_id: int, data: dict) -> None:
 def mark_as_posted(engine, article_id: int) -> None:
     with engine.begin() as conn:
         conn.execute(
-            text("UPDATE articles SET posted_to_ig = TRUE WHERE id = :id"),
+            text("""
+                UPDATE articles
+                SET posted_to_ig = TRUE,
+                    ig_last_error = NULL,
+                    ig_last_error_at = NULL
+                WHERE id = :id
+            """),
             {"id": article_id},
+        )
+
+
+def mark_as_failed(engine, article_id: int, error: str) -> None:
+    error = (error or "Errore sconosciuto").strip()
+    if len(error) > 1000:
+        error = error[:997] + "..."
+    with engine.begin() as conn:
+        conn.execute(
+            text("""
+                UPDATE articles
+                SET ig_last_error = :error,
+                    ig_last_error_at = :error_at,
+                    ig_attempts = COALESCE(ig_attempts, 0) + 1
+                WHERE id = :id
+            """),
+            {"error": error, "error_at": datetime.utcnow(), "id": article_id},
         )
 
 
@@ -118,6 +169,7 @@ def run_pipeline(max_posts: int = 1) -> dict:
     from unsplash_fetcher import fetch_images
 
     engine = _get_engine()
+    _ensure_ig_columns(engine)
     articles = get_pending_articles(engine, max_posts=max_posts)
 
     if not articles:
@@ -166,9 +218,13 @@ def run_pipeline(max_posts: int = 1) -> dict:
             mark_as_posted(engine, article_id)
             logger.info("  → OK articolo #%d postato.", article_id)
             stats["posted"] += 1
+            if stats["posted"] >= max_posts:
+                break
 
         except Exception as e:
-            logger.error("  → ERRORE articolo #%d: %s", article_id, e, exc_info=True)
+            error_msg = f"{type(e).__name__}: {e}"
+            logger.error("  → ERRORE articolo #%d: %s", article_id, error_msg, exc_info=True)
+            mark_as_failed(engine, article_id, error_msg)
             stats["errors"] += 1
             continue
 

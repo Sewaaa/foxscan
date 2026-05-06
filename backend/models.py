@@ -21,6 +21,9 @@ class Article(Base):
     posted_to_ig = Column(Boolean, default=False)
     ig_carousel_data = Column(Text, nullable=True)  # JSON cache output Groq
     ig_score = Column(Integer, nullable=True)  # instagrammabilità 1-10
+    ig_last_error = Column(Text, nullable=True)
+    ig_last_error_at = Column(DateTime, nullable=True)
+    ig_attempts = Column(Integer, default=0)
 
     sources = relationship("Source", back_populates="article", cascade="all, delete-orphan")
 
