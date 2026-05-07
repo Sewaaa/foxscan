@@ -408,7 +408,7 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
     recent_posted = (
         db.query(Article)
         .filter(Article.posted_to_ig == True)  # noqa: E712
-        .order_by(Article.published_at.desc())
+        .order_by(Article.ig_posted_at.desc().nullslast())
         .limit(6)
         .all()
     )
@@ -436,6 +436,7 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
             "relevance_score": a.relevance_score,
             "ig_score": a.ig_score,
             "published_at": a.published_at.isoformat() if a.published_at else None,
+            "ig_posted_at": a.ig_posted_at.isoformat() if a.ig_posted_at else None,
             "ig_last_error": a.ig_last_error,
             "ig_last_error_at": a.ig_last_error_at.isoformat() if a.ig_last_error_at else None,
             "ig_attempts": a.ig_attempts or 0,

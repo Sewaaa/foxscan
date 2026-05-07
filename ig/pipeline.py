@@ -116,11 +116,12 @@ def mark_as_posted(engine, article_id: int) -> None:
             text("""
                 UPDATE articles
                 SET posted_to_ig = TRUE,
+                    ig_posted_at = :now,
                     ig_last_error = NULL,
                     ig_last_error_at = NULL
                 WHERE id = :id
             """),
-            {"id": article_id},
+            {"now": datetime.utcnow(), "id": article_id},
         )
 
 

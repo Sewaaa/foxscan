@@ -19,6 +19,7 @@ class Article(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     posted_to_ig = Column(Boolean, default=False)
+    ig_posted_at = Column(DateTime, nullable=True)
     ig_carousel_data = Column(Text, nullable=True)  # JSON cache output Groq
     ig_score = Column(Integer, nullable=True)  # instagrammabilità 1-10
     ig_last_error = Column(Text, nullable=True)

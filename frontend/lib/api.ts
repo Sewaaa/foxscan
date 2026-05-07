@@ -113,6 +113,7 @@ export interface IgArticle {
   relevance_score: number;
   ig_score: number | null;
   published_at: string;
+  ig_posted_at?: string | null;
   ig_last_error?: string | null;
   ig_last_error_at?: string | null;
   ig_attempts?: number;

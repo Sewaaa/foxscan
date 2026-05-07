@@ -613,7 +613,9 @@ export default function AdminPage() {
                       {a.title}
                     </a>
                     <span className={`text-[11px] ${txtDim} shrink-0 whitespace-nowrap`}>
-                      {fmt(a.published_at, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                      {a.ig_posted_at
+                        ? fmt(a.ig_posted_at, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+                        : fmt(a.published_at, { day: "2-digit", month: "2-digit" })}
                     </span>
                   </div>
                 ))}
