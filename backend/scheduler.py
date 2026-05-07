@@ -22,8 +22,49 @@ logger = logging.getLogger(__name__)
 scheduler = BackgroundScheduler()
 
 # Lock per evitare che pipeline concorrenti (startup thread + scheduler)
-# processino gli stessi item contemporaneamente creando duplicati
+# processino gli stessi item contemporaneamente creando duplicati.
+# Se una run rimane bloccata per più di PIPELINE_LOCK_TIMEOUT_MINUTES minuti
+# il lock viene forzatamente rilasciato al prossimo tentativo.
 _pipeline_lock = threading.Lock()
+_pipeline_lock_acquired_at: datetime | None = None
+PIPELINE_LOCK_TIMEOUT_MINUTES = 60
+
+
+def _try_acquire_pipeline_lock() -> bool:
+    """Tenta di acquisire il lock. Se è tenuto da più di 60 min lo forza-rilascia."""
+    global _pipeline_lock_acquired_at
+    if _pipeline_lock.acquire(blocking=False):
+        _pipeline_lock_acquired_at = datetime.utcnow()
+        return True
+    # Lock già tenuto — controlla il timeout
+    if _pipeline_lock_acquired_at is not None:
+        elapsed_min = (datetime.utcnow() - _pipeline_lock_acquired_at).total_seconds() / 60
+        if elapsed_min >= PIPELINE_LOCK_TIMEOUT_MINUTES:
+            logger.warning(
+                "Pipeline lock tenuto da %.0f min (timeout %d min) — forzo il rilascio",
+                elapsed_min, PIPELINE_LOCK_TIMEOUT_MINUTES,
+            )
+            try:
+                _pipeline_lock.release()
+            except RuntimeError:
+                pass
+            if _pipeline_lock.acquire(blocking=False):
+                _pipeline_lock_acquired_at = datetime.utcnow()
+                return True
+        else:
+            logger.info("Pipeline già in esecuzione (%.0f min), skip", elapsed_min)
+    else:
+        logger.info("Pipeline già in esecuzione, skip")
+    return False
+
+
+def _release_pipeline_lock() -> None:
+    global _pipeline_lock_acquired_at
+    _pipeline_lock_acquired_at = None
+    try:
+        _pipeline_lock.release()
+    except RuntimeError:
+        pass
 
 
 def run_pipeline(db: Session | None = None) -> dict:  # noqa: C901
@@ -35,8 +76,7 @@ def run_pipeline(db: Session | None = None) -> dict:  # noqa: C901
     4. Scraping + sintesi per ogni cluster
     5. Salvataggio su DB
     """
-    if not _pipeline_lock.acquire(blocking=False):
-        logger.info("Pipeline già in esecuzione, skip")
+    if not _try_acquire_pipeline_lock():
         return {"skipped": True}
 
     close_db = False
@@ -116,7 +156,7 @@ def run_pipeline(db: Session | None = None) -> dict:  # noqa: C901
             logger.warning(f"Impossibile salvare PipelineRun: {e}")
         if close_db:
             db.close()
-        _pipeline_lock.release()
+        _release_pipeline_lock()
 
     logger.info(f"Pipeline completata: {stats}")
     return stats
