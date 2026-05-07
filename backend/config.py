@@ -4,33 +4,19 @@ RSS_FEEDS = [
     # News generaliste — alta sovrapposizione, buon clustering
     "https://www.bleepingcomputer.com/feed/",
     "https://feeds.feedburner.com/TheHackersNews",
-    "https://krebsonsecurity.com/feed/",
     "https://www.darkreading.com/rss.xml",
     "https://securityaffairs.com/feed",
     "https://grahamcluley.com/feed/",
     "https://www.helpnetsecurity.com/feed/",
     "https://www.infosecurity-magazine.com/rss/news/",
-    "https://www.wired.com/feed/category/security/latest/rss",
     "https://cyberscoop.com/feed/",
     "https://www.theregister.com/security/headlines.atom",
-    "https://techcrunch.com/tag/security/feed/",
-    "https://arstechnica.com/security/feed/",         # Ars Technica Security
-    "https://hackread.com/feed/",                     # Hackread — alta sovrapposizione con BleepingComputer/THN
-    "https://gbhackers.com/feed/",                    # GBHackers — stesse breaking news
-    "https://thecyberexpress.com/feed/",              # The Cyber Express — breaking cyber news
-    "https://cybernews.com/news/feed/",               # Cybernews — copertura rapida, stesse storie
-    # Threat research — contenuti unici, alta qualità
-    "https://www.malwarebytes.com/blog/feed/",
-    "https://www.recordedfuture.com/feed",
-    "https://unit42.paloaltonetworks.com/feed/",
-    "https://www.microsoft.com/en-us/security/blog/feed/",
-    "https://www.schneier.com/feed/atom/",
+    "https://arstechnica.com/security/feed/",
+    "https://hackread.com/feed/",
+    "https://gbhackers.com/feed/",
+    "https://thecyberexpress.com/feed/",
     # Fonti italiane — cybersecurity
-    "https://www.redhotcyber.com/feed/",
     "https://www.cybersecurity360.it/feed/",
-    "https://cert-agid.gov.it/feed/",
-    "https://www.agendadigitale.eu/feed/",
-    "https://www.punto-informatico.it/feed/",
 ]
 
 # LLM
