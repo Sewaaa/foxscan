@@ -34,12 +34,10 @@ IMAGE QUERY (CRITICO — SII SPECIFICO):
 - OGNI image_query DEVE essere visivamente DIVERSA dalle altre: nessun sfondo ripetuto
 - Se l'articolo cita esplicitamente un'azienda (Google, Microsoft, Apple, Meta, Cisco, ecc.) includi SEMPRE il nome dell'azienda nella query: es. "Google Googleplex headquarters campus aerial", "Microsoft Azure logo office building", "Apple Park spaceship campus aerial"
 - Se cita un paese o governo, usa immagini specifiche: "US Capitol Washington cybersecurity", "Pentagon building aerial view"
-- cover: scena drammatica e specifica dell'ambito colpito (evita immagini generiche di hacker con felpa)
 - slides[0].image_query: reazione umana o notizia specifica (giornalista, sala riunioni, conferenza stampa)
 - slides[1].image_query: infrastruttura SPECIFICA citata nell'articolo (router Cisco, data center Azure, ecc.)
 - slides[2].image_query: visione globale o strategica (mappa, satellite, geopolitica)
-- opinion.image_query: immagine positiva/protettiva (es. "person laptop coffee home secure")
-- SEMPRE in inglese, 4-7 parole per Unsplash. MAI ripetere parole tra query diverse.
+- SEMPRE in inglese, 4-7 parole per Pexels. MAI ripetere parole tra query diverse.
 
 CAPTION INSTAGRAM:
 - Tono: social media manager professionista, coinvolgente, diretto, leggermente allarmistico
@@ -59,7 +57,6 @@ Schema JSON:
 {
   "cover_title": "max 10 parole allarmanti",
   "cover_kicker": "BREAKING",
-  "cover_image_query": "government building night cyber surveillance",
   "slides": [
     {"section": "Cosa è successo",    "text": "...", "image_query": "journalist newsroom alert screen monitor"},
     {"section": "Chi è coinvolto",    "text": "...", "image_query": "corporate server room data center hardware"},
@@ -67,8 +64,7 @@ Schema JSON:
   ],
   "opinion": {
     "section": "Il consiglio di FoxScan",
-    "text": "...",
-    "image_query": "person laptop home office coffee secure"
+    "text": "..."
   },
   "caption": "🔴 [hook forte] ...\\n\\n• [punto chiave 1]\\n• [punto chiave 2]\\n• [punto chiave 3]\\n\\n[CTA + link]\\n\\n#hashtag1 #hashtag2 ..."
 }"""
@@ -189,7 +185,7 @@ def _extract_json(raw: str) -> str:
 
 def _validate(data: dict) -> None:
     # caption non è ancora presente a questo punto (viene aggiunta dopo)
-    required_top = {"cover_title", "cover_kicker", "cover_image_query", "slides", "opinion"}
+    required_top = {"cover_title", "cover_kicker", "slides", "opinion"}
     missing = required_top - data.keys()
     if missing:
         raise ValueError(f"Groq output manca di: {missing}")
@@ -199,7 +195,7 @@ def _validate(data: dict) -> None:
         for key in ("section", "text", "image_query"):
             if not slide.get(key):
                 raise ValueError(f"Slide {i} manca di '{key}'")
-    for key in ("section", "text", "image_query"):
+    for key in ("section", "text"):
         if not data["opinion"].get(key):
             raise ValueError(f"opinion manca di '{key}'")
 

@@ -6,7 +6,7 @@ FoxScan Instagram Carousel Generator v8
 - Niente kicker badge, niente "scorri per la notizia"
 """
 
-import base64, os, re, urllib.request
+import base64, os, re
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from fox_catalog import select_cover_fox, select_opinion_fox, select_cta_fox
@@ -26,37 +26,31 @@ def _font_size(text: str, base: int, step: int = 6, thresholds: tuple = (180, 28
             size -= step
     return max(size, base - len(thresholds) * step)
 
-# ── Articolo demo ─────────────────────────────────────────────────────────────
-# In produzione questi campi vengono popolati dalla pipeline:
-#   cover_image_url  → Unsplash query "hacker cyber network"
-#   slides[i].image_url → Unsplash query specifica per ogni slide
-#   opinion.image_url   → Unsplash query "security advice shield"
+# ── Articolo demo (solo per test locale con image_paths precaricate) ──────────
 ARTICLE = {
     "id": 5,
     "cover_title": "Hacker dentro le reti aziendali di tutto il mondo: scoperte **15 falle** già sfruttate",
     "cover_kicker": "BREAKING",
-    "cover_image_url": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1080&h=1080&fit=crop&q=85",
     "slides": [
         {
             "section": "Cosa è successo",
             "text": "La CISA ha aggiornato il catalogo delle vulnerabilità sfruttate attivamente con <strong>15 nuove CVE</strong>. Tutti i difetti sono già in uso da gruppi criminali e APT su scala globale.",
-            "image_url": "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=1080&h=1080&fit=crop&q=85",
+            "image_query": "journalist newsroom alert screen monitor",
         },
         {
             "section": "I sistemi colpiti",
             "text": "<strong>Cisco IOS XE</strong> espone privilegi root sui dispositivi di rete. <strong>Fortinet FortiOS</strong> permette accesso remoto non autenticato alla VPN, già usato in attacchi ransomware reali.",
-            "image_url": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1080&h=1080&fit=crop&q=85",
+            "image_query": "server rack data center hardware blue",
         },
         {
             "section": "Il quadro completo",
             "text": "<strong>Microsoft Exchange</strong> è colpita da un SSRF che porta alla compromissione dell'<strong>Active Directory</strong>. Router, gateway VPN e server mail: tre infrastrutture core violate in simultanea.",
-            "image_url": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1080&h=1080&fit=crop&q=85",
+            "image_query": "world map digital network satellite view",
         },
     ],
     "opinion": {
         "section": "Il consiglio di FoxScan",
         "text": "Tenere i propri dispositivi aggiornati è la misura più semplice ed efficace contro questo tipo di minacce. Non occorre essere esperti: basta accettare gli aggiornamenti quando arrivano. <strong>Piccolo gesto, grande differenza.</strong>",
-        "image_url": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1080&h=1080&fit=crop&q=85",
     },
     "tags": ["CVE", "vulnerability", "policy"],
     "score": 8,
@@ -77,23 +71,6 @@ def b64(path: Path, mime: str = "image/png") -> str:
             _cache[cache_key] = f"data:{mime};base64," + base64.b64encode(f.read()).decode()
     return _cache[cache_key]
 
-def fetch_img(url: str, cache_key: str) -> str:
-    """Scarica (e memorizza) un'immagine da URL, restituisce data URI base64."""
-    cache_path = OUT_DIR / f"_img_{cache_key}.jpg"
-    if not cache_path.exists():
-        print(f"  Downloading {cache_key}...")
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req) as r, open(cache_path, "wb") as f:
-                f.write(r.read())
-        except Exception as e:
-            print(f"  WARNING: download fallito per {cache_key}: {e}")
-            # fallback: usa prima immagine già in cache
-            fallback = next(OUT_DIR.glob("_img_*.jpg"), None)
-            if fallback:
-                return b64(fallback, "image/jpeg")
-            raise
-    return b64(cache_path, "image/jpeg")
 
 # ── CSS base ──────────────────────────────────────────────────────────────────
 BASE_CSS = """
@@ -496,26 +473,20 @@ def slide6_cta(logo: str) -> str:
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
-def generate(a: dict, image_paths: dict | None = None) -> list[Path]:
+def generate(a: dict, image_paths: dict) -> list[Path]:
     """
     a           : dict articolo (deve avere id, tags, cover_title, cover_kicker, slides, opinion)
-    image_paths : {cover, slide_0, slide_1, slide_2, opinion} → Path locale
-                  Se None, usa a["cover_image_url"] / a["slides"][i]["image_url"] (modalità demo)
+    image_paths : {"cover": Path, "slide_0": Path, "slide_1": Path, "slide_2": Path}
+                  prodotto da unsplash_fetcher.fetch_images()
     Ritorna lista di 6 Path ai PNG generati.
     """
     article_id = a["id"]
     tags       = a["tags"]
 
-    if image_paths is not None:
-        img_cover   = b64(Path(image_paths["cover"]),   "image/jpeg")
-        img_slide0  = b64(Path(image_paths["slide_0"]), "image/jpeg")
-        img_slide1  = b64(Path(image_paths["slide_1"]), "image/jpeg")
-        img_slide2  = b64(Path(image_paths["slide_2"]), "image/jpeg")
-    else:
-        img_cover   = fetch_img(a["cover_image_url"],        "cover")
-        img_slide0  = fetch_img(a["slides"][0]["image_url"], "slide_0")
-        img_slide1  = fetch_img(a["slides"][1]["image_url"], "slide_1")
-        img_slide2  = fetch_img(a["slides"][2]["image_url"], "slide_2")
+    img_cover  = b64(Path(image_paths["cover"]),   "image/jpeg")
+    img_slide0 = b64(Path(image_paths["slide_0"]), "image/jpeg")
+    img_slide1 = b64(Path(image_paths["slide_1"]), "image/jpeg")
+    img_slide2 = b64(Path(image_paths["slide_2"]), "image/jpeg")
 
     fox_cover   = b64(select_cover_fox(tags, article_id))
     fox_opinion = b64(PUB / "fox_cta_forward_nobg.png")
@@ -546,8 +517,16 @@ def generate(a: dict, image_paths: dict | None = None) -> list[Path]:
 
 
 if __name__ == "__main__":
-    print("FoxScan carousel v7...")
-    generate(ARTICLE)
-    # Cleanup immagini demo scaricate
+    # Per il test locale: scarica le immagini con il fetcher, poi genera il carosello.
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).parent / ".env")
+    from unsplash_fetcher import fetch_images
+
+    print("FoxScan carousel — download immagini...")
+    ARTICLE["id"] = 0
+    ARTICLE["tags"] = ARTICLE.get("tags", [])
+    paths = fetch_images(ARTICLE, OUT_DIR, article_image_url=None)  # sostituire con una URL reale in test
+    print("FoxScan carousel — generazione slide...")
+    generate(ARTICLE, paths)
     for cached in OUT_DIR.glob("_img_*.jpg"):
         cached.unlink()

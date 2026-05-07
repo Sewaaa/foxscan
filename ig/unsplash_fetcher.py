@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Image fetcher for FoxScan Instagram carousels.
+image_fetcher.py (importato come unsplash_fetcher per compatibilità)
 
-Rules:
-- cover: always use the FoxScan article image_url
-- news slides: use Pexels only
-- no Unsplash fallback and no cover copy fallback for news slides
-- reject duplicate images within the same carousel and across recent carousels
+Regole immagini carosello Instagram FoxScan:
+  - cover (slide 1)    : sempre l'image_url dell'articolo da FoxScan (Pexels/backend)
+  - slide_0/1/2 (2-4) : Pexels, usando le image_query generate da Groq
+  - slide opinion (5)  : sfondo statico — nessuna immagine
+  - slide CTA (6)      : sfondo statico — nessuna immagine
 """
 
 import hashlib
@@ -25,29 +25,22 @@ RECENT_HASH_LIMIT = 300
 
 logger = logging.getLogger(__name__)
 
-_SLOT_FALLBACKS = {
+_SLOT_FALLBACKS: dict[str, list[str]] = {
     "slide_0": [
         "journalist newsroom monitor screen alert",
         "breaking news anchor desk tv",
-        "reporter laptop technology",
+        "reporter laptop technology workspace",
     ],
     "slide_1": [
-        "server rack data center hardware",
-        "network infrastructure cables blue",
-        "office technology computer",
+        "server rack data center hardware blue",
+        "network infrastructure cables technology",
+        "office technology computer workspace",
     ],
     "slide_2": [
         "world map digital globe connections",
         "satellite dish technology sky",
-        "global network fiber optic",
+        "global network fiber optic abstract",
     ],
-}
-
-_KEY_TO_QUERY = {
-    "cover": lambda d: d["cover_image_query"],
-    "slide_0": lambda d: d["slides"][0]["image_query"],
-    "slide_1": lambda d: d["slides"][1]["image_query"],
-    "slide_2": lambda d: d["slides"][2]["image_query"],
 }
 
 
@@ -56,35 +49,50 @@ def fetch_images(
     out_dir: Path,
     article_image_url: str | None = None,
 ) -> dict[str, Path]:
+    """
+    Scarica le immagini per il carosello e ritorna:
+      {"cover": Path, "slide_0": Path, "slide_1": Path, "slide_2": Path}
+
+    - cover    : scaricato direttamente da article_image_url (obbligatorio)
+    - slide_0/1/2 : scaricati da Pexels usando carousel_data["slides"][i]["image_query"]
+    """
     pexels_key = os.environ.get("PEXELS_API_KEY", "")
     if not pexels_key:
-        raise RuntimeError("PEXELS_API_KEY non configurata: le slide Instagram usano solo Pexels")
+        raise RuntimeError("PEXELS_API_KEY non configurata nel .env")
+
+    if not article_image_url:
+        raise RuntimeError("image_url articolo assente: impossibile generare la cover del carosello")
 
     article_id = str(carousel_data.get("id") or "manual")
     run_id = datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
-
-    results: dict[str, Path] = {}
     used_hashes: set[str] = set()
     recent_hashes = _load_recent_hashes()
+    results: dict[str, Path] = {}
 
-    for key, query_fn in _KEY_TO_QUERY.items():
+    # ── Cover: immagine copertina articolo FoxScan ────────────────────────────
+    cover_dest = out_dir / f"_img_{article_id}_{run_id}_cover.jpg"
+    cover_path = _download_direct(
+        article_image_url, cover_dest, used_hashes, recent_hashes, reject_recent=False
+    )
+    if not cover_path:
+        raise RuntimeError(f"Download image_url articolo fallito ({article_image_url})")
+    logger.info("  [img] cover: immagine articolo FoxScan → OK")
+    results["cover"] = cover_path
+    time.sleep(0.3)
+
+    # ── Slide 2-4: Pexels ─────────────────────────────────────────────────────
+    slides = carousel_data.get("slides", [])
+    if len(slides) < 3:
+        raise RuntimeError(f"carousel_data.slides incompleto: attese 3 voci, trovate {len(slides)}")
+
+    for i, key in enumerate(["slide_0", "slide_1", "slide_2"]):
+        query = slides[i].get("image_query", "")
         dest = out_dir / f"_img_{article_id}_{run_id}_{key}.jpg"
 
-        if key == "cover":
-            if not article_image_url:
-                raise RuntimeError("image_url articolo assente: impossibile generare la cover Instagram")
-            path = _download_direct(article_image_url, dest, used_hashes, recent_hashes, reject_recent=False)
-            if not path:
-                raise RuntimeError("download image_url articolo fallito: impossibile generare la cover Instagram")
-            logger.info("  [img] cover: immagine articolo FoxScan -> OK")
-            results[key] = path
-            time.sleep(0.4)
-            continue
-
-        query = query_fn(carousel_data)
         path = _download_pexels(query, dest, pexels_key, used_hashes, recent_hashes)
 
-        if path is None:
+        if path is None and query:
+            logger.info("  [img] %s: query principale esaurita, provo fallback", key)
             for fallback_query in _SLOT_FALLBACKS[key]:
                 time.sleep(0.5)
                 path = _download_pexels(fallback_query, dest, pexels_key, used_hashes, recent_hashes)
@@ -92,15 +100,17 @@ def fetch_images(
                     break
 
         if path is None:
-            logger.warning("  [img] %s: nessuna immagine Pexels distinta trovata", key)
-            raise RuntimeError(f"Impossibile scaricare immagine Pexels distinta per '{key}'")
+            raise RuntimeError(f"Nessuna immagine Pexels distinta trovata per '{key}' (query: {query!r})")
 
         results[key] = path
-        time.sleep(0.4)
+        logger.info("  [img] %s → OK", key)
+        time.sleep(0.3)
 
     _save_recent_hashes(recent_hashes)
     return results
 
+
+# ── Pexels ────────────────────────────────────────────────────────────────────
 
 def _download_pexels(
     query: str,
@@ -109,6 +119,8 @@ def _download_pexels(
     used_hashes: set[str],
     recent_hashes: list[str],
 ) -> Path | None:
+    if not query:
+        return None
     params = urllib.parse.urlencode({
         "query": query,
         "per_page": 15,
@@ -117,8 +129,7 @@ def _download_pexels(
     url = PEXELS_API + "?" + params
     try:
         req = urllib.request.Request(
-            url,
-            headers={"Authorization": api_key, "User-Agent": "FoxScan/1.0"},
+            url, headers={"Authorization": api_key, "User-Agent": "FoxScan/1.0"}
         )
         with urllib.request.urlopen(req, timeout=10) as r:
             data = json.loads(r.read())
@@ -135,16 +146,18 @@ def _download_pexels(
                 continue
             path = _download_direct(img_url, dest, used_hashes, recent_hashes, reject_recent=True)
             if path:
-                logger.info("  [pexels] %s: '%s' -> OK", dest.name, query)
+                logger.info("  [pexels] '%s' → OK", query)
                 return path
 
-        logger.warning("  [pexels] '%s': risultati duplicati o download falliti", query)
+        logger.warning("  [pexels] '%s': tutti i risultati duplicati o falliti", query)
         return None
 
     except Exception as e:
-        logger.warning("  [pexels] '%s': %s", query, e)
+        logger.warning("  [pexels] '%s': errore — %s", query, e)
         return None
 
+
+# ── Download diretto ──────────────────────────────────────────────────────────
 
 def _download_direct(
     url: str,
@@ -157,15 +170,15 @@ def _download_direct(
         req = urllib.request.Request(url, headers={"User-Agent": "FoxScan/1.0"})
         with urllib.request.urlopen(req, timeout=15) as r, open(dest, "wb") as f:
             f.write(r.read())
-        if not _register_unique_image(dest, used_hashes, recent_hashes, reject_recent):
+        if not _register_unique(dest, used_hashes, recent_hashes, reject_recent):
             return None
         return dest
     except Exception as e:
-        logger.warning("  [img] download diretto fallito: %s", e)
+        logger.warning("  [img] download fallito (%s): %s", url, e)
         return None
 
 
-def _register_unique_image(
+def _register_unique(
     path: Path,
     used_hashes: set[str],
     recent_hashes: list[str],
@@ -184,6 +197,8 @@ def _register_unique_image(
     del recent_hashes[:-RECENT_HASH_LIMIT]
     return True
 
+
+# ── Persistenza hash recenti (anti-ripetizione tra caroselli) ─────────────────
 
 def _recent_hashes_path() -> Path:
     data_dir = Path(os.environ.get("IG_DATA_DIR", Path(__file__).parent / "ig_data"))
@@ -204,5 +219,5 @@ def _load_recent_hashes() -> list[str]:
 
 def _save_recent_hashes(hashes: list[str]) -> None:
     path = _recent_hashes_path()
-    unique_recent = list(dict.fromkeys(hashes))[-RECENT_HASH_LIMIT:]
-    path.write_text(json.dumps(unique_recent), encoding="utf-8")
+    unique = list(dict.fromkeys(hashes))[-RECENT_HASH_LIMIT:]
+    path.write_text(json.dumps(unique), encoding="utf-8")
