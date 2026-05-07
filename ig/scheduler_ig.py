@@ -41,6 +41,7 @@ logger = logging.getLogger(__name__)
 
 TRIGGER_PORT = 8081
 HEARTBEAT_INTERVAL = 300  # log heartbeat ogni 5 minuti
+LOCK_TIMEOUT_MINUTES = 60  # forza rilascio lock se uno slot dura più di 60 min
 
 POST_SLOTS = [
     {"hour": 9,  "minute": 0,  "id": "morning"},
@@ -49,13 +50,56 @@ POST_SLOTS = [
 ]
 
 _lock = threading.Lock()
+_lock_acquired_at: datetime | None = None
 _last_result: dict = {}
+
+
+def _is_running() -> bool:
+    acquired = _lock.acquire(blocking=False)
+    if acquired:
+        _lock.release()
+    return not acquired
+
+
+def _try_acquire_lock(caller: str) -> bool:
+    """Acquisisce il lock. Se tenuto da >60 min lo forza-rilascia."""
+    global _lock_acquired_at
+    if _lock.acquire(blocking=False):
+        _lock_acquired_at = datetime.now(tz=ROME)
+        return True
+    if _lock_acquired_at is not None:
+        elapsed_min = (datetime.now(tz=ROME) - _lock_acquired_at).total_seconds() / 60
+        if elapsed_min >= LOCK_TIMEOUT_MINUTES:
+            logger.warning(
+                "Lock tenuto da %.0f min (timeout %d min) — forzo il rilascio [%s]",
+                elapsed_min, LOCK_TIMEOUT_MINUTES, caller,
+            )
+            try:
+                _lock.release()
+            except RuntimeError:
+                pass
+            if _lock.acquire(blocking=False):
+                _lock_acquired_at = datetime.now(tz=ROME)
+                return True
+        else:
+            logger.info("Slot %s: pipeline già in esecuzione (%.0f min), salto.", caller, elapsed_min)
+    else:
+        logger.info("Slot %s: pipeline già in esecuzione, salto.", caller)
+    return False
+
+
+def _release_lock() -> None:
+    global _lock_acquired_at
+    _lock_acquired_at = None
+    try:
+        _lock.release()
+    except RuntimeError:
+        pass
 
 
 def _post_slot(slot_id: str) -> None:
     global _last_result
-    if not _lock.acquire(blocking=False):
-        logger.info("Slot %s: pipeline già in esecuzione, salto.", slot_id)
+    if not _try_acquire_lock(slot_id):
         return
     logger.info("=== Slot %s: cerco articolo da postare ===", slot_id)
     try:
@@ -70,16 +114,15 @@ def _post_slot(slot_id: str) -> None:
     except Exception:
         logger.exception("Errore non gestito nello slot %s", slot_id)
     finally:
-        _lock.release()
+        _release_lock()
 
 
 class _TriggerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path == "/run":
-            if not _lock.acquire(blocking=False):
+            if _is_running():
                 self._respond(409, {"status": "already_running"})
                 return
-            _lock.release()
             threading.Thread(target=_post_slot, args=["manual"], daemon=True).start()
             self._respond(200, {"status": "started"})
         else:
@@ -87,8 +130,7 @@ class _TriggerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/status":
-            self._respond(200, {"running": not _lock.acquire(blocking=False) or (_lock.release() or False),
-                                 "last_result": _last_result})
+            self._respond(200, {"running": _is_running(), "last_result": _last_result})
         else:
             self._respond(404, {"error": "not found"})
 
