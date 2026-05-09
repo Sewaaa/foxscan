@@ -236,6 +236,28 @@ def cleanup_old_rss_items() -> None:
         db.close()
 
 
+WATCHDOG_INTERVAL = 300  # controlla ogni 5 minuti
+
+
+def _scheduler_watchdog() -> None:
+    """Thread watchdog: verifica che lo scheduler sia attivo e lo riavvia se necessario."""
+    heartbeat_count = 0
+    while True:
+        time.sleep(WATCHDOG_INTERVAL)
+        heartbeat_count += 1
+        if scheduler.running:
+            jobs = scheduler.get_jobs()
+            next_times = {j.id: str(j.next_run_time) for j in jobs}
+            logger.info("[watchdog #%d] Scheduler attivo. Prossimi job: %s", heartbeat_count, next_times)
+        else:
+            logger.error("[watchdog #%d] Scheduler NON attivo — riavvio...", heartbeat_count)
+            try:
+                scheduler.start()
+                logger.info("[watchdog] Scheduler riavviato con successo.")
+            except Exception as e:
+                logger.error("[watchdog] Errore nel riavvio dello scheduler: %s", e)
+
+
 def start_scheduler():
     scheduler.add_job(
         run_pipeline,
@@ -253,6 +275,8 @@ def start_scheduler():
     )
     scheduler.start()
     logger.info(f"Scheduler avviato — pipeline ogni {FETCH_INTERVAL_MINUTES} minuti")
+    threading.Thread(target=_scheduler_watchdog, daemon=True, name="scheduler-watchdog").start()
+    logger.info("Watchdog avviato — controllo scheduler ogni %d secondi", WATCHDOG_INTERVAL)
 
 
 def stop_scheduler():
