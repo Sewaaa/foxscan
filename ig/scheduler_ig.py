@@ -167,7 +167,7 @@ def start_scheduler() -> None:
             id=slot["id"],
             args=[slot["id"]],
             replace_existing=True,
-            misfire_grace_time=600,
+            misfire_grace_time=28800,  # 8h — NAS può ibernare tutta la notte
             coalesce=True,
             max_instances=1,
         )
