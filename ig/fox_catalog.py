@@ -47,6 +47,11 @@ CATALOG = {
     "apt_detective2":  PUB / "fox_apt_detective2_nobg.png",
     "cve_shield":      PUB / "fox_cve_shield_broken_nobg.png",
     "cve_shield2":     PUB / "fox_cve_shield_broken2_nobg.png",
+    "cve_bug":         PUB / "cve_bug_nobg.png",
+    "cve_crack":       PUB / "cve_crack_nobg.png",
+    "cve_ghost":       PUB / "cve_ghost_nobg.png",
+    "cve_inject":      PUB / "cve_inject_nobg.png",
+    "cve_shatter":     PUB / "cve_shatter_nobg.png",
     "breach_fly":      PUB / "fox_breach_document_fly_nobg.png",
     "breach_fly2":     PUB / "fox_breach_document_fly2_nobg.png",
     "phishing_hook":   PUB / "fox_phishing_hook_nobg.png",
@@ -68,40 +73,40 @@ CATALOG = {
 # Se l'articolo ha più tag, vince il primo match nella lista TAG_PRIORITY.
 
 TAG_PRIORITY = [
-    # Tag              Variante A          Variante B
-    ("ransomware",    "ransomware",        "alert_siren"),
-    ("extortion",     "ransomware",        "alert_siren"),
-    ("APT",           "apt_detective",     "apt_detective2"),
-    ("espionage",     "apt_detective",     "apt_detective2"),
-    ("spionaggio",    "apt_detective",     "apt_detective2"),
-    ("nation-state",  "apt_detective2",    "apt_detective"),
-    ("phishing",      "phishing_hook",     "phishing_hook2"),
-    ("BEC",           "phishing_hook2",    "phishing_hook"),
-    ("social",        "phishing_hook",     "phishing_hook2"),
-    ("CVE",           "cve_shield",        "cve_shield2"),
-    ("vulnerability", "cve_shield2",       "cve_shield"),
-    ("zero-day",      "cve_shield",        "alert_siren"),
-    ("breach",        "breach_fly2",       "breach_fly2"),
-    ("leak",          "breach_fly2",       "breach_fly2"),
-    ("data",          "breach_fly2",       "breach_fly2"),
-    ("malware",       "cve_shield",        "alert_siren2"),
-    ("trojan",        "cve_shield2",       "alert_siren2"),
-    ("backdoor",      "apt_detective2",    "cve_shield"),
-    ("policy",        "policy_doc",        "policy_doc2"),
-    ("compliance",    "policy_doc2",       "policy_doc"),
-    ("regulation",    "policy_doc",        "policy_doc2"),
-    ("NIS2",          "policy_doc2",       "policy_doc"),
-    ("GDPR",          "policy_doc2",       "policy_doc"),
-    ("research",      "research_tablet",   "apt_detective"),
-    ("threat intel",  "research_tablet",   "apt_detective2"),
-    ("report",        "research_tablet",   "policy_doc"),
-    ("patch",         "good_news",         "cve_shield"),
-    ("update",        "good_news",         "research_tablet"),
-    ("fix",           "good_news",         "cve_shield2"),
+    # Tag              Lista varianti — scelta con article_id % len
+    ("ransomware",    ["ransomware",      "alert_siren",    "cve_shatter"]),
+    ("extortion",     ["ransomware",      "alert_siren",    "cve_crack"]),
+    ("APT",           ["apt_detective",   "apt_detective2"]),
+    ("espionage",     ["apt_detective",   "apt_detective2"]),
+    ("spionaggio",    ["apt_detective",   "apt_detective2"]),
+    ("nation-state",  ["apt_detective2",  "apt_detective"]),
+    ("phishing",      ["phishing_hook",   "phishing_hook2", "cve_inject"]),
+    ("BEC",           ["phishing_hook2",  "phishing_hook"]),
+    ("social",        ["phishing_hook",   "phishing_hook2"]),
+    ("CVE",           ["cve_shield",      "cve_crack",      "cve_bug"]),
+    ("vulnerability", ["cve_shield2",     "cve_inject",     "cve_crack"]),
+    ("zero-day",      ["cve_shield",      "cve_inject",     "cve_shatter"]),
+    ("breach",        ["breach_fly",      "breach_fly2"]),
+    ("leak",          ["breach_fly2",     "breach_fly"]),
+    ("data",          ["breach_fly2",     "breach_fly"]),
+    ("malware",       ["cve_ghost",       "cve_shatter",    "alert_siren2"]),
+    ("trojan",        ["cve_ghost",       "cve_shield2",    "cve_inject"]),
+    ("backdoor",      ["apt_detective2",  "cve_inject",     "cve_ghost"]),
+    ("policy",        ["policy_doc",      "policy_doc2"]),
+    ("compliance",    ["policy_doc2",     "policy_doc"]),
+    ("regulation",    ["policy_doc",      "policy_doc2"]),
+    ("NIS2",          ["policy_doc2",     "policy_doc"]),
+    ("GDPR",          ["policy_doc2",     "policy_doc"]),
+    ("research",      ["research_tablet", "apt_detective"]),
+    ("threat intel",  ["research_tablet", "apt_detective2"]),
+    ("report",        ["research_tablet", "policy_doc"]),
+    ("patch",         ["good_news",       "cve_shield",     "cve_bug"]),
+    ("update",        ["good_news",       "research_tablet"]),
+    ("fix",           ["good_news",       "cve_shield2"]),
 ]
 
 # Fallback se nessun tag corrisponde (breaking news generico)
-DEFAULT_COVER_VARIANTS = ("alert_siren", "alert_siren2")
+DEFAULT_COVER_VARIANTS = ["alert_siren", "alert_siren2", "cve_shatter"]
 
 # ── Sequenza fox per le slide di dettaglio (2, 3, 4) ─────────────────────────
 # Rotazione indipendente dal tag: analytical/investigative
@@ -122,16 +127,16 @@ def select_cover_fox(tags: list[str], article_id: int) -> Path:
     """
     Restituisce il Path dell'immagine fox per la cover,
     scelto in base ai tag dell'articolo.
-    Usa article_id per scegliere deterministicamente tra variante A e B.
+    Usa article_id % len(varianti) per rotazione deterministica.
     """
     for tag in tags:
-        for (match_tag, variant_a, variant_b) in TAG_PRIORITY:
+        for (match_tag, variants) in TAG_PRIORITY:
             if match_tag.lower() in tag.lower() or tag.lower() in match_tag.lower():
-                chosen = variant_a if article_id % 2 == 0 else variant_b
+                chosen = variants[article_id % len(variants)]
                 return CATALOG[chosen]
 
     # Fallback
-    chosen = DEFAULT_COVER_VARIANTS[article_id % 2]
+    chosen = DEFAULT_COVER_VARIANTS[article_id % len(DEFAULT_COVER_VARIANTS)]
     return CATALOG[chosen]
 
 
