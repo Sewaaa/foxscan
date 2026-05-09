@@ -3,9 +3,11 @@ from rapidfuzz import fuzz
 
 logger = logging.getLogger(__name__)
 
-SIMILARITY_THRESHOLD = 55  # su scala 0-100 per rapidfuzz
-# 55 bilancia bene: cattura titoli diversi sulla stessa notizia (es. "Citrix rilascia patch"
+SIMILARITY_THRESHOLD = 65  # su scala 0-100 per rapidfuzz
+# 65 bilancia bene: cattura titoli diversi sulla stessa notizia (es. "Citrix rilascia patch"
 # vs "Vulnerabilità critica in Citrix NetScaler") senza fare false aggregazioni.
+# 55 era troppo basso: token_set_ratio ignora l'ordine delle parole e bastava
+# avere "source code security" in comune tra due notizie diverse per aggregarle.
 
 
 def _normalize(title: str) -> str:
