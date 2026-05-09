@@ -27,7 +27,6 @@ PUB = _DEV_PATH if _DEV_PATH.exists() else Path(os.getenv("FOX_ASSETS_PATH", Pat
 #  alert_siren2    – stessa posa, espressione più composta → breaking alternativa
 #  apt_detective   – lente, tutto cyan, investigativo     → APT / spionaggio
 #  apt_detective2  – lente, angolo diverso                → APT alternativa
-#  cve_shield      – regge frammento scudo rosso rotto    → CVE / vulnerability
 #  cve_shield2     – regge lucchetto rosso aperto         → vulnerability / falla
 #  breach_fly      – documenti che volano (landscape)     → data breach / leak
 #  breach_fly2     – stessa scena, portrait, più intensa  → breach alternativa
@@ -45,7 +44,6 @@ CATALOG = {
     "alert_siren2":    PUB / "fox_alert_siren2_nobg.png",
     "apt_detective":   PUB / "fox_apt_detective_nobg.png",
     "apt_detective2":  PUB / "fox_apt_detective2_nobg.png",
-    "cve_shield":      PUB / "fox_cve_shield_broken_nobg.png",
     "cve_shield2":     PUB / "fox_cve_shield_broken2_nobg.png",
     "cve_bug":         PUB / "cve_bug_nobg.png",
     "cve_crack":       PUB / "cve_crack_nobg.png",
@@ -83,9 +81,9 @@ TAG_PRIORITY = [
     ("phishing",      ["phishing_hook",   "phishing_hook2", "cve_inject"]),
     ("BEC",           ["phishing_hook2",  "phishing_hook"]),
     ("social",        ["phishing_hook",   "phishing_hook2"]),
-    ("CVE",           ["cve_shield",      "cve_crack",      "cve_bug"]),
+    ("CVE",           ["cve_shield2",     "cve_crack",      "cve_bug"]),
     ("vulnerability", ["cve_shield2",     "cve_inject",     "cve_crack"]),
-    ("zero-day",      ["cve_shield",      "cve_inject",     "cve_shatter"]),
+    ("zero-day",      ["cve_crack",       "cve_inject",     "cve_shatter"]),
     ("breach",        ["breach_fly",      "breach_fly2"]),
     ("leak",          ["breach_fly2",     "breach_fly"]),
     ("data",          ["breach_fly2",     "breach_fly"]),
@@ -100,7 +98,7 @@ TAG_PRIORITY = [
     ("research",      ["research_tablet", "apt_detective"]),
     ("threat intel",  ["research_tablet", "apt_detective2"]),
     ("report",        ["research_tablet", "policy_doc"]),
-    ("patch",         ["good_news",       "cve_shield",     "cve_bug"]),
+    ("patch",         ["good_news",       "cve_bug",        "cve_crack"]),
     ("update",        ["good_news",       "research_tablet"]),
     ("fix",           ["good_news",       "cve_shield2"]),
 ]
