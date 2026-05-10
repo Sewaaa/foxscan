@@ -7,6 +7,13 @@ Orari (ora italiana / Europe/Rome):
   - 12:30 — mezzogiorno
   - 21:00 — sera
 
+NON usa APScheduler: il loop principale controlla ogni 60 secondi se è
+ora di postare. Questo approccio è immune all'ibernazione del NAS —
+nessun thread executor di terze parti che si congela.
+
+Logica catch-up: se il NAS era spento all'orario pianificato, lo slot
+viene eseguito comunque fino a MAX_CATCHUP_HOURS ore dopo.
+
 Espone anche un trigger HTTP interno sulla porta 8081:
   POST http://ig-pipeline:8081/run  → esegue subito un post
   GET  http://ig-pipeline:8081/status → stato corrente
@@ -17,11 +24,10 @@ import logging
 import sys
 import threading
 import time
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytz
-from apscheduler.schedulers.background import BackgroundScheduler
 
 from pipeline import run_pipeline
 
@@ -40,8 +46,10 @@ logging.basicConfig(level=logging.INFO, handlers=[_handler])
 logger = logging.getLogger(__name__)
 
 TRIGGER_PORT = 8081
-HEARTBEAT_INTERVAL = 300  # log heartbeat ogni 5 minuti
-LOCK_TIMEOUT_MINUTES = 60  # forza rilascio lock se uno slot dura più di 60 min
+CHECK_INTERVAL = 60           # controlla ogni 60 secondi
+HEARTBEAT_EVERY = 5           # log heartbeat ogni 5 minuti (= ogni 5 check)
+LOCK_TIMEOUT_MINUTES = 60     # forza rilascio lock se uno slot dura più di 60 min
+MAX_CATCHUP_HOURS = 8         # esegui lo slot fino a 8h dopo l'orario pianificato
 
 POST_SLOTS = [
     {"hour": 9,  "minute": 0,  "id": "morning"},
@@ -53,6 +61,13 @@ _lock = threading.Lock()
 _lock_acquired_at: datetime | None = None
 _last_result: dict = {}
 
+# Tiene traccia degli slot già eseguiti: chiave = "YYYY-MM-DD_slot_id"
+# Resettato solo al riavvio del container (sufficiente: ogni giorno il NAS
+# si riavvia almeno una volta per ibernazione).
+_posted_slots: set[str] = set()
+
+
+# ── Lock helpers ──────────────────────────────────────────────────────────────
 
 def _is_running() -> bool:
     acquired = _lock.acquire(blocking=False)
@@ -97,6 +112,28 @@ def _release_lock() -> None:
         pass
 
 
+# ── Logica slot ───────────────────────────────────────────────────────────────
+
+def _slot_key(slot_id: str, day: date) -> str:
+    return f"{day.isoformat()}_{slot_id}"
+
+
+def _should_fire(slot: dict, now: datetime) -> bool:
+    """
+    Ritorna True se lo slot deve essere eseguito ora:
+    - non è già stato eseguito oggi
+    - l'orario pianificato è passato ma non più di MAX_CATCHUP_HOURS fa
+    """
+    key = _slot_key(slot["id"], now.date())
+    if key in _posted_slots:
+        return False
+    slot_time = now.replace(
+        hour=slot["hour"], minute=slot["minute"], second=0, microsecond=0
+    )
+    catchup_deadline = slot_time + timedelta(hours=MAX_CATCHUP_HOURS)
+    return slot_time <= now <= catchup_deadline
+
+
 def _post_slot(slot_id: str) -> None:
     global _last_result
     if not _try_acquire_lock(slot_id):
@@ -116,6 +153,8 @@ def _post_slot(slot_id: str) -> None:
     finally:
         _release_lock()
 
+
+# ── HTTP trigger ──────────────────────────────────────────────────────────────
 
 class _TriggerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -153,49 +192,61 @@ def _start_trigger_server() -> None:
     logger.info("Trigger HTTP avviato sulla porta %d", TRIGGER_PORT)
 
 
+# ── Main loop ─────────────────────────────────────────────────────────────────
+
 def start_scheduler() -> None:
     _start_trigger_server()
 
-    scheduler = BackgroundScheduler(timezone=ROME)
-
     for slot in POST_SLOTS:
-        scheduler.add_job(
-            _post_slot,
-            trigger="cron",
-            hour=slot["hour"],
-            minute=slot["minute"],
-            id=slot["id"],
-            args=[slot["id"]],
-            replace_existing=True,
-            misfire_grace_time=28800,  # 8h — NAS può ibernare tutta la notte
-            coalesce=True,
-            max_instances=1,
-        )
         logger.info(
-            "Slot registrato: %s alle %02d:%02d (Europe/Rome)",
-            slot["id"], slot["hour"], slot["minute"],
+            "Slot configurato: %s alle %02d:%02d (Europe/Rome), catch-up fino a %dh dopo",
+            slot["id"], slot["hour"], slot["minute"], MAX_CATCHUP_HOURS,
         )
 
-    scheduler.start()
-    logger.info("Scheduler avviato (BackgroundScheduler). In attesa degli slot...")
+    logger.info("Loop avviato — controllo ogni %ds, heartbeat ogni %d min",
+                CHECK_INTERVAL, HEARTBEAT_EVERY)
 
-    # Main thread: heartbeat + watchdog
-    heartbeat_count = 0
+    check_count = 0
     try:
         while True:
-            time.sleep(HEARTBEAT_INTERVAL)
-            heartbeat_count += 1
-            if scheduler.running:
-                jobs = scheduler.get_jobs()
-                next_times = {j.id: str(j.next_run_time) for j in jobs}
-                logger.info("[heartbeat #%d] Scheduler attivo. Prossimi slot: %s",
-                            heartbeat_count, next_times)
-            else:
-                logger.error("[heartbeat #%d] Scheduler NON attivo — riavvio...", heartbeat_count)
-                scheduler.start()
+            time.sleep(CHECK_INTERVAL)
+            check_count += 1
+            now = datetime.now(tz=ROME)
+
+            # Controlla ogni slot
+            for slot in POST_SLOTS:
+                if _should_fire(slot, now):
+                    key = _slot_key(slot["id"], now.date())
+                    _posted_slots.add(key)  # segna subito per evitare doppio fire
+                    delay_min = (now - now.replace(
+                        hour=slot["hour"], minute=slot["minute"], second=0, microsecond=0
+                    )).total_seconds() / 60
+                    if delay_min > 1:
+                        logger.info(
+                            "Slot %s: catch-up dopo %.0f min (NAS era spento)",
+                            slot["id"], delay_min,
+                        )
+                    threading.Thread(
+                        target=_post_slot, args=[slot["id"]], daemon=True
+                    ).start()
+
+            # Heartbeat ogni HEARTBEAT_EVERY minuti
+            if check_count % HEARTBEAT_EVERY == 0:
+                posted = sorted(_posted_slots)
+                pending = [
+                    f"{s['id']}@{s['hour']:02d}:{s['minute']:02d}"
+                    for s in POST_SLOTS
+                    if _slot_key(s["id"], now.date()) not in _posted_slots
+                ]
+                logger.info(
+                    "[heartbeat] %s | postati oggi: %s | ancora da postare: %s",
+                    now.strftime("%H:%M"),
+                    posted if posted else "nessuno",
+                    pending if pending else "tutti completati",
+                )
+
     except (KeyboardInterrupt, SystemExit):
-        logger.info("Shutdown ricevuto, fermo lo scheduler.")
-        scheduler.shutdown(wait=False)
+        logger.info("Shutdown ricevuto.")
 
 
 if __name__ == "__main__":
