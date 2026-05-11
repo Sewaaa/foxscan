@@ -13,8 +13,9 @@ from groq import Groq
 
 logger = logging.getLogger(__name__)
 
-GROQ_MODEL_SLIDES  = "openai/gpt-oss-20b"
-GROQ_MODEL_CAPTION = "openai/gpt-oss-20b"
+GROQ_MODEL_SLIDES   = "openai/gpt-oss-20b"
+GROQ_MODEL_CAPTION  = "openai/gpt-oss-20b"
+GROQ_MODEL_FALLBACK = "llama-3.3-70b-versatile"  # usato SOLO se il modello principale fallisce 3 volte
 
 SYSTEM_PROMPT = """Sei un social media manager italiano esperto di cybersecurity che scrive per Instagram.
 Ricevi un articolo tecnico e produci: i testi per un carosello di 6 slide + una caption professionale per il post.
@@ -138,7 +139,46 @@ def extract_carousel_data(article: dict) -> dict:
                 time.sleep(2)
 
     if data is None:
-        raise ValueError(f"Groq non ha restituito JSON valido dopo 3 tentativi")
+        # Fallback di emergenza: prova con llama-3.3-70b-versatile
+        logger.warning(
+            "Modello principale %s fallito 3 volte — fallback emergenza su %s",
+            GROQ_MODEL_SLIDES, GROQ_MODEL_FALLBACK,
+        )
+        for attempt in range(1, 4):
+            response = client.chat.completions.create(
+                model=GROQ_MODEL_FALLBACK,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user",   "content": user_content},
+                ],
+                temperature=0.5,
+            )
+            raw = response.choices[0].message.content.strip()
+            if not raw:
+                logger.warning("Fallback tentativo %d: risposta vuota", attempt)
+                if attempt < 3:
+                    time.sleep(2)
+                continue
+            extracted = _extract_json(raw)
+            if not extracted:
+                logger.warning("Fallback tentativo %d: JSON non trovato", attempt)
+                if attempt < 3:
+                    time.sleep(2)
+                continue
+            try:
+                data = json.loads(extracted)
+                _validate(data)
+                logger.info("Fallback %s riuscito al tentativo %d", GROQ_MODEL_FALLBACK, attempt)
+                break
+            except (json.JSONDecodeError, ValueError) as e:
+                logger.warning("Fallback tentativo %d: parsing fallito (%s)", attempt, e)
+                if attempt < 3:
+                    time.sleep(2)
+
+    if data is None:
+        raise ValueError(
+            f"Groq non ha restituito JSON valido né con {GROQ_MODEL_SLIDES} né con {GROQ_MODEL_FALLBACK}"
+        )
 
     # Chiamata 2: caption con modello migliore (70b) — solo testo breve
     slide_summary = "\n".join([
