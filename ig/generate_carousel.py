@@ -299,7 +299,7 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
     TITLE_Y = SPLIT + 20
     SEP2    = SPLIT + 126
     BODY_Y  = SPLIT + 142
-    txt_size = _font_size(text, 44, step=3, thresholds=(160, 240))
+    txt_size = _font_size(text, 54, step=5, thresholds=(130, 200))
     arrows   = "".join(
         f'<span class="arrow" style="opacity:{max(0.55 - i*0.15, 0.08):.2f};color:#fff;">&#x00AB;</span>'
         for i in range(3)
@@ -517,16 +517,19 @@ def generate(a: dict, image_paths: dict) -> list[Path]:
 
 
 if __name__ == "__main__":
-    # Per il test locale: scarica le immagini con il fetcher, poi genera il carosello.
-    from dotenv import load_dotenv
-    load_dotenv(Path(__file__).parent / ".env")
-    from unsplash_fetcher import fetch_images
+    import urllib.request
 
-    print("FoxScan carousel — download immagini...")
-    ARTICLE["id"] = 0
-    ARTICLE["tags"] = ARTICLE.get("tags", [])
-    paths = fetch_images(ARTICLE, OUT_DIR, article_image_url=None)  # sostituire con una URL reale in test
+    print("FoxScan carousel — scarico immagini test da picsum.photos...")
+    test_seeds = {"cover": 42, "slide_0": 10, "slide_1": 20, "slide_2": 30}
+    test_paths: dict = {}
+    for key, seed in test_seeds.items():
+        dest = OUT_DIR / f"_test_{key}.jpg"
+        if not dest.exists():
+            urllib.request.urlretrieve(f"https://picsum.photos/seed/{seed}/1080/1350", dest)
+        test_paths[key] = dest
+        print(f"  OK {key}")
+
     print("FoxScan carousel — generazione slide...")
-    generate(ARTICLE, paths)
-    for cached in OUT_DIR.glob("_img_*.jpg"):
-        cached.unlink()
+    ARTICLE["id"] = 0
+    generate(ARTICLE, test_paths)
+    print("Apri carousel_output/ per vedere i risultati.")
