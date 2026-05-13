@@ -3,14 +3,19 @@
 fox_catalog.py — Mappa tag articolo → immagini volpe per ogni slide.
 
 Logica di selezione:
-- COVER   : tag-based, priorità ordinata, variante deterministica da article_id
+- COVER   : tag-based, priorità ordinata, rotazione con contatore persistente
+            (ig_data/fox_rotation.json) — evita ripetizioni nei post recenti
 - DETAIL  : rotazione fissa tra fox analitici/neutri (indipendente dal tag)
 - OPINION : sempre fox autorevole (regge documento/report)
 - CTA     : sempre fox_cta_forward
 """
 
+import json
+import logging
 import os
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 # Dev Windows → percorso assoluto alla cartella frontend/public
 # Docker/NAS  → cartella assets/ accanto agli script (copiata nel container)
@@ -119,22 +124,75 @@ OPINION_FOX = "policy_doc"      # autorevole, regge documento ufficiale
 CTA_FOX     = "cta_forward"     # punta verso lo spettatore
 
 
+# ── Rotazione persistente ─────────────────────────────────────────────────────
+# Tiene traccia degli ultimi fox usati in ig_data/fox_rotation.json
+# per evitare che lo stesso fox appaia più volte di fila, indipendentemente
+# dagli article_id (che possono essere non consecutivi).
+
+def _rotation_path() -> Path:
+    data_dir = Path(os.getenv("IG_DATA_DIR", Path(__file__).parent / "ig_data"))
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir / "fox_rotation.json"
+
+
+def _load_rotation() -> dict:
+    try:
+        return json.loads(_rotation_path().read_text(encoding="utf-8"))
+    except Exception:
+        return {"counter": 0, "recent": []}
+
+
+def _save_rotation(state: dict) -> None:
+    try:
+        _rotation_path().write_text(json.dumps(state), encoding="utf-8")
+    except Exception as e:
+        logger.warning("fox_rotation: impossibile salvare stato — %s", e)
+
+
+def _pick_fox(variants: list[str], state: dict) -> str:
+    """
+    Sceglie il fox dalla lista di varianti evitando quelli usati di recente.
+    Aggiorna il contatore e la lista recent in-place nel dict state.
+    """
+    recent = state.get("recent", [])
+    counter = state.get("counter", 0)
+
+    # Escludi gli ultimi min(2, len-1) fox usati per garantire varietà
+    exclude_n = min(2, len(variants) - 1)
+    available = [v for v in variants if v not in recent[-exclude_n:]] if exclude_n > 0 else variants
+    if not available:
+        available = variants  # fallback: tutti disponibili
+
+    chosen = available[counter % len(available)]
+    state["counter"] = counter + 1
+    state["recent"] = (recent + [chosen])[-6:]  # tieni solo gli ultimi 6
+    return chosen
+
+
 # ── API pubblica ──────────────────────────────────────────────────────────────
 
 def select_cover_fox(tags: list[str], article_id: int) -> Path:
     """
-    Restituisce il Path dell'immagine fox per la cover,
-    scelto in base ai tag dell'articolo.
-    Usa article_id % len(varianti) per rotazione deterministica.
+    Restituisce il Path dell'immagine fox per la cover.
+    Usa un contatore persistente (ig_data/fox_rotation.json) per ruotare
+    tra le varianti disponibili per la categoria dell'articolo,
+    evitando ripetizioni nelle ultime pubblicazioni.
+    article_id è mantenuto per compatibilità ma non più usato per la selezione.
     """
+    state = _load_rotation()
+
     for tag in tags:
         for (match_tag, variants) in TAG_PRIORITY:
             if match_tag.lower() in tag.lower() or tag.lower() in match_tag.lower():
-                chosen = variants[article_id % len(variants)]
+                chosen = _pick_fox(variants, state)
+                _save_rotation(state)
+                logger.debug("fox cover: tag=%s → %s (counter=%d)", match_tag, chosen, state["counter"])
                 return CATALOG[chosen]
 
-    # Fallback
-    chosen = DEFAULT_COVER_VARIANTS[article_id % len(DEFAULT_COVER_VARIANTS)]
+    # Fallback generico
+    chosen = _pick_fox(DEFAULT_COVER_VARIANTS, state)
+    _save_rotation(state)
+    logger.debug("fox cover: fallback → %s (counter=%d)", chosen, state["counter"])
     return CATALOG[chosen]
 
 

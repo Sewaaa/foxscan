@@ -60,25 +60,27 @@ def fetch_images(
     if not pexels_key:
         raise RuntimeError("PEXELS_API_KEY non configurata nel .env")
 
-    if not article_image_url:
-        raise RuntimeError("image_url articolo assente: impossibile generare la cover del carosello")
-
     article_id = str(carousel_data.get("id") or "manual")
     run_id = datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
     used_hashes: set[str] = set()
     recent_hashes = _load_recent_hashes()
     results: dict[str, Path] = {}
 
-    # ── Cover: immagine copertina articolo FoxScan ────────────────────────────
-    cover_dest = out_dir / f"_img_{article_id}_{run_id}_cover.jpg"
-    cover_path = _download_direct(
-        article_image_url, cover_dest, used_hashes, recent_hashes, reject_recent=False
-    )
-    if not cover_path:
-        raise RuntimeError(f"Download image_url articolo fallito ({article_image_url})")
-    logger.info("  [img] cover: immagine articolo FoxScan → OK")
-    results["cover"] = cover_path
-    time.sleep(0.3)
+    # ── Cover: immagine copertina articolo FoxScan (opzionale in v9+) ─────────
+    # In v9 la cover è sfondo solido — se article_image_url è None si salta.
+    if article_image_url:
+        cover_dest = out_dir / f"_img_{article_id}_{run_id}_cover.jpg"
+        cover_path = _download_direct(
+            article_image_url, cover_dest, used_hashes, recent_hashes, reject_recent=False
+        )
+        if not cover_path:
+            logger.warning("  [img] cover: download fallito (%s) — slide cover userà sfondo solido", article_image_url)
+        else:
+            logger.info("  [img] cover: immagine articolo FoxScan → OK")
+            results["cover"] = cover_path
+            time.sleep(0.3)
+    else:
+        logger.info("  [img] cover: article_image_url assente — cover usa sfondo solido (v9)")
 
     # ── Slide 2-4: Pexels ─────────────────────────────────────────────────────
     slides = carousel_data.get("slides", [])
