@@ -44,7 +44,7 @@ ARTICLE = {
         },
         {
             "section": "Il quadro completo",
-            "text": "<strong>Microsoft Exchange</strong> è colpita da un SSRF che porta alla compromissione dell'<strong>Active Directory</strong>. Router, gateway VPN e server mail: tre infrastrutture core violate in simultanea.",
+            "text": "Per chiudere il divario, è necessario valutare i rischi associati alle NHIs e implementare controlli di sicurezza, come la <strong>gestione delle identità e degli accessi (IAM)</strong> e il monitoraggio degli agenti AI. La formazione dei team di sicurezza è fondamentale per gestire le attività autonome in modo sicuro.",
             "image_query": "world map digital network satellite view",
         },
     ],
@@ -295,11 +295,12 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
 # SLIDE 2-4 — News detail: split layout foto/testo come l'inspo
 # ════════════════════════════════════════════════════════════════════════════
 def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
-    SPLIT   = 700   # px: dove finisce la foto e inizia il dark panel
+    SPLIT   = 630   # px: foto → 630px, testo → 720px disponibili (era 700→448px, testi lunghi traboccavano)
     TITLE_Y = SPLIT + 20
     SEP2    = SPLIT + 126
     BODY_Y  = SPLIT + 142
-    txt_size = _font_size(text, 54, step=5, thresholds=(130, 200))
+    # Scala font: 52px breve / 46px medio / 40px lungo — calibrata su area disponibile ~520px
+    txt_size = _font_size(text, 52, step=6, thresholds=(110, 175))
     arrows   = "".join(
         f'<span class="arrow" style="opacity:{max(0.55 - i*0.15, 0.08):.2f};color:#fff;">&#x00AB;</span>'
         for i in range(3)
