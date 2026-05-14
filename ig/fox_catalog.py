@@ -33,10 +33,16 @@ PUB = _DEV_PATH if _DEV_PATH.exists() else Path(os.getenv("FOX_ASSETS_PATH", Pat
 #  apt_detective   – lente, tutto cyan, investigativo     → APT / spionaggio
 #  apt_detective2  – lente, angolo diverso                → APT alternativa
 #  cve_shield2     – regge lucchetto rosso aperto         → vulnerability / falla
-#  breach_fly      – documenti che volano (landscape)     → data breach / leak
-#  breach_fly2     – stessa scena, portrait, più intensa  → breach alternativa
-#  phishing_hook   – amo con busta diamante               → phishing / BEC
-#  phishing_hook2  – amo con busta rossa, sorriso dark    → phishing / social eng.
+#  breach_fly          – documenti che volano (landscape)     → data breach / leak
+#  breach_fly2         – stessa scena, portrait, più intensa  → breach alternativa
+#  breach_harddrive    – hard disk rotto con dati dispersi     → breach / data loss
+#  breach_classified   – cartella top secret trapelata         → leak / classified
+#  breach_vault        – file/lucchetto rotto                  → breach / vault
+#  phishing_hook       – amo con busta diamante               → phishing / BEC
+#  phishing_hook2      – amo con busta rossa, sorriso dark    → phishing / social eng.
+#  phishing_hook3      – amo che trafigge email               → phishing variante
+#  phishing_credentials– credenziali rubate                   → phishing / BEC
+#  phishing_mask       – identità falsa / maschera            → social engineering
 #  ransomware      – laptop con lucchetto rosso            → ransomware / extortion
 #  policy_doc      – regge pergamena con sigillo ufficiale → policy / normativa
 #  policy_doc2     – pergamena con medaglia/badge          → compliance / cert.
@@ -55,10 +61,16 @@ CATALOG = {
     "cve_ghost":       PUB / "cve_ghost_nobg.png",
     "cve_inject":      PUB / "cve_inject_nobg.png",
     "cve_shatter":     PUB / "cve_shatter_nobg.png",
-    "breach_fly":      PUB / "fox_breach_document_fly_nobg.png",
-    "breach_fly2":     PUB / "fox_breach_document_fly2_nobg.png",
-    "phishing_hook":   PUB / "fox_phishing_hook_nobg.png",
-    "phishing_hook2":  PUB / "fox_phishing_hook2_nobg.png",
+    "breach_fly":           PUB / "fox_breach_document_fly_nobg.png",
+    "breach_fly2":          PUB / "fox_breach_document_fly2_nobg.png",
+    "breach_harddrive":     PUB / "harddisk corrotto.png",
+    "breach_classified":    PUB / "file topsecret.png",
+    "breach_vault":         PUB / "file rotti da lucchetto.png",
+    "phishing_hook":        PUB / "fox_phishing_hook_nobg.png",
+    "phishing_hook2":       PUB / "fox_phishing_hook2_nobg.png",
+    "phishing_hook3":       PUB / "email ladro_nobg.png",
+    "phishing_credentials": PUB / "credenziali rubate.png",
+    "phishing_mask":        PUB / "identità falsa.png",
     "ransomware":      PUB / "fox_ransomware_laptop_lock_nobg.png",
     "policy_doc":      PUB / "fox_policy_document_nobg.png",
     "policy_doc2":     PUB / "fox_policy_document2_nobg.png",
@@ -83,15 +95,15 @@ TAG_PRIORITY = [
     ("espionage",     ["apt_detective",   "apt_detective2"]),
     ("spionaggio",    ["apt_detective",   "apt_detective2"]),
     ("nation-state",  ["apt_detective2",  "apt_detective"]),
-    ("phishing",          ["phishing_hook",   "phishing_hook2", "cve_inject"]),
-    ("BEC",               ["phishing_hook2",  "phishing_hook"]),
-    ("social engineering",["phishing_hook",   "phishing_hook2"]),  # era "social" — troppo generico
+    ("phishing",          ["phishing_hook",        "phishing_hook2", "phishing_hook3", "phishing_credentials", "phishing_mask"]),
+    ("BEC",               ["phishing_credentials", "phishing_hook2", "phishing_mask"]),
+    ("social engineering",["phishing_mask",         "phishing_hook",  "phishing_credentials"]),
     ("CVE",               ["cve_shield2",     "cve_crack",      "cve_bug"]),
     ("vulnerability",     ["cve_shield2",     "cve_inject",     "cve_crack"]),
     ("zero-day",          ["cve_crack",       "cve_inject",     "cve_shatter"]),
-    ("breach",            ["breach_fly",      "breach_fly2"]),
-    ("leak",              ["breach_fly2",     "breach_fly"]),
-    ("data breach",       ["breach_fly2",     "breach_fly"]),      # era "data" — troppo generico
+    ("breach",            ["breach_fly",      "breach_fly2",   "breach_harddrive", "breach_classified", "breach_vault"]),
+    ("leak",              ["breach_fly2",     "breach_vault",  "breach_classified"]),
+    ("data breach",       ["breach_harddrive","breach_fly",    "breach_vault",     "breach_fly2"]),
     ("malware",           ["cve_ghost",       "cve_shatter",    "alert_siren2"]),
     ("trojan",            ["cve_ghost",       "cve_shield2",    "cve_inject"]),
     ("backdoor",          ["apt_detective2",  "cve_inject",     "cve_ghost"]),
