@@ -81,7 +81,7 @@ export default function TopCriticalDropdown() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 z-50 rounded-2xl border border-blue-200/80 dark:border-[#00FFE5]/20 bg-white/95 dark:bg-[#020817]/95 backdrop-blur-xl shadow-2xl shadow-blue-100 dark:shadow-[#00FFE5]/5 p-4">
+        <div className="absolute right-0 top-full mt-2 w-80 z-50 rounded-2xl border border-blue-200/80 dark:border-[#00FFE5]/20 bg-white dark:bg-[#020817] backdrop-blur-xl shadow-2xl shadow-blue-100 dark:shadow-[#00FFE5]/5 p-4">
           {/* Titolo */}
           <div className="flex items-center gap-2 mb-3">
             <Zap size={14} className="text-blue-600 dark:text-[#00FFE5] shrink-0" />
