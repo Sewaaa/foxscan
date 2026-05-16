@@ -65,8 +65,8 @@ export default function TopCriticalDropdown() {
         title={t("title")}
         className={`p-2 rounded-lg transition-colors ${
           open
-            ? "text-[#00FFE5] bg-white/8"
-            : "text-slate-400 hover:text-[#00FFE5] hover:bg-white/5"
+            ? "text-blue-600 bg-blue-50 dark:text-[#00FFE5] dark:bg-white/8"
+            : "text-gray-500 hover:text-blue-600 hover:bg-blue-50/80 dark:text-slate-400 dark:hover:text-[#00FFE5] dark:hover:bg-white/5"
         }`}
       >
         {/* Trophy icon */}
@@ -81,11 +81,11 @@ export default function TopCriticalDropdown() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 z-50 rounded-2xl border border-[#00FFE5]/20 bg-[#020817]/95 backdrop-blur-xl shadow-2xl shadow-[#00FFE5]/5 p-4">
+        <div className="absolute right-0 top-full mt-2 w-80 z-50 rounded-2xl border border-blue-200/80 dark:border-[#00FFE5]/20 bg-white/95 dark:bg-[#020817]/95 backdrop-blur-xl shadow-2xl shadow-blue-100 dark:shadow-[#00FFE5]/5 p-4">
           {/* Titolo */}
           <div className="flex items-center gap-2 mb-3">
-            <Zap size={14} className="text-[#00FFE5] shrink-0" />
-            <h3 className="font-grotesk font-extrabold text-sm text-[#00FFE5] uppercase tracking-widest">
+            <Zap size={14} className="text-blue-600 dark:text-[#00FFE5] shrink-0" />
+            <h3 className="font-grotesk font-extrabold text-sm text-blue-600 dark:text-[#00FFE5] uppercase tracking-widest">
               {t("title")}
             </h3>
           </div>
@@ -103,12 +103,12 @@ export default function TopCriticalDropdown() {
                   <Link
                     href={`/article/${a.id}`}
                     onClick={() => setOpen(false)}
-                    className="flex items-start gap-2.5 group py-2 border-b border-white/5 last:border-0"
+                    className="flex items-start gap-2.5 group py-2 border-b border-gray-100 dark:border-white/5 last:border-0"
                   >
-                    <span className="shrink-0 w-6 h-6 mt-0.5 rounded-full bg-white/10 text-[#00FFE5] text-xs font-bold flex items-center justify-center font-mono">
+                    <span className="shrink-0 w-6 h-6 mt-0.5 rounded-full bg-blue-50 dark:bg-white/10 text-blue-600 dark:text-[#00FFE5] text-xs font-bold flex items-center justify-center font-mono">
                       {i + 1}
                     </span>
-                    <p className="flex-1 min-w-0 text-sm text-slate-300 group-hover:text-white transition-colors leading-snug">
+                    <p className="flex-1 min-w-0 text-sm text-gray-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-white transition-colors leading-snug">
                       {trTitles[a.id] ?? a.title}
                     </p>
                     <span className={`shrink-0 w-2 h-2 mt-1.5 rounded-full ${dotColor}`} />
