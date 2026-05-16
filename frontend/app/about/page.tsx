@@ -47,33 +47,33 @@ export default async function AboutPage() {
     <div className="fade-up">
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden rounded-3xl bg-[#0B1F3A] px-6 py-12 md:px-8 md:py-16 mb-12 md:mb-16">
-        <div className="absolute inset-0 dot-grid-bg opacity-20" />
-        <div className="absolute top-1/2 right-8 -translate-y-1/2 w-72 h-72 bg-[#06E6D9] opacity-10 blur-3xl rounded-full pointer-events-none" />
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:bg-[#0B1F3A] dark:bg-none border border-blue-100 dark:border-transparent px-6 py-12 md:px-8 md:py-16 mb-12 md:mb-16">
+        <div className="absolute inset-0 dot-grid-bg opacity-10 dark:opacity-20" />
+        <div className="absolute top-1/2 right-8 -translate-y-1/2 w-72 h-72 bg-blue-400 dark:bg-[#06E6D9] opacity-10 blur-3xl rounded-full pointer-events-none" />
 
         <div className="relative z-10 md:grid md:grid-cols-2 md:items-center md:gap-10">
           {/* Text */}
           <div>
-            <span className="text-[#06E6D9] text-xs font-bold tracking-widest uppercase mb-4 block">
+            <span className="text-blue-600 dark:text-[#06E6D9] text-xs font-bold tracking-widest uppercase mb-4 block">
               🛡️ {t("platform")}
             </span>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-5 md:mb-6">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-[#0B1F3A] dark:text-white leading-tight mb-5 md:mb-6">
               {t("hero").split(" ").slice(0, -2).join(" ")}{" "}
-              <span className="text-[#06E6D9]">{t("hero").split(" ").slice(-2).join(" ")}</span>
+              <span className="text-blue-600 dark:text-[#06E6D9]">{t("hero").split(" ").slice(-2).join(" ")}</span>
             </h1>
-            <p className="text-blue-200 text-base md:text-lg leading-relaxed mb-6 md:mb-8 max-w-lg">
+            <p className="text-gray-600 dark:text-blue-200 text-base md:text-lg leading-relaxed mb-6 md:mb-8 max-w-lg">
               {t("heroDesc")}
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/"
-                className="px-5 py-2.5 md:px-6 md:py-3 bg-[#06E6D9] text-[#0B1F3A] rounded-full font-bold text-sm hover:bg-cyan-300 transition-colors"
+                className="px-5 py-2.5 md:px-6 md:py-3 bg-blue-600 dark:bg-[#06E6D9] text-white dark:text-[#0B1F3A] rounded-full font-bold text-sm hover:bg-blue-700 dark:hover:bg-cyan-300 transition-colors"
               >
                 {t("exploreBtn")}
               </Link>
               <Link
                 href="/rss"
-                className="px-5 py-2.5 md:px-6 md:py-3 border border-blue-400 text-blue-200 rounded-full font-semibold text-sm hover:border-[#06E6D9] hover:text-[#06E6D9] transition-colors"
+                className="px-5 py-2.5 md:px-6 md:py-3 border border-blue-300 dark:border-blue-400 text-blue-600 dark:text-blue-200 rounded-full font-semibold text-sm hover:border-blue-600 hover:text-blue-700 dark:hover:border-[#06E6D9] dark:hover:text-[#06E6D9] transition-colors"
               >
                 {t("rssBtn")}
               </Link>
@@ -82,7 +82,7 @@ export default async function AboutPage() {
             {/* Trust badges */}
             <div className="mt-6 md:mt-8 flex flex-wrap gap-3">
               {(["trust0", "trust1", "trust2"] as const).map((key) => (
-                <span key={key} className="text-xs text-blue-300 border border-blue-700 rounded-full px-3 py-1 bg-blue-900/40">
+                <span key={key} className="text-xs text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-700 rounded-full px-3 py-1 bg-blue-50 dark:bg-blue-900/40">
                   {t(key)}
                 </span>
               ))}
