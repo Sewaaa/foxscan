@@ -240,22 +240,44 @@ WATCHDOG_INTERVAL = 300  # controlla ogni 5 minuti
 
 
 def _scheduler_watchdog() -> None:
-    """Thread watchdog: verifica che lo scheduler sia attivo e lo riavvia se necessario."""
+    """Thread watchdog: verifica che lo scheduler sia attivo e che il lock pipeline non sia bloccato."""
+    global _pipeline_lock_acquired_at
     heartbeat_count = 0
     while True:
         time.sleep(WATCHDOG_INTERVAL)
         heartbeat_count += 1
-        if scheduler.running:
-            jobs = scheduler.get_jobs()
-            next_times = {j.id: str(j.next_run_time) for j in jobs}
-            logger.info("[watchdog #%d] Scheduler attivo. Prossimi job: %s", heartbeat_count, next_times)
-        else:
+
+        # 1. Controlla se lo scheduler è vivo
+        if not scheduler.running:
             logger.error("[watchdog #%d] Scheduler NON attivo — riavvio...", heartbeat_count)
             try:
                 scheduler.start()
                 logger.info("[watchdog] Scheduler riavviato con successo.")
             except Exception as e:
                 logger.error("[watchdog] Errore nel riavvio dello scheduler: %s", e)
+            continue
+
+        # 2. Controlla se il lock pipeline è bloccato da troppo tempo
+        if _pipeline_lock_acquired_at is not None:
+            elapsed_min = (datetime.utcnow() - _pipeline_lock_acquired_at).total_seconds() / 60
+            if elapsed_min >= PIPELINE_LOCK_TIMEOUT_MINUTES:
+                logger.warning(
+                    "[watchdog #%d] Lock pipeline bloccato da %.0f min — forzo rilascio",
+                    heartbeat_count, elapsed_min,
+                )
+                try:
+                    _pipeline_lock.release()
+                except RuntimeError:
+                    pass
+                _pipeline_lock_acquired_at = None
+            else:
+                logger.info(
+                    "[watchdog #%d] Pipeline in esecuzione da %.0f min", heartbeat_count, elapsed_min
+                )
+        else:
+            jobs = scheduler.get_jobs()
+            next_times = {j.id: str(j.next_run_time) for j in jobs}
+            logger.info("[watchdog #%d] OK — prossimi job: %s", heartbeat_count, next_times)
 
 
 def start_scheduler():
@@ -265,6 +287,10 @@ def start_scheduler():
         minutes=FETCH_INTERVAL_MINUTES,
         id="pipeline_job",
         replace_existing=True,
+        max_instances=3,          # APScheduler non blocca i nuovi tentativi;
+        misfire_grace_time=7200,  # è il _pipeline_lock (60 min timeout) a gestire la concorrenza.
+        # Senza questo, se il NAS iberna a metà pipeline il contatore interno di APScheduler
+        # resta a 1 e salta tutti i successivi run con "maximum instances reached".
     )
     scheduler.add_job(
         cleanup_old_rss_items,
