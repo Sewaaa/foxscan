@@ -69,7 +69,7 @@
     "notFound": "Articolo non trovato",
     "back": "← Torna alla homepage",
     "inSummary": "✦ In sintesi",
-    "aiNote": "Contenuto generato automaticamente da intelligenza artificiale a partire da fonti pubbliche. Non garantiamo l'accuratezza assoluta delle informazioni — consulta sempre la fonte originale. I diritti sui contenuti originali appartengono ai rispettivi editori."
+    "aiNote": "Contenuto generato automaticamente da intelligenza artificiale a partire da fonti pubbliche. Non garantiamo l'accuratezza assoluta delle informazioni: consulta sempre la fonte originale. I diritti sui contenuti originali appartengono ai rispettivi editori."
   },
   "articleCard": {
     "sources": "{count, plural, one {# fonte} other {# fonti}}"
