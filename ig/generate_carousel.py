@@ -17,6 +17,20 @@ def _md_to_html(text: str) -> str:
     return re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
 
 
+def _truncate(text: str, max_chars: int = 240) -> str:
+    """
+    Tronca il testo (senza tag HTML) a max_chars caratteri, al confine di parola.
+    Preserva i tag <strong>...</strong> già presenti.
+    """
+    # Conta i caratteri visibili (senza tag HTML)
+    plain = re.sub(r'<[^>]+>', '', text)
+    if len(plain) <= max_chars:
+        return text
+    # Tronca il testo grezzo (senza HTML) al confine di parola
+    truncated = plain[:max_chars].rsplit(' ', 1)[0].rstrip('.,;:') + '…'
+    return truncated
+
+
 def _font_size(text: str, base: int, step: int = 6, thresholds: tuple = (180, 280)) -> int:
     """Riduce il font di `step`px per ogni soglia di caratteri superata."""
     n = len(text)
@@ -299,6 +313,8 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
     TITLE_Y = SPLIT + 20
     SEP2    = SPLIT + 126
     BODY_Y  = SPLIT + 142
+    # Tronca il testo se supera il limite (safety net, il prompt dovrebbe già limitarlo)
+    text = _truncate(text, max_chars=240)
     # Scala font: 52px breve / 46px medio / 40px lungo — calibrata su area disponibile ~520px
     txt_size = _font_size(text, 52, step=6, thresholds=(110, 175))
     arrows   = "".join(
