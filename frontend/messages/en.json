@@ -96,7 +96,7 @@
   },
   "about": {
     "hero": "Always one step ahead of every threat.",
-    "heroDesc": "Scans 17+ top cybersecurity sources every day, groups duplicate articles and synthesizes them into a single briefing · clear, complete, free.",
+    "heroDesc": "Scans 14 top cybersecurity sources every day, groups duplicate articles and synthesizes them into a single briefing · clear, complete, free.",
     "exploreBtn": "Explore news →",
     "howTitle": "How it works",
     "howDesc": "Fully automated, fully transparent.",
@@ -105,7 +105,7 @@
     "goToNews": "Go to news →",
     "platform": "The platform",
     "rssBtn": "RSS Feed",
-    "trust0": "17+ Sources",
+    "trust0": "14 Sources",
     "trust1": "AI Synthesis",
     "trust2": "Updated 24/7",
     "f1Title": "AI Synthesis",

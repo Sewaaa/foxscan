@@ -268,31 +268,24 @@ FoxScan/
 
 ## News Sources
 
-21 RSS feeds polled every 30 minutes:
+14 RSS feeds polled every 30 minutes:
 
 | Source | Domain |
 |---|---|
 | BleepingComputer | bleepingcomputer.com |
 | The Hacker News | thehackernews.com |
-| Krebs on Security | krebsonsecurity.com |
 | Dark Reading | darkreading.com |
 | Security Affairs | securityaffairs.com |
 | Graham Cluley | grahamcluley.com |
-| SecurityWeek | securityweek.com |
 | Help Net Security | helpnetsecurity.com |
 | Infosecurity Magazine | infosecurity-magazine.com |
-| Wired Security | wired.com |
 | CyberScoop | cyberscoop.com |
-| The Register Security | theregister.com |
-| SC Magazine | scmagazine.com |
-| TechCrunch Security | techcrunch.com |
-| Malwarebytes Blog | malwarebytes.com |
-| Recorded Future | recordedfuture.com |
-| Unit 42 (Palo Alto Networks) | unit42.paloaltonetworks.com |
-| Cisco Talos | blog.talosintelligence.com |
-| Microsoft Security Blog | microsoft.com |
-| Sophos News | news.sophos.com |
-| Schneier on Security | schneier.com |
+| The Register | theregister.com |
+| Ars Technica | arstechnica.com |
+| Hackread | hackread.com |
+| GBHackers | gbhackers.com |
+| The Cyber Express | thecyberexpress.com |
+| Cybersecurity360 | cybersecurity360.it |
 
 ---
 
