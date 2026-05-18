@@ -29,9 +29,9 @@ REGOLE OBBLIGATORIE:
   REGOLE VALIDE PER ENTRAMBI I CASI: MAI usare parole generiche come "Allarme", "Attenzione", "Scoperta", "Violati", "Rubati" come prima parola — sono vuote e ripetitive. Il titolo deve far capire subito di cosa parla la notizia.
 - cover_title GRASSETTO — REGOLA TASSATIVA OBBLIGATORIA: il cover_title deve contenere SEMPRE esattamente 1 o 2 parole in **grassetto**. Senza grassetto il titolo non è valido. Metti in grassetto: il nome dell'azienda (es. **Google**, **Cisco**), OPPURE il numero chiave (es. **3 milioni**, **15 CVE**), OPPURE il nome del malware/vulnerabilità (es. **Log4Shell**, **zero-day**). Esempi corretti: "**Google**: falla critica in Chrome già sfruttata", "**13 milioni** di account violati: colpa di una API", "**Cisco**: patch urgente per falla nei router", "Kernel Linux: scoperta vulnerabilità **Fragnesia** già sfruttata".
 - cover_kicker: uno tra BREAKING / URGENTE / ALERT / ESCLUSIVO
-- slides[0].text: fatti principali, linguaggio accessibile a tutti (chi, cosa, quando)
-- slides[1].text: sistemi, aziende o paesi coinvolti, leggermente più specifico
-- slides[2].text: contesto tecnico, implicazioni, il quadro completo
+- slides[]: scegli per ogni slide il titolo di sezione (campo "section") più adatto a QUELL'articolo specifico. NON usare sempre le stesse tre sezioni — variali in base a cosa è più interessante e rilevante nella notizia.
+  REGOLE per "section": massimo 3-4 parole, in italiano, specifico e concreto. Esempi: "Le vittime", "Come funziona", "I paesi colpiti", "Il gruppo dietro", "La tecnica usata", "Dati rubati", "L'impatto reale", "Il malware", "Quanto è grave", "I precedenti", "Chi ha scoperto", "Le patch disponibili", "Il vettore d'attacco", "Cosa è stato rubato", "Le organizzazioni colpite". Evita titoli generici come "Il quadro completo" o "Chi è coinvolto" — sii specifico sulla notizia.
+  Il contenuto delle tre slide deve coprire insieme: i fatti principali, i dettagli tecnici/chi è coinvolto, e il contesto/implicazioni — ma distribuiscili come meglio si adatta alla storia.
 - opinion.text: commento serio e informato sull'episodio, stile analista esperto. Fornisce contesto extra o implicazioni che non compaiono nelle slide precedenti (geopolitica, precedenti storici, impatto reale, cosa significa per il settore). Tono: sobrio, autorevole, mai ironico. GRAMMATICA ITALIANA OBBLIGATORIA: usa forme corrette — "ci è già passato" (non "ci ha già passato"), concordanza corretta dei verbi ausiliari. MAI generalizzare con "aggiornate i sistemi". LIMITE TASSATIVO: massimo 200 caratteri, non superare mai questo limite.
 - Ogni testo slide: 2-3 frasi brevi. LIMITE TASSATIVO: massimo 220 caratteri (spazi inclusi). Conta i caratteri prima di rispondere. Usa <strong>parola</strong> per i termini chiave.
 
@@ -63,9 +63,9 @@ Schema JSON:
   "cover_title": "max 10 parole allarmanti",
   "cover_kicker": "BREAKING",
   "slides": [
-    {"section": "Cosa è successo",    "text": "...", "image_query": "journalist newsroom alert screen monitor"},
-    {"section": "Chi è coinvolto",    "text": "...", "image_query": "corporate server room data center hardware"},
-    {"section": "Il quadro completo", "text": "...", "image_query": "world map digital network satellite view"}
+    {"section": "[titolo specifico per questa notizia, max 4 parole]", "text": "...", "image_query": "journalist newsroom alert screen monitor"},
+    {"section": "[titolo specifico per questa notizia, max 4 parole]", "text": "...", "image_query": "corporate server room data center hardware"},
+    {"section": "[titolo specifico per questa notizia, max 4 parole]", "text": "...", "image_query": "world map digital network satellite view"}
   ],
   "opinion": {
     "section": "Il consiglio di FoxScan",
