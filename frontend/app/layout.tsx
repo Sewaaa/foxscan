@@ -144,6 +144,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     <li><Link href="/privacy" className="hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors">{t("privacyPolicy")}</Link></li>
                     <li><Link href="/privacy#cookie" className="hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors">{t("cookiePolicy")}</Link></li>
                     <li><Link href="/privacy#disclaimer" className="hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors">{t("aiDisclaimer")}</Link></li>
+                    <li><Link href="/privacy#dmca" className="hover:text-blue-600 dark:hover:text-[#00FFE5] transition-colors">{t("dmca")}</Link></li>
                   </ul>
                   <p className="mt-3 text-[11px] text-gray-400 dark:text-slate-600 leading-relaxed">
                     {t("noCookies")}

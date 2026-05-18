@@ -35,6 +35,7 @@
     "privacyPolicy": "Privacy Policy",
     "cookiePolicy": "Cookie Policy",
     "aiDisclaimer": "Disclaimer AI",
+    "dmca": "Rimozione contenuti",
     "noCookies": "Nessun cookie di profilazione. Solo cookie tecnici.",
     "disclaimer": "Gli articoli sono sintetizzati da intelligenza artificiale · le fonti originali sono sempre citate. I contenuti hanno scopo puramente informativo e non costituiscono consulenza professionale di sicurezza informatica. I diritti sulle fonti originali appartengono ai rispettivi editori.",
     "copyright": "© 2026 FoxScan · Tutti i diritti riservati",
@@ -67,7 +68,8 @@
   "article": {
     "notFound": "Articolo non trovato",
     "back": "← Torna alla homepage",
-    "inSummary": "✦ In sintesi"
+    "inSummary": "✦ In sintesi",
+    "aiNote": "Contenuto generato automaticamente da intelligenza artificiale a partire da fonti pubbliche. Non garantiamo l'accuratezza assoluta delle informazioni — consulta sempre la fonte originale. I diritti sui contenuti originali appartengono ai rispettivi editori."
   },
   "articleCard": {
     "sources": "{count, plural, one {# fonte} other {# fonti}}"

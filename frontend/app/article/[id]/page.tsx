@@ -22,6 +22,7 @@ export async function generateMetadata({ params }: PageProps) {
   return {
     title: `${article.title} · FoxScan`,
     description: article.summary ?? undefined,
+    robots: { index: true, follow: true },
     openGraph: {
       title: article.title,
       description: article.summary ?? undefined,
@@ -116,6 +117,14 @@ export default async function ArticlePage({ params }: PageProps) {
       {/* ── Sources ── */}
       <div id="fonti" className="mt-6 pt-6 border-t border-blue-100 dark:border-white/5">
         <SourcesList sources={article.sources} />
+      </div>
+
+      {/* ── AI Disclaimer ── */}
+      <div className="mt-6 flex items-start gap-2.5 rounded-xl bg-blue-50/60 dark:bg-white/[0.03] border border-blue-100 dark:border-white/8 px-4 py-3">
+        <span className="text-base mt-0.5 shrink-0">🤖</span>
+        <p className="text-xs text-gray-500 dark:text-slate-500 leading-relaxed">
+          {t("aiNote")}
+        </p>
       </div>
     </article>
   );

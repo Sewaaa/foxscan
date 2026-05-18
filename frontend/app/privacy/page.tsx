@@ -24,7 +24,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="text-sm text-gray-400 dark:text-slate-500">
-          Ai sensi del Regolamento UE 2016/679 (GDPR) · Ultimo aggiornamento: marzo 2026
+          Ai sensi del Regolamento UE 2016/679 (GDPR) · Ultimo aggiornamento: maggio 2026
         </p>
       </div>
 
@@ -171,8 +171,36 @@ export default function PrivacyPage() {
       </div>
 
       {/* 9 */}
+      <div id="dmca" className={SECTION}>
+        <h2 className={H2}>9. Richieste di rimozione contenuti (DMCA / Copyright)</h2>
+        <p className={P}>
+          FoxScan è un progetto <strong>non commerciale, senza pubblicità né sponsor</strong>.
+          I contenuti pubblicati sono sintesi originali generate da AI a partire da articoli di
+          terze parti, con citazione delle fonti. Operiamo nel rispetto del fair use a scopo
+          informativo.
+        </p>
+        <p className={P}>
+          Se sei titolare di un contenuto e ritieni che la pubblicazione violi i tuoi diritti,
+          puoi richiederne la rimozione tramite il{" "}
+          <Link href="/contact" className="text-blue-600 dark:text-[#00FFE5] hover:underline">
+            modulo di contatto
+          </Link>{" "}
+          specificando:
+        </p>
+        <ul className={UL}>
+          <li>L&apos;URL della pagina FoxScan che ritieni problematica</li>
+          <li>L&apos;URL dell&apos;articolo originale di cui sei titolare</li>
+          <li>I tuoi dati di contatto</li>
+        </ul>
+        <p className={P}>
+          Provvederemo alla rimozione o modifica entro <strong>24 ore</strong> dal ricevimento
+          della richiesta.
+        </p>
+      </div>
+
+      {/* 10 */}
       <div className={SECTION}>
-        <h2 className={H2}>9. Modifiche alla presente policy</h2>
+        <h2 className={H2}>10. Modifiche alla presente policy</h2>
         <p className={P}>
           FoxScan si riserva il diritto di aggiornare questa informativa. Le modifiche saranno
           pubblicate su questa pagina con indicazione della data di aggiornamento.
