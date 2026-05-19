@@ -39,10 +39,10 @@ IMAGE QUERY (CRITICO — SII SPECIFICO):
 - Se l'articolo cita esplicitamente un'azienda (Google, Microsoft, Apple, Meta, Cisco, ecc.) usa il nome dell'azienda SOLO con riferimento fisico: "Google Googleplex headquarters campus aerial", "Microsoft office building exterior", "Apple Park spaceship campus aerial". MAI "Google app", "Microsoft software", ecc.
 - Se cita un paese o governo, usa immagini specifiche: "US Capitol Washington cybersecurity", "Pentagon building aerial view"
 - slides[0].image_query: persona reale in contesto di allarme o lavoro (giornalista, analista, sala riunioni, conferenza stampa, tecnico IT davanti a schermo)
-- slides[1].image_query: infrastruttura di rete o data center — SOLO server rack, cavi ethernet, patch panel, sala server, NOC interior. VIETATO TASSATIVAMENTE: RAM, memory chip, circuit board, PCB, motherboard, CPU, schede madri, singoli componenti hardware — queste query danno foto di componenti PC non pertinenti.
-- slides[2].image_query: visione globale o strategica (mappa fisica con spilli, satellite, città dall'alto, geopolitica)
+- slides[1].image_query: infrastruttura di rete o data center — SOLO server rack, cavi ethernet, patch panel, sala server, NOC interior. VIETATO TASSATIVAMENTE: RAM, memory chip, circuit board, PCB, motherboard, CPU, schede madri, singoli componenti hardware, grafici, chart, candlestick, stock market — queste query danno foto fuori contesto.
+- slides[2].image_query: visione globale MODERNA — SOLO: globe digital network, world map pins modern, satellite view city night, earth from space, digital globe connections. VIETATO TASSATIVAMENTE: antique map, ancient map, old map, vintage map, historical map — questi termini danno foto di mappe antiche completamente fuori contesto. La mappa DEVE essere moderna e digitale.
 - SEMPRE in inglese, 4-7 parole per Pexels. MAI ripetere parole tra query diverse.
-- VIETATO in qualsiasi image_query: "memory", "chip", "RAM", "circuit", "PCB", "motherboard", "processor", "CPU", "GPU" — generano foto di componenti elettronici fuori contesto.
+- VIETATO in qualsiasi image_query: "memory", "chip", "RAM", "circuit", "PCB", "motherboard", "processor", "CPU", "GPU", "chart", "graph", "candlestick", "stock", "antique", "ancient", "vintage", "historical" — generano foto completamente fuori contesto.
 
 CAPTION INSTAGRAM:
 - Tono: social media manager professionista, coinvolgente, diretto, leggermente allarmistico
@@ -246,7 +246,7 @@ def _validate(data: dict) -> None:
     if len(data["slides"]) != 3:
         raise ValueError(f"Attese 3 slides, ricevute {len(data['slides'])}")
     _TRAILING_ELLIPSIS = re.compile(r'\s*\.{2,}\s*$|…\s*$')
-    _BANNED_IMG_TERMS  = re.compile(r'\b(memory|chip|ram|circuit|pcb|motherboard|processor|cpu|gpu)\b', re.IGNORECASE)
+    _BANNED_IMG_TERMS  = re.compile(r'\b(memory|chip|ram|circuit|pcb|motherboard|processor|cpu|gpu|chart|graph|candlestick|stock|antique|ancient|vintage|historical)\b', re.IGNORECASE)
 
     for i, slide in enumerate(data["slides"]):
         for key in ("section", "text", "image_query"):
