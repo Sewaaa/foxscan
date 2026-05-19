@@ -401,36 +401,28 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
     IG_WINDOW_HOURS = 36  # deve corrispondere a pipeline.py get_pending_articles(hours=36)
     cutoff = datetime.utcnow() - timedelta(hours=IG_WINDOW_HOURS)
 
+    # Coda: stessa logica della pipeline — solo ig_score DESC, nessuna soglia relevance_score
+    from sqlalchemy import func, case
     pending = (
         db.query(Article)
-        .filter(Article.relevance_score >= 8)
         .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
         .filter(Article.ig_last_error == None)  # noqa: E711
         .filter(Article.published_at >= cutoff)
-        .order_by(Article.relevance_score.desc(), Article.published_at.desc())
+        .order_by(func.coalesce(Article.ig_score, 0).desc(), Article.published_at.desc())
         .all()
     )
 
-    pending_fallback = (
-        db.query(Article)
-        .filter(Article.relevance_score >= 5, Article.relevance_score < 8)
-        .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
-        .filter(Article.ig_last_error == None)  # noqa: E711
-        .filter(Article.published_at >= cutoff)
-        .order_by(Article.relevance_score.desc(), Article.published_at.desc())
-        .all()
-    ) if not pending else []
+    pending_fallback = []  # non più usato, mantenuto per compatibilità frontend
 
     cutoff_48h = datetime.utcnow() - timedelta(hours=48)
 
     too_old = (
         db.query(Article)
-        .filter(Article.relevance_score >= 8)
         .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
         .filter(Article.ig_last_error == None)  # noqa: E711
         .filter(Article.published_at < cutoff)
         .filter(Article.published_at >= cutoff_48h)
-        .order_by(Article.published_at.desc())
+        .order_by(func.coalesce(Article.ig_score, 0).desc(), Article.published_at.desc())
         .all()
     )
 

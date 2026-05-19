@@ -288,9 +288,7 @@ export default function AdminPage() {
       return utc(b.published_at).getTime() - utc(a.published_at).getTime();
     });
 
-  const hasCritical   = (igStats?.pending.length ?? 0) > 0;
-  const sortedPending = sortBy(hasCritical ? (igStats?.pending ?? []) : (igStats?.pending_fallback ?? []));
-  const isFallback    = !hasCritical && sortedPending.length > 0;
+  const sortedPending = sortBy(igStats?.pending ?? []);
   const nextArticle   = sortedPending[0] ?? null;
 
   const sortedFeeds = Object.entries(FEED_META)
@@ -483,7 +481,7 @@ export default function AdminPage() {
         <div className="grid grid-cols-3 gap-2 text-center">
           {[
             { v: igStats?.posted_today ?? "·", l: "Postati (36h)", c: "text-emerald-600 dark:text-emerald-400" },
-            { v: sortedPending.length,          l: isFallback ? "Coda (fallback)" : "In coda", c: txtPri },
+            { v: sortedPending.length,          l: "In coda", c: txtPri },
             { v: igStats?.failed?.length ?? "·", l: "Errori", c: "text-red-600 dark:text-red-400" },
           ].map(({ v, l, c }) => (
             <div key={l} className={`rounded-lg ${bgSub} border border-slate-200 dark:border-white/5 py-3`}>
@@ -495,22 +493,13 @@ export default function AdminPage() {
 
         {/* Prossimo post */}
         {nextArticle ? (
-          <div className={`rounded-lg border p-3 ${
-            isFallback
-              ? "border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/5"
-              : "border-pink-200 dark:border-pink-500/20 bg-pink-50 dark:bg-pink-500/5"
-          }`}>
+          <div className="rounded-lg border p-3 border-pink-200 dark:border-pink-500/20 bg-pink-50 dark:bg-pink-500/5">
             <div className="flex items-center gap-2 mb-1.5">
-              <p className={`text-[10px] font-semibold uppercase tracking-widest ${isFallback ? "text-amber-600 dark:text-amber-500" : "text-pink-600 dark:text-pink-500"}`}>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-pink-600 dark:text-pink-500">
                 Prossimo
               </p>
-              {isFallback && (
-                <span className="text-[9px] font-medium bg-amber-100 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded-full">
-                  fallback
-                </span>
-              )}
-              <span className="ml-auto text-[11px] font-mono text-amber-600 dark:text-amber-400">▲{nextArticle.relevance_score}</span>
-              {nextArticle.ig_score != null && <span className="text-[11px] font-mono text-pink-600 dark:text-pink-400">ig·{nextArticle.ig_score}</span>}
+              {nextArticle.ig_score != null && <span className="ml-auto text-[11px] font-mono text-pink-600 dark:text-pink-400">ig·{nextArticle.ig_score}</span>}
+              <span className="text-[11px] font-mono text-amber-600 dark:text-amber-400">▲{nextArticle.relevance_score}</span>
             </div>
             <a href={`/article/${nextArticle.id}`} target="_blank" rel="noopener noreferrer"
               className={`text-xs ${txtSec} hover:text-orange-500 dark:hover:text-orange-400 transition-colors line-clamp-2 cursor-pointer leading-relaxed`}>
@@ -540,7 +529,7 @@ export default function AdminPage() {
             {sortedPending.length > 0 && (
               <div>
                 <p className={`text-[11px] font-medium uppercase tracking-widest ${txtMut} mb-2`}>
-                  Coda — {sortedPending.length} {sortedPending.length === 1 ? "articolo" : "articoli"}
+                  In coda — {sortedPending.length} {sortedPending.length === 1 ? "articolo" : "articoli"}
                 </p>
                 <div className={`divide-y ${divider}`}>
                   {sortedPending.map((a, i) => (
