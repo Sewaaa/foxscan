@@ -35,11 +35,12 @@ REGOLE OBBLIGATORIE:
 
 IMAGE QUERY (CRITICO — SII SPECIFICO):
 - OGNI image_query DEVE essere visivamente DIVERSA dalle altre: nessun sfondo ripetuto
-- Se l'articolo cita esplicitamente un'azienda (Google, Microsoft, Apple, Meta, Cisco, ecc.) includi SEMPRE il nome dell'azienda nella query: es. "Google Googleplex headquarters campus aerial", "Microsoft Azure logo office building", "Apple Park spaceship campus aerial"
+- VIETATO TASSATIVAMENTE: non usare mai nomi di software, app, siti web o prodotti digitali nelle query (es. MAI "DeepSeek", "ChatGPT", "Instagram", "Chrome", "Windows", "macOS"). Queste query tirano fuori screenshot di interfacce completamente fuori contesto. Usa sempre soggetti fisici: persone, edifici, hardware, mappe, ambienti reali.
+- Se l'articolo cita esplicitamente un'azienda (Google, Microsoft, Apple, Meta, Cisco, ecc.) usa il nome dell'azienda SOLO con riferimento fisico: "Google Googleplex headquarters campus aerial", "Microsoft office building exterior", "Apple Park spaceship campus aerial". MAI "Google app", "Microsoft software", ecc.
 - Se cita un paese o governo, usa immagini specifiche: "US Capitol Washington cybersecurity", "Pentagon building aerial view"
-- slides[0].image_query: reazione umana o notizia specifica (giornalista, sala riunioni, conferenza stampa)
-- slides[1].image_query: infrastruttura SPECIFICA citata nell'articolo (router Cisco, data center Azure, ecc.)
-- slides[2].image_query: visione globale o strategica (mappa, satellite, geopolitica)
+- slides[0].image_query: persona reale in contesto di allarme o lavoro (giornalista, analista, sala riunioni, conferenza stampa, tecnico IT)
+- slides[1].image_query: hardware fisico o infrastruttura reale (server rack, cavi di rete, router, data center, dispositivi)
+- slides[2].image_query: visione globale o strategica (mappa fisica con spilli, satellite, città dall'alto, geopolitica)
 - SEMPRE in inglese, 4-7 parole per Pexels. MAI ripetere parole tra query diverse.
 
 CAPTION INSTAGRAM:
