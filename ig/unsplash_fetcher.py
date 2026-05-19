@@ -125,7 +125,8 @@ def _download_pexels(
         return None
     params = urllib.parse.urlencode({
         "query": query,
-        "per_page": 15,
+        "per_page": 20,
+        "page": random.randint(1, 6),
         "orientation": "portrait",
     })
     url = PEXELS_API + "?" + params
