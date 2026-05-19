@@ -122,6 +122,7 @@ export default function AdminPage() {
   const [deleteArticleId, setDeleteArticleId] = useState("");
   const [deletingArticle, setDeletingArticle] = useState(false);
   const [deleteArticleMsg, setDeleteArticleMsg] = useState<string | null>(null);
+  const [resettingIgErrors, setResettingIgErrors] = useState(false);
   const [pipelineRunning, setPipelineRunning] = useState(false);
 
   useEffect(() => {
@@ -195,6 +196,15 @@ export default function AdminPage() {
       const d = await aFetch("/admin/reset-items", { method: "POST" }).then(r => r.json());
       setMessage(`${d.items_reset} item rimarcati — avvia la pipeline.`); await loadStats(adminKey);
     } catch { setMessage("Errore."); } finally { setResetting(false); }
+  }
+
+  async function resetIgErrors() {
+    setResettingIgErrors(true);
+    try {
+      const d = await aFetch("/admin/reset-ig-errors", { method: "POST" }).then(r => r.json());
+      setIgMessage(`${d.reset} articoli rimessi in coda — verranno selezionati al prossimo post se entro 36h.`);
+      await loadStats(adminKey);
+    } catch { setIgMessage("Errore."); } finally { setResettingIgErrors(false); }
   }
 
   async function deleteArticle() {
@@ -569,9 +579,14 @@ export default function AdminPage() {
             )}
             {(igStats?.failed?.length ?? 0) > 0 && (
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-widest text-red-600/80 dark:text-red-500/70 mb-2">
-                  Errori IG - provati e saltati
-                </p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[11px] font-medium uppercase tracking-widest text-red-600/80 dark:text-red-500/70">
+                    Errori IG - provati e saltati
+                  </p>
+                  <Btn onClick={resetIgErrors} disabled={resettingIgErrors} loading={resettingIgErrors} variant="ghost" icon={<IconRefresh />} className="text-[11px] py-1 px-2.5">
+                    {resettingIgErrors ? "Reset…" : "Rimetti in coda"}
+                  </Btn>
+                </div>
                 <div className={`divide-y ${divider}`}>
                   {(igStats?.failed ?? []).map(a => (
                     <div key={a.id} className="py-2">

@@ -189,6 +189,19 @@ def reset_items(request: Request, db: Session = Depends(get_db), _: None = Depen
     return {"status": "ok", "items_reset": count}
 
 
+@app.post("/admin/reset-ig-errors")
+@limiter.limit("10/minute")
+def reset_ig_errors(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
+    """Rimette in coda gli articoli con errore IG azzerando ig_last_error e ig_attempts."""
+    logger.warning(f"ADMIN reset-ig-errors — IP: {request.client.host if request.client else 'unknown'}")
+    count = db.query(Article).filter(Article.ig_last_error.isnot(None)).update(
+        {"ig_last_error": None, "ig_last_error_at": None, "ig_attempts": 0},
+        synchronize_session="fetch",
+    )
+    db.commit()
+    return {"status": "ok", "reset": count}
+
+
 @app.delete("/admin/articles/{article_id}")
 @limiter.limit("30/minute")
 def delete_article(article_id: int, request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
