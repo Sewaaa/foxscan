@@ -119,6 +119,9 @@ export default function AdminPage() {
   const [closingRuns, setClosingRuns]         = useState(false);
   const [deleting, setDeleting]               = useState(false);
   const [message, setMessage]                 = useState<string | null>(null);
+  const [deleteArticleId, setDeleteArticleId] = useState("");
+  const [deletingArticle, setDeletingArticle] = useState(false);
+  const [deleteArticleMsg, setDeleteArticleMsg] = useState<string | null>(null);
   const [pipelineRunning, setPipelineRunning] = useState(false);
 
   useEffect(() => {
@@ -192,6 +195,19 @@ export default function AdminPage() {
       const d = await aFetch("/admin/reset-items", { method: "POST" }).then(r => r.json());
       setMessage(`${d.items_reset} item rimarcati — avvia la pipeline.`); await loadStats(adminKey);
     } catch { setMessage("Errore."); } finally { setResetting(false); }
+  }
+
+  async function deleteArticle() {
+    const id = parseInt(deleteArticleId);
+    if (!id || isNaN(id)) return;
+    if (!window.confirm(`Eliminare l'articolo #${id}? Azione irreversibile.`)) return;
+    setDeletingArticle(true); setDeleteArticleMsg(null);
+    try {
+      const res = await aFetch(`/admin/articles/${id}`, { method: "DELETE" });
+      if (res.status === 404) { setDeleteArticleMsg(`Articolo #${id} non trovato.`); }
+      else if (res.ok) { setDeleteArticleMsg(`Articolo #${id} eliminato.`); setDeleteArticleId(""); await loadStats(adminKey); }
+      else { setDeleteArticleMsg("Errore durante l'eliminazione."); }
+    } catch { setDeleteArticleMsg("Errore di rete."); } finally { setDeletingArticle(false); }
   }
 
   async function deleteAllArticles() {
@@ -648,6 +664,32 @@ export default function AdminPage() {
             </div>
           </>
         )}
+      </div>
+
+      {/* ── Elimina articolo ─────────────────────────────────────────────── */}
+      <div className={`${card} p-5`}>
+        <h2 className={`text-sm font-semibold ${txtPri} mb-1`}>Elimina articolo</h2>
+        <p className={`text-xs ${txtMut} mb-4`}>Inserisci l&apos;ID dell&apos;articolo da eliminare.</p>
+        <div className="flex items-center gap-3 flex-wrap">
+          <input
+            type="number"
+            min={1}
+            value={deleteArticleId}
+            onChange={e => setDeleteArticleId(e.target.value)}
+            placeholder="ID articolo (es. 419)"
+            className={`w-44 px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-1 focus:ring-red-400/60 transition-colors bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 ${txtPri} placeholder-slate-400 dark:placeholder-slate-600`}
+          />
+          <Btn
+            onClick={deleteArticle}
+            disabled={!deleteArticleId || deletingArticle}
+            loading={deletingArticle}
+            variant="danger"
+            icon={<IconTrash />}
+          >
+            {deletingArticle ? "Eliminazione…" : "Elimina"}
+          </Btn>
+          {deleteArticleMsg && <Toast msg={deleteArticleMsg} onClose={() => setDeleteArticleMsg(null)} />}
+        </div>
       </div>
 
       {/* ── Zona pericolosa ──────────────────────────────────────────────── */}

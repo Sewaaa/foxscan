@@ -189,6 +189,22 @@ def reset_items(request: Request, db: Session = Depends(get_db), _: None = Depen
     return {"status": "ok", "items_reset": count}
 
 
+@app.delete("/admin/articles/{article_id}")
+@limiter.limit("30/minute")
+def delete_article(article_id: int, request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
+    """Elimina un singolo articolo per ID."""
+    from models import Source
+    from fastapi import HTTPException
+    logger.warning(f"ADMIN delete-article #{article_id} — IP: {request.client.host if request.client else 'unknown'}")
+    article = db.query(Article).filter(Article.id == article_id).first()
+    if not article:
+        raise HTTPException(status_code=404, detail=f"Articolo #{article_id} non trovato")
+    db.query(Source).filter(Source.article_id == article_id).delete()
+    db.delete(article)
+    db.commit()
+    return {"status": "ok", "article_id": article_id}
+
+
 @app.delete("/admin/delete-all-articles")
 @limiter.limit("10/minute")
 def delete_all_articles(request: Request, db: Session = Depends(get_db), _: None = Depends(verify_admin)):
