@@ -498,7 +498,7 @@ export default function AdminPage() {
               <p className="text-[10px] font-semibold uppercase tracking-widest text-pink-600 dark:text-pink-500">
                 Prossimo
               </p>
-              {nextArticle.ig_score != null && <span className="ml-auto text-[11px] font-mono text-pink-600 dark:text-pink-400">ig·{nextArticle.ig_score}</span>}
+              {nextArticle.ig_score != null && <span className="ml-auto text-[11px] font-mono text-pink-600 dark:text-pink-400">ig·{nextArticle.ig_score?.toFixed(1)}</span>}
               <span className="text-[11px] font-mono text-amber-600 dark:text-amber-400">▲{nextArticle.relevance_score}</span>
             </div>
             <a href={`/article/${nextArticle.id}`} target="_blank" rel="noopener noreferrer"
@@ -541,7 +541,7 @@ export default function AdminPage() {
                       </a>
                       <div className="flex items-center gap-1.5 shrink-0">
                         <span className="text-[10px] font-mono text-amber-600 dark:text-amber-500">▲{a.relevance_score}</span>
-                        {a.ig_score != null && <span className="text-[10px] font-mono text-pink-600 dark:text-pink-500">ig·{a.ig_score}</span>}
+                        {a.ig_score != null && <span className="text-[10px] font-mono text-pink-600 dark:text-pink-500">ig·{a.ig_score?.toFixed(1)}</span>}
                       </div>
                     </div>
                   ))}
