@@ -151,6 +151,24 @@ def _strip_md(text: str) -> str:
     return text.strip()
 
 
+def _clean_corpo(corpo: str) -> str:
+    """
+    Rimuove sezioni di metadata che Groq talvolta appende alla fine del corpo
+    dell'articolo (Tag, Score di rilevanza, Ig score, Image query, ecc.).
+    """
+    spurious = re.compile(
+        r'\n+#{1,3}\s*('
+        r'tag|score\s*di\s*rilevanza|ig\s*score|image\s*query|'
+        r'punteggio|relevance\s*score|score|metadata'
+        r')\s*[\n:]',
+        re.IGNORECASE
+    )
+    match = spurious.search(corpo)
+    if match:
+        corpo = corpo[:match.start()].rstrip()
+    return corpo
+
+
 def _extract_json(raw: str) -> dict | None:
     match = re.search(r"```json\s*([\s\S]+?)\s*```", raw)
     if match:
@@ -226,6 +244,7 @@ def synthesize(scraped_items: list[dict]) -> dict | None:
 
             result["titolo"] = _strip_md(result["titolo"])
             result["sommario"] = _strip_md(result.get("sommario", ""))
+            result["corpo"] = _clean_corpo(result.get("corpo", ""))
             return result
 
         except httpx.HTTPStatusError as e:
@@ -297,6 +316,7 @@ def synthesize_update(existing_body: str, new_sources: list[dict]) -> dict | Non
 
             result["titolo"] = _strip_md(result["titolo"])
             result["sommario"] = _strip_md(result.get("sommario", ""))
+            result["corpo"] = _clean_corpo(result.get("corpo", ""))
             return result
 
         except httpx.HTTPStatusError as e:
