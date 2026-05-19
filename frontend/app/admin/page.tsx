@@ -491,22 +491,8 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Prossimo post */}
-        {nextArticle ? (
-          <div className="rounded-lg border p-3 border-pink-200 dark:border-pink-500/20 bg-pink-50 dark:bg-pink-500/5">
-            <div className="flex items-center gap-2 mb-1.5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-pink-600 dark:text-pink-500">
-                Prossimo
-              </p>
-              {nextArticle.ig_score != null && <span className="ml-auto text-[11px] font-mono text-pink-600 dark:text-pink-400">ig·{nextArticle.ig_score?.toFixed(1)}</span>}
-              <span className="text-[11px] font-mono text-amber-600 dark:text-amber-400">▲{nextArticle.relevance_score}</span>
-            </div>
-            <a href={`/article/${nextArticle.id}`} target="_blank" rel="noopener noreferrer"
-              className={`text-xs ${txtSec} hover:text-orange-500 dark:hover:text-orange-400 transition-colors line-clamp-2 cursor-pointer leading-relaxed`}>
-              {nextArticle.title}
-            </a>
-          </div>
-        ) : igStats && (
+        {/* Nessun articolo */}
+        {!nextArticle && igStats && (
           <p className={`text-xs ${txtMut} italic`}>Nessun articolo idoneo nelle ultime 36h.</p>
         )}
 
@@ -533,17 +519,31 @@ export default function AdminPage() {
                 </p>
                 <div className={`divide-y ${divider}`}>
                   {sortedPending.map((a, i) => (
-                    <div key={a.id} className="flex items-center gap-2 py-2">
-                      <span className={`text-[10px] font-mono ${txtDim} w-4 shrink-0`}>{i + 1}</span>
-                      <a href={`/article/${a.id}`} target="_blank" rel="noopener noreferrer"
-                        className={`text-xs ${txtBody} hover:text-orange-500 dark:hover:text-orange-400 transition-colors truncate flex-1 cursor-pointer`}>
-                        {a.title}
-                      </a>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="text-[10px] font-mono text-amber-600 dark:text-amber-500">▲{a.relevance_score}</span>
-                        {a.ig_score != null && <span className="text-[10px] font-mono text-pink-600 dark:text-pink-500">ig·{a.ig_score?.toFixed(1)}</span>}
+                    i === 0 ? (
+                      <div key={a.id} className="rounded-lg border border-pink-200 dark:border-pink-500/25 bg-pink-50 dark:bg-pink-500/5 px-2.5 py-2 mb-1 flex items-center gap-2">
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-pink-600 dark:text-pink-400 shrink-0 leading-tight">Il<br/>prossimo</span>
+                        <a href={`/article/${a.id}`} target="_blank" rel="noopener noreferrer"
+                          className="text-xs text-pink-800 dark:text-pink-200 hover:text-orange-500 dark:hover:text-orange-400 transition-colors truncate flex-1 cursor-pointer font-medium">
+                          {a.title}
+                        </a>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-[10px] font-mono text-amber-600 dark:text-amber-500">▲{a.relevance_score}</span>
+                          {a.ig_score != null && <span className="text-[10px] font-mono text-pink-600 dark:text-pink-400">ig·{a.ig_score?.toFixed(1)}</span>}
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div key={a.id} className="flex items-center gap-2 py-2">
+                        <span className={`text-[10px] font-mono ${txtDim} w-4 shrink-0`}>{i + 1}</span>
+                        <a href={`/article/${a.id}`} target="_blank" rel="noopener noreferrer"
+                          className={`text-xs ${txtBody} hover:text-orange-500 dark:hover:text-orange-400 transition-colors truncate flex-1 cursor-pointer`}>
+                          {a.title}
+                        </a>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-[10px] font-mono text-amber-600 dark:text-amber-500">▲{a.relevance_score}</span>
+                          {a.ig_score != null && <span className="text-[10px] font-mono text-pink-600 dark:text-pink-500">ig·{a.ig_score?.toFixed(1)}</span>}
+                        </div>
+                      </div>
+                    )
                   ))}
                 </div>
               </div>
