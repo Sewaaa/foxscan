@@ -243,9 +243,21 @@ def _run_pipeline_locked(max_posts: int = 1) -> dict:
                 break
 
         except Exception as e:
-            error_msg = f"{type(e).__name__}: {e}"
-            logger.error("  → ERRORE articolo #%d: %s", article_id, error_msg, exc_info=True)
-            mark_as_failed(engine, article_id, error_msg)
+            error_msg = str(e)
+            # Rate limit giornaliero Groq (TPD): non è colpa dell'articolo.
+            # Interrompi subito il loop senza marcare nulla come failed.
+            if "tokens per day" in error_msg or "per_day" in error_msg or (
+                "rate_limit_exceeded" in error_msg and "day" in error_msg.lower()
+            ):
+                logger.warning(
+                    "  → Rate limit giornaliero Groq raggiunto — pipeline ig interrotta. "
+                    "Articoli NON marcati come failed, verranno riprocessati domani."
+                )
+                stats["rate_limited"] = True
+                break
+            full_error = f"{type(e).__name__}: {e}"
+            logger.error("  → ERRORE articolo #%d: %s", article_id, full_error, exc_info=True)
+            mark_as_failed(engine, article_id, full_error)
             stats["errors"] += 1
             continue
 
