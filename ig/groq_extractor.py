@@ -225,6 +225,16 @@ def _extract_json(raw: str) -> str:
     return raw
 
 
+SLIDE_TEXT_MIN  = 160   # caratteri visibili minimi per ogni testo slide
+OPINION_TEXT_MIN = 200  # caratteri visibili minimi per opinion.text
+
+
+def _plain_len(text: str) -> int:
+    """Conta i caratteri visibili ignorando i tag HTML."""
+    import re
+    return len(re.sub(r'<[^>]+>', '', text))
+
+
 def _validate(data: dict) -> None:
     # caption non è ancora presente a questo punto (viene aggiunta dopo)
     required_top = {"cover_title", "cover_kicker", "slides", "opinion"}
@@ -237,9 +247,21 @@ def _validate(data: dict) -> None:
         for key in ("section", "text", "image_query"):
             if not slide.get(key):
                 raise ValueError(f"Slide {i} manca di '{key}'")
+        n = _plain_len(slide["text"])
+        if n < SLIDE_TEXT_MIN:
+            raise ValueError(
+                f"Slide {i} testo troppo corto: {n} caratteri (minimo {SLIDE_TEXT_MIN}). "
+                f"Testo: {slide['text'][:80]!r}"
+            )
     for key in ("section", "text"):
         if not data["opinion"].get(key):
             raise ValueError(f"opinion manca di '{key}'")
+    n = _plain_len(data["opinion"]["text"])
+    if n < OPINION_TEXT_MIN:
+        raise ValueError(
+            f"opinion.text troppo corto: {n} caratteri (minimo {OPINION_TEXT_MIN}). "
+            f"Testo: {data['opinion']['text'][:80]!r}"
+        )
 
 
 if __name__ == "__main__":
