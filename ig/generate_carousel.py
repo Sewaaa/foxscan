@@ -285,10 +285,10 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
   </div>
 
   <!-- Titolo grande bold in basso a sinistra -->
-  <div style="position:absolute;bottom:88px;left:72px;right:280px;z-index:10;">
+  <div style="position:absolute;bottom:88px;left:72px;right:330px;z-index:10;overflow:hidden;">
     <h1 style="font-family:'Space Grotesk',sans-serif;font-size:{title_size}px;font-weight:900;
       line-height:1.06;color:#fff;letter-spacing:-0.025em;text-align:left;
-      text-shadow:0 2px 20px rgba(0,0,0,0.6);">
+      text-shadow:0 2px 20px rgba(0,0,0,0.6);overflow-wrap:break-word;word-break:break-word;">
       {_md_to_html(a['cover_title'])}
     </h1>
   </div>
@@ -309,13 +309,22 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
 # SLIDE 2-4 — News detail: split layout foto/testo come l'inspo
 # ════════════════════════════════════════════════════════════════════════════
 def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
-    SPLIT   = 630   # px: foto → 630px, testo → 720px disponibili (era 700→448px, testi lunghi traboccavano)
+    SPLIT   = 630   # px: foto → 630px, testo → 720px disponibili
     TITLE_Y = SPLIT + 20
-    SEP2    = SPLIT + 126
-    BODY_Y  = SPLIT + 142
+
+    # Font titolo sezione: dimensionato per stare sempre su 1 riga (larghezza utile 936px)
+    # Space Grotesk bold: ~0.52px per char per px di font-size
+    max_section_size = int(936 / max(len(section), 1) / 0.52)
+    section_size = max(52, min(86, max_section_size))
+
+    # Posizioni dinamiche in base all'altezza reale del titolo
+    TITLE_H = int(section_size * 1.08) + 8   # altezza stimata 1 riga
+    SEP2    = TITLE_Y + TITLE_H + 18
+    BODY_Y  = SEP2 + 16
+
     # Tronca il testo se supera il limite (safety net, il prompt dovrebbe già limitarlo)
     text = _truncate(text, max_chars=240)
-    # Scala font: 52px breve / 46px medio / 40px lungo — calibrata su area disponibile ~520px
+    # Scala font corpo: 52px breve / 46px medio / 40px lungo
     txt_size = _font_size(text, 52, step=6, thresholds=(110, 175))
     arrows   = "".join(
         f'<span class="arrow" style="opacity:{max(0.55 - i*0.15, 0.08):.2f};color:#fff;">&#x00AB;</span>'
@@ -350,10 +359,10 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
   <!-- Frecce top-right -->
   <div class="swipe-arrows" style="z-index:20;">{arrows}</div>
 
-  <!-- Titolo sezione (grande bold) -->
-  <div style="position:absolute;top:{TITLE_Y}px;left:72px;right:72px;z-index:10;">
-    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:86px;font-weight:900;
-      color:#fff;letter-spacing:-0.025em;line-height:1.04;">
+  <!-- Titolo sezione (grande bold, font scalato per stare su 1 riga) -->
+  <div style="position:absolute;top:{TITLE_Y}px;left:72px;right:72px;z-index:10;overflow:hidden;">
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:{section_size}px;font-weight:900;
+      color:#fff;letter-spacing:-0.025em;line-height:1.08;white-space:nowrap;">
       {section}
     </h2>
   </div>
