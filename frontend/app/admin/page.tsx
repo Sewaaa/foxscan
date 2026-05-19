@@ -280,9 +280,12 @@ export default function AdminPage() {
   const utc = (s: string) => new Date(s.endsWith("Z") ? s : s + "Z");
   const fmt = (s: string, opts?: Intl.DateTimeFormatOptions) => utc(s).toLocaleString("it-IT", opts ?? {});
 
+  const effectiveIgScore = (a: IgArticle) =>
+    (a.ig_score ?? 0) + Math.min(((a.source_count ?? 1) - 1) * 0.5, 1.0);
+
   const sortBy = (list: IgArticle[]) =>
     [...list].sort((a, b) => {
-      const d = (b.ig_score ?? 0) - (a.ig_score ?? 0);
+      const d = effectiveIgScore(b) - effectiveIgScore(a);
       if (d !== 0) return d;
       if (b.relevance_score !== a.relevance_score) return b.relevance_score - a.relevance_score;
       return utc(b.published_at).getTime() - utc(a.published_at).getTime();
@@ -527,6 +530,7 @@ export default function AdminPage() {
                           {a.title}
                         </a>
                         <div className="flex items-center gap-1.5 shrink-0">
+                          {(a.source_count ?? 0) > 1 && <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">{a.source_count}f</span>}
                           <span className="text-[10px] font-mono text-amber-600 dark:text-amber-500">▲{a.relevance_score}</span>
                           {a.ig_score != null && <span className="text-[10px] font-mono text-pink-600 dark:text-pink-400">ig·{a.ig_score?.toFixed(1)}</span>}
                         </div>
@@ -539,6 +543,7 @@ export default function AdminPage() {
                           {a.title}
                         </a>
                         <div className="flex items-center gap-1.5 shrink-0">
+                          {(a.source_count ?? 0) > 1 && <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">{a.source_count}f</span>}
                           <span className="text-[10px] font-mono text-amber-600 dark:text-amber-500">▲{a.relevance_score}</span>
                           {a.ig_score != null && <span className="text-[10px] font-mono text-pink-600 dark:text-pink-500">ig·{a.ig_score?.toFixed(1)}</span>}
                         </div>

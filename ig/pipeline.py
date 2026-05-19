@@ -76,15 +76,20 @@ def get_pending_articles(engine, max_posts: int = 1, hours: int = 36) -> list[di
     limit = max(max_posts, MAX_CANDIDATES_PER_RUN)
 
     q = text("""
-        SELECT id, title, summary, body, tags, relevance_score, ig_carousel_data, image_url,
-               COALESCE(ig_score, 0)
-               - CASE WHEN image_url LIKE '%unsplash.com%' THEN 1.0 ELSE 0.0 END
+        SELECT a.id, a.title, a.summary, a.body, a.tags, a.relevance_score,
+               a.ig_carousel_data, a.image_url,
+               COALESCE(a.ig_score, 0)
+               - CASE WHEN a.image_url LIKE '%unsplash.com%' THEN 1.0 ELSE 0.0 END
+               + LEAST((COUNT(s.id) - 1) * 0.5, 1.0)
                AS effective_ig_score
-        FROM articles
-        WHERE (posted_to_ig IS NULL OR posted_to_ig = FALSE)
-          AND ig_last_error IS NULL
-          AND published_at >= :cutoff
-        ORDER BY effective_ig_score DESC, published_at DESC
+        FROM articles a
+        LEFT JOIN sources s ON s.article_id = a.id
+        WHERE (a.posted_to_ig IS NULL OR a.posted_to_ig = FALSE)
+          AND a.ig_last_error IS NULL
+          AND a.published_at >= :cutoff
+        GROUP BY a.id, a.title, a.summary, a.body, a.tags, a.relevance_score,
+                 a.ig_carousel_data, a.image_url, a.ig_score
+        ORDER BY effective_ig_score DESC, a.published_at DESC
         LIMIT :limit
     """)
     with engine.connect() as conn:

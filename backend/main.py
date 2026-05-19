@@ -401,16 +401,25 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
     IG_WINDOW_HOURS = 36  # deve corrispondere a pipeline.py get_pending_articles(hours=36)
     cutoff = datetime.utcnow() - timedelta(hours=IG_WINDOW_HOURS)
 
-    # Coda: stessa logica della pipeline — solo ig_score DESC, nessuna soglia relevance_score
-    from sqlalchemy import func, case
-    pending = (
-        db.query(Article)
-        .filter((Article.posted_to_ig == False) | (Article.posted_to_ig == None))  # noqa: E712
-        .filter(Article.ig_last_error == None)  # noqa: E711
-        .filter(Article.published_at >= cutoff)
-        .order_by(func.coalesce(Article.ig_score, 0).desc(), Article.published_at.desc())
-        .all()
-    )
+    # Coda: stessa logica della pipeline — ig_score + bonus multi-fonte + penalità unsplash
+    pending_rows = db.execute(text("""
+        SELECT a.id, a.title, a.relevance_score, a.ig_score, a.published_at,
+               a.ig_posted_at, a.ig_last_error, a.ig_last_error_at, a.ig_attempts,
+               COUNT(s.id) AS source_count,
+               COALESCE(a.ig_score, 0)
+               - CASE WHEN a.image_url LIKE '%unsplash.com%' THEN 1.0 ELSE 0.0 END
+               + LEAST((COUNT(s.id) - 1) * 0.5, 1.0)
+               AS effective_ig_score
+        FROM articles a
+        LEFT JOIN sources s ON s.article_id = a.id
+        WHERE (a.posted_to_ig IS NULL OR a.posted_to_ig = FALSE)
+          AND a.ig_last_error IS NULL
+          AND a.published_at >= :cutoff
+        GROUP BY a.id, a.title, a.relevance_score, a.ig_score, a.published_at,
+                 a.ig_posted_at, a.ig_last_error, a.ig_last_error_at, a.ig_attempts, a.image_url
+        ORDER BY effective_ig_score DESC, a.published_at DESC
+    """), {"cutoff": cutoff}).fetchall()
+    pending = [dict(r._mapping) for r in pending_rows]
 
     pending_fallback = []  # non più usato, mantenuto per compatibilità frontend
 
@@ -450,26 +459,44 @@ def get_ig_stats(request: Request, db: Session = Depends(get_db), _: None = Depe
         .all()
     )
 
-    def _slim(a: Article) -> dict:
+    def _fmt_dt(v):
+        return v.isoformat() if v and hasattr(v, "isoformat") else v
+
+    def _slim_orm(a: Article, source_count: int = 0) -> dict:
         return {
             "id": a.id,
             "title": a.title,
             "relevance_score": a.relevance_score,
             "ig_score": a.ig_score,
-            "published_at": a.published_at.isoformat() if a.published_at else None,
-            "ig_posted_at": a.ig_posted_at.isoformat() if a.ig_posted_at else None,
+            "source_count": source_count,
+            "published_at": _fmt_dt(a.published_at),
+            "ig_posted_at": _fmt_dt(a.ig_posted_at),
             "ig_last_error": a.ig_last_error,
-            "ig_last_error_at": a.ig_last_error_at.isoformat() if a.ig_last_error_at else None,
+            "ig_last_error_at": _fmt_dt(a.ig_last_error_at),
             "ig_attempts": a.ig_attempts or 0,
+        }
+
+    def _slim_dict(d: dict) -> dict:
+        return {
+            "id": d["id"],
+            "title": d["title"],
+            "relevance_score": d["relevance_score"],
+            "ig_score": d["ig_score"],
+            "source_count": int(d.get("source_count", 0)),
+            "published_at": _fmt_dt(d.get("published_at")),
+            "ig_posted_at": _fmt_dt(d.get("ig_posted_at")),
+            "ig_last_error": d.get("ig_last_error"),
+            "ig_last_error_at": _fmt_dt(d.get("ig_last_error_at")),
+            "ig_attempts": d.get("ig_attempts") or 0,
         }
 
     return {
         "posted_today": posted_today,
-        "pending": [_slim(a) for a in pending],
-        "pending_fallback": [_slim(a) for a in pending_fallback],
-        "too_old": [_slim(a) for a in too_old],
-        "recent_posted": [_slim(a) for a in recent_posted],
-        "failed": [_slim(a) for a in failed],
+        "pending": [_slim_dict(a) for a in pending],
+        "pending_fallback": [_slim_orm(a) for a in pending_fallback],
+        "too_old": [_slim_orm(a) for a in too_old],
+        "recent_posted": [_slim_orm(a) for a in recent_posted],
+        "failed": [_slim_orm(a) for a in failed],
     }
 
 
