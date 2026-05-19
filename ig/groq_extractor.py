@@ -13,9 +13,9 @@ from groq import Groq
 
 logger = logging.getLogger(__name__)
 
-GROQ_MODEL_SLIDES   = "openai/gpt-oss-20b"
-GROQ_MODEL_CAPTION  = "openai/gpt-oss-20b"
-GROQ_MODEL_FALLBACK = "llama-3.3-70b-versatile"  # usato SOLO se il modello principale fallisce 3 volte
+GROQ_MODEL_SLIDES   = "llama-3.3-70b-versatile"
+GROQ_MODEL_CAPTION  = "llama-3.3-70b-versatile"
+GROQ_MODEL_FALLBACK = "llama-3.3-70b-versatile"  # stesso modello, fallback mantenuto per compatibilita'
 
 SYSTEM_PROMPT = """Sei un social media manager italiano esperto di cybersecurity che scrive per Instagram.
 Ricevi un articolo tecnico e produci: i testi per un carosello di 6 slide + una caption professionale per il post.
