@@ -306,21 +306,13 @@ def slide1(a: dict, img: str, fox_cover: str) -> str:
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# SLIDE 2-4 — News detail: split layout foto/testo come l'inspo
+# SLIDE 2-4 — News detail: immagine full-bleed, testo ancorato al fondo
 # ════════════════════════════════════════════════════════════════════════════
 def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
-    SPLIT   = 630   # px: foto → 630px, testo → 720px disponibili
-    TITLE_Y = SPLIT + 20
-
     # Font titolo sezione: dimensionato per stare sempre su 1 riga (larghezza utile 936px)
     # Space Grotesk bold: ~0.52px per char per px di font-size
     max_section_size = int(936 / max(len(section), 1) / 0.52)
     section_size = max(52, min(86, max_section_size))
-
-    # Posizioni dinamiche in base all'altezza reale del titolo
-    TITLE_H = int(section_size * 1.08) + 8   # altezza stimata 1 riga
-    SEP2    = TITLE_Y + TITLE_H + 18
-    BODY_Y  = SEP2 + 16
 
     # Tronca il testo se supera il limite (safety net, il prompt dovrebbe già limitarlo)
     text = _truncate(text, max_chars=240)
@@ -335,20 +327,28 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
   <!-- Accent bar -->
   <div class="accent-bar"></div>
 
-  <!-- Foto (metà superiore) -->
-  <div style="position:absolute;top:0;left:0;right:0;height:{SPLIT}px;overflow:hidden;z-index:0;">
-    <div style="width:100%;height:100%;
-      background-image:url('{img}');background-size:cover;background-position:center center;"></div>
-    <!-- Fade bottom foto → dark -->
-    <div style="position:absolute;bottom:0;left:0;right:0;height:180px;
-      background:linear-gradient(to bottom,transparent,#020817);"></div>
-  </div>
+  <!-- Foto full-bleed: occupa l'intera slide, l'immagine si prende tutto lo spazio -->
+  <div style="position:absolute;inset:0;z-index:0;
+    background-image:url('{img}');background-size:cover;background-position:center 30%;"></div>
 
-  <!-- Area testo scura (metà inferiore) -->
-  <div style="position:absolute;top:{SPLIT}px;left:0;right:0;bottom:0;background:#020817;z-index:1;"></div>
+  <!-- Gradiente scuro dal basso: copre la zona testo, lascia l'immagine visibile in alto -->
+  <div style="position:absolute;inset:0;z-index:1;
+    background:linear-gradient(to top,
+      rgba(2,8,23,1.00) 0%,
+      rgba(2,8,23,0.98) 22%,
+      rgba(2,8,23,0.85) 38%,
+      rgba(2,8,23,0.45) 54%,
+      rgba(2,8,23,0.10) 68%,
+      transparent 78%);"></div>
+
+  <!-- Gradiente scuro dall'alto: rende leggibile la top bar -->
+  <div style="position:absolute;inset:0;z-index:1;
+    background:linear-gradient(to bottom,
+      rgba(2,8,23,0.75) 0%,
+      transparent 22%);"></div>
 
   <!-- Grid sottile su tutto -->
-  <div class="bg-grid" style="z-index:2;opacity:0.25;"></div>
+  <div class="bg-grid" style="z-index:2;opacity:0.18;"></div>
 
   <!-- FOXSCAN top-left -->
   <div style="position:absolute;top:42px;left:72px;z-index:20;
@@ -359,25 +359,26 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
   <!-- Frecce top-right -->
   <div class="swipe-arrows" style="z-index:20;">{arrows}</div>
 
-  <!-- Titolo sezione (grande bold, font scalato per stare su 1 riga) -->
-  <div style="position:absolute;top:{TITLE_Y}px;left:72px;right:72px;z-index:10;overflow:hidden;">
+  <!-- Blocco testo ANCORATO AL FONDO: l'immagine si prende tutto lo spazio libero sopra -->
+  <div style="position:absolute;left:72px;right:72px;bottom:64px;z-index:10;">
+
+    <!-- Titolo sezione (grande bold, 1 riga) -->
     <h2 style="font-family:'Space Grotesk',sans-serif;font-size:{section_size}px;font-weight:900;
-      color:#fff;letter-spacing:-0.025em;line-height:1.08;white-space:nowrap;">
+      color:#fff;letter-spacing:-0.025em;line-height:1.08;white-space:nowrap;
+      margin-bottom:18px;">
       {section}
     </h2>
-  </div>
 
-  <!-- Separatore 2 -->
-  <div style="position:absolute;top:{SEP2}px;left:72px;right:72px;
-    height:1px;z-index:10;background:rgba(255,255,255,0.13);"></div>
+    <!-- Separatore sottile -->
+    <div style="height:1px;background:rgba(255,255,255,0.15);margin-bottom:22px;
+      background:linear-gradient(90deg,rgba(0,255,229,0.55),rgba(255,255,255,0.10));"></div>
 
-  <!-- Testo corpo -->
-  <div style="position:absolute;top:{BODY_Y}px;left:72px;right:72px;
-    bottom:60px;z-index:10;overflow:hidden;">
+    <!-- Corpo testo -->
     <p style="font-family:'Inter',sans-serif;font-size:{txt_size}px;font-weight:400;
-      line-height:1.54;color:rgba(255,255,255,0.88);">
+      line-height:1.54;color:rgba(255,255,255,0.90);">
       {_md_to_html(text)}
     </p>
+
   </div>
 
 </div>
@@ -389,7 +390,7 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
 # ════════════════════════════════════════════════════════════════════════════
 def slide5_opinion(a: dict, fox_mascot: str) -> str:
     op = a["opinion"]
-    txt_size = _font_size(op["text"], 46, step=4, thresholds=(120, 180))
+    txt_size = _font_size(op["text"], 46, step=4, thresholds=(120, 180, 240))
     return page(f"""
 <div class="slide">
   <!-- Sfondo gradiente statico -->

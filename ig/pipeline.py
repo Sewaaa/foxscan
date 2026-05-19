@@ -12,6 +12,7 @@ Flusso:
   → Cleanup file temporanei
 """
 
+import fcntl
 import json
 import logging
 import os
@@ -31,6 +32,11 @@ logger = logging.getLogger(__name__)
 
 OUT_DIR = Path(__file__).parent / "carousel_output"
 OUT_DIR.mkdir(exist_ok=True)
+
+# Lock cross-process: evita duplicati quando pipeline.py viene lanciato manualmente
+# mentre lo scheduler sta gia' girando (threading.Lock non basta — e' per-processo)
+_IG_DATA_DIR = Path(os.getenv("IG_DATA_DIR", str(Path(__file__).parent / "carousel_output")))
+LOCK_FILE = _IG_DATA_DIR / "pipeline.lock"
 
 MIN_SCORE_CRITICAL = 8
 MIN_SCORE_FALLBACK = 5
@@ -164,6 +170,25 @@ def run_pipeline(max_posts: int = 1) -> dict:
         logger.info("INSTAGRAM_ENABLED non attivo — pipeline ig saltata")
         return {"skipped": True}
 
+    # Lock cross-processo: se lo scheduler sta gia' girando, il processo manuale
+    # trovera' il file bloccato e uscira' immediatamente senza postare duplicati.
+    _IG_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    lock_fd = open(LOCK_FILE, "w")
+    try:
+        fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        lock_fd.close()
+        logger.warning("Pipeline ig gia' in esecuzione (lock %s occupato) — uscita.", LOCK_FILE)
+        return {"skipped": True, "reason": "already_running"}
+
+    try:
+        return _run_pipeline_locked(max_posts)
+    finally:
+        fcntl.flock(lock_fd, fcntl.LOCK_UN)
+        lock_fd.close()
+
+
+def _run_pipeline_locked(max_posts: int = 1) -> dict:
     from generate_carousel import generate
     from groq_extractor import extract_carousel_data
     from instagram_poster import post_carousel
