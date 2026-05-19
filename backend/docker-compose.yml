@@ -22,7 +22,7 @@ services:
       context: ../ig
     restart: unless-stopped
     environment:
-      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY_IG}
       - UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}
       - DATABASE_URL=${DATABASE_URL}
       - INSTAGRAM_USERNAME=${INSTAGRAM_USERNAME}
