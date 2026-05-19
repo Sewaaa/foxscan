@@ -315,7 +315,7 @@ def slide_news(section: str, text: str, slide_n: int, img: str) -> str:
     section_size = max(52, min(86, max_section_size))
 
     # Tronca il testo se supera il limite (safety net, il prompt dovrebbe già limitarlo)
-    text = _truncate(text, max_chars=240)
+    text = _truncate(text, max_chars=160)
     # Scala font corpo: 52px breve / 46px medio / 40px lungo
     txt_size = _font_size(text, 52, step=6, thresholds=(110, 175))
     arrows   = "".join(

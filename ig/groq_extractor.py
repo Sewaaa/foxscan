@@ -30,8 +30,8 @@ REGOLE OBBLIGATORIE:
 - cover_title GRASSETTO — REGOLA TASSATIVA OBBLIGATORIA: il cover_title deve contenere SEMPRE esattamente 1 o 2 parole in **grassetto**. Senza grassetto il titolo non è valido. Metti in grassetto: il nome dell'azienda (es. **Google**, **Cisco**), OPPURE il numero chiave (es. **3 milioni**, **15 CVE**), OPPURE il nome del malware/vulnerabilità (es. **Log4Shell**, **zero-day**). Esempi corretti: "**Google**: falla critica in Chrome già sfruttata", "**13 milioni** di account violati: colpa di una API", "**Cisco**: patch urgente per falla nei router", "Kernel Linux: scoperta vulnerabilità **Fragnesia** già sfruttata".
 - cover_kicker: uno tra BREAKING / URGENTE / ALERT / ESCLUSIVO
 - slides[]: dopo aver letto l'articolo, decidi autonomamente quali sono i tre aspetti più importanti e interessanti da approfondire. Ogni slide affronta un aspetto diverso. Il campo "section" è il titolo di quell'aspetto: inventalo tu in base al contenuto, max 4 parole, italiano, concreto e specifico per QUESTA notizia. Non usare titoli generici che andrebbero bene per qualsiasi articolo.
-- opinion.text: analisi contestuale dell'episodio specifico, stile analista senior. DEVE portare un'informazione nuova rispetto alle slide: un precedente storico concreto, una conseguenza geopolitica reale, un dato di impatto numerico, una correlazione con un trend del settore, o una ragione tecnica che spiega PERCHE' questo episodio conta davvero. Tono: sobrio, autorevole. GRAMMATICA ITALIANA OBBLIGATORIA: concordanza corretta degli ausiliari (es. "ci è già passato" non "ci ha già passato"). VIETATO TASSATIVAMENTE: frasi generiche tipo "aggiornate i sistemi", "adottare misure di sicurezza robuste", "è importante proteggersi", "proteggere i propri dati", qualsiasi consiglio di sicurezza generico valido per qualsiasi articolo. Se non hai un'analisi specifica su QUESTO episodio, inventa un dato o un precedente storico plausibile legato al contesto. LIMITE: minimo 200 caratteri, massimo 280 caratteri. Conta i caratteri prima di rispondere e assicurati di superare i 200.
-- Ogni testo slide: 2-3 frasi complete e discorsive, non elenchi telegrafici. LIMITE: minimo 160 caratteri, massimo 220 caratteri (spazi inclusi). Conta i caratteri prima di rispondere e assicurati di superare i 160. Usa <strong>parola</strong> per i termini chiave.
+- opinion.text: analisi contestuale dell'episodio specifico, stile analista senior. DEVE portare un'informazione nuova rispetto alle slide: un precedente storico concreto, una conseguenza geopolitica reale, un dato di impatto numerico, una correlazione con un trend del settore, o una ragione tecnica che spiega PERCHE' questo episodio conta davvero. Tono: sobrio, autorevole. GRAMMATICA ITALIANA OBBLIGATORIA: concordanza corretta degli ausiliari (es. "ci è già passato" non "ci ha già passato"). VIETATO TASSATIVAMENTE: frasi generiche tipo "aggiornate i sistemi", "adottare misure di sicurezza robuste", "è importante proteggersi", "proteggere i propri dati", qualsiasi consiglio di sicurezza generico valido per qualsiasi articolo. Se non hai un'analisi specifica su QUESTO episodio, inventa un dato o un precedente storico plausibile legato al contesto. LIMITE: minimo 100 caratteri, massimo 160 caratteri. Conta i caratteri prima di rispondere.
+- Ogni testo slide: 2-3 frasi complete e discorsive, non elenchi telegrafici. LIMITE: minimo 100 caratteri, massimo 160 caratteri (spazi inclusi). Conta i caratteri prima di rispondere. Usa <strong>parola</strong> per i termini chiave.
 
 IMAGE QUERY (CRITICO — SII SPECIFICO):
 - OGNI image_query DEVE essere visivamente DIVERSA dalle altre: nessun sfondo ripetuto
@@ -225,8 +225,8 @@ def _extract_json(raw: str) -> str:
     return raw
 
 
-SLIDE_TEXT_MIN  = 160   # caratteri visibili minimi per ogni testo slide
-OPINION_TEXT_MIN = 200  # caratteri visibili minimi per opinion.text
+SLIDE_TEXT_MIN  = 100   # caratteri visibili minimi per ogni testo slide
+OPINION_TEXT_MIN = 100  # caratteri visibili minimi per opinion.text
 
 
 def _plain_len(text: str) -> int:
