@@ -21,7 +21,11 @@ def _truncate(text: str, max_chars: int = 240) -> str:
     """
     Tronca il testo (senza tag HTML) a max_chars caratteri, al confine di parola.
     Preserva i tag <strong>...</strong> già presenti.
+    Rimuove anche trailing '...' / '…' lasciati da Groq quando si auto-tronca.
     """
+    # Rimuovi trailing ellipsis aggiunti da Groq
+    text = re.sub(r'\s*\.{2,}\s*$', '', text).strip()
+    text = re.sub(r'\s*…\s*$', '', text).strip()
     # Conta i caratteri visibili (senza tag HTML)
     plain = re.sub(r'<[^>]+>', '', text)
     if len(plain) <= max_chars:

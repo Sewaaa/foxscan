@@ -38,10 +38,11 @@ IMAGE QUERY (CRITICO — SII SPECIFICO):
 - VIETATO TASSATIVAMENTE: non usare mai nomi di software, app, siti web o prodotti digitali nelle query (es. MAI "DeepSeek", "ChatGPT", "Instagram", "Chrome", "Windows", "macOS"). Queste query tirano fuori screenshot di interfacce completamente fuori contesto. Usa sempre soggetti fisici: persone, edifici, hardware, mappe, ambienti reali.
 - Se l'articolo cita esplicitamente un'azienda (Google, Microsoft, Apple, Meta, Cisco, ecc.) usa il nome dell'azienda SOLO con riferimento fisico: "Google Googleplex headquarters campus aerial", "Microsoft office building exterior", "Apple Park spaceship campus aerial". MAI "Google app", "Microsoft software", ecc.
 - Se cita un paese o governo, usa immagini specifiche: "US Capitol Washington cybersecurity", "Pentagon building aerial view"
-- slides[0].image_query: persona reale in contesto di allarme o lavoro (giornalista, analista, sala riunioni, conferenza stampa, tecnico IT)
-- slides[1].image_query: hardware fisico o infrastruttura reale (server rack, cavi di rete, router, data center, dispositivi)
+- slides[0].image_query: persona reale in contesto di allarme o lavoro (giornalista, analista, sala riunioni, conferenza stampa, tecnico IT davanti a schermo)
+- slides[1].image_query: infrastruttura di rete o data center — SOLO server rack, cavi ethernet, patch panel, sala server, NOC interior. VIETATO TASSATIVAMENTE: RAM, memory chip, circuit board, PCB, motherboard, CPU, schede madri, singoli componenti hardware — queste query danno foto di componenti PC non pertinenti.
 - slides[2].image_query: visione globale o strategica (mappa fisica con spilli, satellite, città dall'alto, geopolitica)
 - SEMPRE in inglese, 4-7 parole per Pexels. MAI ripetere parole tra query diverse.
+- VIETATO in qualsiasi image_query: "memory", "chip", "RAM", "circuit", "PCB", "motherboard", "processor", "CPU", "GPU" — generano foto di componenti elettronici fuori contesto.
 
 CAPTION INSTAGRAM:
 - Tono: social media manager professionista, coinvolgente, diretto, leggermente allarmistico
@@ -244,28 +245,47 @@ def _validate(data: dict) -> None:
         raise ValueError(f"Groq output manca di: {missing}")
     if len(data["slides"]) != 3:
         raise ValueError(f"Attese 3 slides, ricevute {len(data['slides'])}")
+    _TRAILING_ELLIPSIS = re.compile(r'\s*\.{2,}\s*$|…\s*$')
+    _BANNED_IMG_TERMS  = re.compile(r'\b(memory|chip|ram|circuit|pcb|motherboard|processor|cpu|gpu)\b', re.IGNORECASE)
+
     for i, slide in enumerate(data["slides"]):
         for key in ("section", "text", "image_query"):
             if not slide.get(key):
                 raise ValueError(f"Slide {i} manca di '{key}'")
-        n = _plain_len(slide["text"])
+        txt = slide["text"]
+        n = _plain_len(txt)
         if n < SLIDE_TEXT_MIN:
             raise ValueError(
                 f"Slide {i} testo troppo corto: {n} caratteri (minimo {SLIDE_TEXT_MIN}). "
-                f"Testo: {slide['text'][:80]!r}"
+                f"Testo: {txt[:80]!r}"
             )
-        if "<strong>" not in slide["text"]:
+        plain_txt = re.sub(r'<[^>]+>', '', txt)
+        if _TRAILING_ELLIPSIS.search(plain_txt):
+            raise ValueError(
+                f"Slide {i} testo finisce con '...' — frase incompleta non accettata: {txt[-40:]!r}"
+            )
+        if "<strong>" not in txt:
             raise ValueError(
                 f"Slide {i} manca di tag <strong> obbligatori per le keyword cyan"
+            )
+        if _BANNED_IMG_TERMS.search(slide["image_query"]):
+            raise ValueError(
+                f"Slide {i} image_query contiene termine vietato: {slide['image_query']!r}"
             )
     for key in ("section", "text"):
         if not data["opinion"].get(key):
             raise ValueError(f"opinion manca di '{key}'")
-    n = _plain_len(data["opinion"]["text"])
+    op_txt = data["opinion"]["text"]
+    n = _plain_len(op_txt)
     if n < OPINION_TEXT_MIN:
         raise ValueError(
             f"opinion.text troppo corto: {n} caratteri (minimo {OPINION_TEXT_MIN}). "
-            f"Testo: {data['opinion']['text'][:80]!r}"
+            f"Testo: {op_txt[:80]!r}"
+        )
+    plain_op = re.sub(r'<[^>]+>', '', op_txt)
+    if _TRAILING_ELLIPSIS.search(plain_op):
+        raise ValueError(
+            f"opinion.text finisce con '...' — frase incompleta non accettata: {op_txt[-40:]!r}"
         )
 
 
