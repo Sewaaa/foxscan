@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from sqlalchemy import Column, Integer, Text, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, Float, Text, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -21,7 +21,7 @@ class Article(Base):
     posted_to_ig = Column(Boolean, default=False)
     ig_posted_at = Column(DateTime, nullable=True)
     ig_carousel_data = Column(Text, nullable=True)  # JSON cache output Groq
-    ig_score = Column(Integer, nullable=True)  # instagrammabilità 1-10
+    ig_score = Column(Float, nullable=True)  # instagrammabilità 1.0-10.0
     ig_last_error = Column(Text, nullable=True)
     ig_last_error_at = Column(DateTime, nullable=True)
     ig_attempts = Column(Integer, default=0)

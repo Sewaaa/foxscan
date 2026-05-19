@@ -38,8 +38,6 @@ OUT_DIR.mkdir(exist_ok=True)
 _IG_DATA_DIR = Path(os.getenv("IG_DATA_DIR", str(Path(__file__).parent / "carousel_output")))
 LOCK_FILE = _IG_DATA_DIR / "pipeline.lock"
 
-MIN_SCORE_CRITICAL = 8
-MIN_SCORE_FALLBACK = 5
 MAX_CANDIDATES_PER_RUN = 5
 
 
@@ -77,29 +75,18 @@ def get_pending_articles(engine, max_posts: int = 1, hours: int = 36) -> list[di
     cutoff = datetime.utcnow() - timedelta(hours=hours)
     limit = max(max_posts, MAX_CANDIDATES_PER_RUN)
 
-    def _query(min_score: int) -> list[dict]:
-        q = text("""
-            SELECT id, title, summary, body, tags, relevance_score, ig_carousel_data, image_url
-            FROM articles
-            WHERE relevance_score >= :score
-              AND (posted_to_ig IS NULL OR posted_to_ig = FALSE)
-              AND ig_last_error IS NULL
-              AND published_at >= :cutoff
-            ORDER BY relevance_score DESC, COALESCE(ig_score, 0) DESC, published_at DESC
-            LIMIT :limit
-        """)
-        with engine.connect() as conn:
-            rows = conn.execute(q, {"score": min_score, "cutoff": cutoff, "limit": limit}).fetchall()
-        return [dict(r._mapping) for r in rows]
-
-    articles = _query(MIN_SCORE_CRITICAL)
-    if not articles:
-        logger.info(
-            "Nessun articolo critico (score>=%d) nelle ultime %dh — fallback a medi (score>=%d)",
-            MIN_SCORE_CRITICAL, hours, MIN_SCORE_FALLBACK,
-        )
-        articles = _query(MIN_SCORE_FALLBACK)
-    return articles
+    q = text("""
+        SELECT id, title, summary, body, tags, relevance_score, ig_carousel_data, image_url
+        FROM articles
+        WHERE (posted_to_ig IS NULL OR posted_to_ig = FALSE)
+          AND ig_last_error IS NULL
+          AND published_at >= :cutoff
+        ORDER BY COALESCE(ig_score, 0) DESC, published_at DESC
+        LIMIT :limit
+    """)
+    with engine.connect() as conn:
+        rows = conn.execute(q, {"cutoff": cutoff, "limit": limit}).fetchall()
+    return [dict(r._mapping) for r in rows]
 
 
 def save_carousel_data(engine, article_id: int, data: dict) -> None:
@@ -199,7 +186,7 @@ def _run_pipeline_locked(max_posts: int = 1) -> dict:
     articles = get_pending_articles(engine, max_posts=max_posts)
 
     if not articles:
-        logger.info("Nessun articolo pendente per Instagram (score>=%d)", MIN_SCORE_FALLBACK)
+        logger.info("Nessun articolo pendente per Instagram nelle ultime 36h")
         return {"posted": 0}
 
     stats = {"posted": 0, "errors": 0}

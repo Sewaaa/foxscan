@@ -57,6 +57,14 @@ def init_db():
             except Exception:
                 pass  # colonna già presente
 
+        # Migrazione ig_score da INTEGER a FLOAT (una tantum, idempotente)
+        try:
+            if not DATABASE_URL.startswith("sqlite"):
+                conn.execute(text("ALTER TABLE articles ALTER COLUMN ig_score TYPE FLOAT"))
+                conn.commit()
+        except Exception:
+            pass  # già FLOAT o altra eccezione
+
         # Indici per query frequenti — idempotenti, sicuri su DB popolati
         indices = [
             "CREATE INDEX IF NOT EXISTS idx_articles_published_at ON articles (published_at DESC)",
